@@ -5,13 +5,6 @@ return {
 		"nvim-telescope/telescope.nvim",
 	},
 	config = function()
-		-- Recommended Vim settings
-		vim.cmd([[
-			set nocompatible
-			filetype plugin on
-			syntax on
-		]])
-
 		-- Configure wiki list
 		vim.g.vimwiki_list = {
 			{
