@@ -37,7 +37,7 @@ return { -- Autoformat
 		formatters = {
 			tofu_fmt = {
 				command = "tofu",
-				args = { "fmt", "-" },
+				args = { "fmt", "-no-color", "-" },
 				stdin = true,
 			},
 		},
