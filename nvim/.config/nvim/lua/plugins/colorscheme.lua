@@ -1,14 +1,4 @@
-return {
-	"rose-pine/neovim",
-	priority = 1000,
-	config = function()
-		require("rose-pine").setup({
-			variant = "dawn",
-			styles = {
-				comments = { italic = true },
-			},
-		})
-
-		vim.cmd.colorscheme("rose-pine")
-	end,
-}
+-- No colorscheme plugin: the theme is a local truecolor scheme at
+-- colors/matrix.lua, built from the ghostty "Matrix" palette and applied in
+-- init.lua (vim.cmd.colorscheme("matrix")).
+return {}

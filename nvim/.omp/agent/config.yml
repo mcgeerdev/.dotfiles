@@ -1,0 +1,117 @@
+providers: 
+  search: anthropic
+  image: auto
+symbolPreset: unicode
+theme: 
+  dark: ghostty-matrix
+  light: ghostty-matrix
+setupVersion: 1
+modelRoles: 
+  default: anthropic/claude-opus-4-8:high
+  advisor: openai-codex/gpt-5.6-sol:high
+  commit: anthropic/claude-haiku-4-5:low
+  plan: anthropic/claude-opus-4-8:high
+  slow: anthropic/claude-opus-4-8:high
+  smol: anthropic/claude-sonnet-4-6:low
+  task: anthropic/claude-sonnet-4-6:medium
+  tiny: anthropic/claude-haiku-4-5:high
+  vision: anthropic/claude-haiku-4-5
+mcp: 
+  enableProjectConfig: false
+skills: 
+  customDirectories: 
+    - ~/.omp/agent/skills
+defaultThinkingLevel: high
+steeringMode: all
+followUpMode: all
+doubleEscapeAction: tree
+startup: 
+  checkUpdate: true
+collapseChangelog: true
+power: 
+  sleepPrevention: system
+compaction: 
+  handoffSaveToDisk: true
+memory: 
+  backend: mnemopi
+edit: 
+  mode: hashline
+bash: 
+  enabled: true
+bashInterceptor: 
+  enabled: true
+  patterns: 
+    - pattern: ^\s*(cat|head|tail|less|more)\s+
+      tool: read
+      message: "Use the `read` tool instead of cat/head/tail. It provides better context and handles binary files."
+    - pattern: ^\s*(grep|rg|ripgrep|ag|ack)\s+
+      tool: search
+      message: "Use the `search` tool instead of grep/rg. It respects .gitignore and provides structured output."
+    - pattern: ^\s*(find|fd|locate)\s+.*(-name|-iname|-type|--type|-glob)
+      tool: find
+      message: "Use the `find` tool instead of find/fd. It respects .gitignore and is faster for glob patterns."
+    - pattern: ^\s*ls\s+.*-\w*R
+      tool: find
+      message: "Use the `find`/`read` tool instead of `ls -R`. It respects .gitignore and returns structured output."
+    - pattern: ^\s*sed\s+(-i|--in-place)
+      tool: edit
+      message: "Use the `edit` tool instead of sed -i. It provides diff preview and fuzzy matching."
+    - pattern: "^\\s*perl\\s+.*-[pn]?i"
+      tool: edit
+      message: "Use the `edit` tool instead of perl -i. It provides diff preview and fuzzy matching."
+    - pattern: ^\s*awk\s+.*-i\s+inplace
+      tool: edit
+      message: "Use the `edit` tool instead of awk -i inplace. It provides diff preview and fuzzy matching."
+    - pattern: "^\\s*(echo|printf|cat\\s*<<)\\s+(?:[^\"'>]|\"[^\"]*\"|'[^']*')*(?<!\\|)>{1,2}\\|?\\s*[$\\w./~\"'-]"
+      tool: write
+      message: "Use the `write` tool instead of echo/cat redirection. It handles encoding and provides confirmation."
+    - pattern: "(?:^|[;&|]+\\s*)op(?:\\s|$)"
+      tool: bash
+      flags: m
+      message: "1Password CLI (`op`) is blocked by policy — ask the User to fetch secrets."
+    - pattern: "(?:^|[;&|]+\\s*)tofu\\s+apply(?:\\s|$)"
+      tool: bash
+      flags: m
+      message: "`tofu apply` is blocked — central envs (dev/test/uat/stage/prod) are applied via CI. Use `tofu plan`."
+    - pattern: "\\brm\\s+(?:\\S+\\s+)*(?:-[a-zA-Z]*[rR][a-zA-Z]*|--recursive)\\b"
+      tool: bash
+      flags: m
+      message: "Recursive `rm` is blocked by policy — ask the User to remove trees manually."
+    - pattern: "\\bgit\\s+push\\b[^;&|\\n]*(?:--force(?!-with-lease)|(?:^|\\s)-f(?:\\s|$))"
+      tool: bash
+      flags: m
+      message: "`git push --force`/`-f` is blocked — use `--force-with-lease` or ask the User."
+    - pattern: \bgit\s+reset\b.*--hard\b
+      tool: bash
+      flags: m
+      message: "`git reset --hard` is blocked by policy — ask the User before discarding work."
+github: 
+  enabled: true
+secrets: 
+  enabled: true
+advisor: 
+  enabled: true
+  subagents: false
+ttsr: 
+  enabled: true
+statusLine: 
+  preset: custom
+  transparent: true
+  separator: ascii
+  leftSegments: [model, mode, path, git, pr]
+  rightSegments: [session_name, token_total, cost, context_pct, time]
+  segmentOptions: 
+    model: 
+      showThinkingLevel: true
+    path: 
+      abbreviate: true
+      maxLength: 40
+    git: 
+      showBranch: true
+      showStaged: true
+      showUnstaged: true
+      showUntracked: true
+    time: 
+      format: 24h
+      showSeconds: false
+hideThinkingBlock: true

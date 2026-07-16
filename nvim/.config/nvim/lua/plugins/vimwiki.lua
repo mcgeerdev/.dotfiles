@@ -4,8 +4,9 @@ return {
 	dependencies = {
 		"nvim-telescope/telescope.nvim",
 	},
-	config = function()
-		-- Configure wiki list
+	init = function()
+		-- These globals are read by `vimwiki#vars#init()` when plugin/vimwiki.vim
+		-- sources, so they MUST be set in `init` (pre-load), not `config`.
 		vim.g.vimwiki_list = {
 			{
 				path = "~/vimwiki/",
@@ -17,6 +18,12 @@ return {
 		-- Restrict vimwiki to configured paths only
 		vim.g.vimwiki_global_ext = 0
 
+		-- Disable header keymaps so `-` (and `=`) stay free for Oil et al.
+		-- ftplugin/vimwiki.vim:748 maps `-` -> <Plug>VimwikiRemoveHeaderLevel
+		-- buffer-locally, which shadows our global `-` -> :Oil mapping.
+		vim.g.vimwiki_key_mappings = { headers = 0 }
+	end,
+	config = function()
 		-- Keymaps
 		vim.keymap.set("n", "<leader>w", "<Plug>Vimwiki", { desc = "[W]iki" })
 		vim.keymap.set("n", "<leader>ww", "<Plug>VimwikiIndex", { desc = "[W]iki [W]iki Index" })
