@@ -10,3 +10,7 @@ Hard requirements translated from Claude Code settings.
 ## Commits & PRs
 
 Never add AI attribution or `Co-Authored-By` trailers to commits or PRs.
+
+## Comments
+
+If you need a paragraph long comment to justify why a workaround is OK, the code is wrong, fix the code.
