@@ -12,7 +12,7 @@ vim.o.showmode = false
 vim.o.background = "dark"
 
 -- Truecolor is required for the `matrix` colorscheme (colors/matrix.lua), which
--- is built from the ghostty "Matrix" terminal palette plus derived UI shades.
+-- is built from the cmux "Matrix" terminal palette plus derived UI shades.
 vim.o.termguicolors = true
 vim.cmd.colorscheme("matrix")
 

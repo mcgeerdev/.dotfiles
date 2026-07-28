@@ -20,6 +20,8 @@ Do not guess a number, do not pick "the latest PR", do not proceed.
 
 **Validate the terminal segment.** Whether the argument is a bare integer or `owner/repo/N`, the final `/`-separated segment MUST match a positive integer (`^[1-9][0-9]*$`). If it is missing or non-numeric, stop with the same message above — never interpolate an unvalidated value into a path or command.
 
+**Resolve the repo name.** The output path is keyed on the bare repo name, no owner. For `owner/repo/N` it is the middle segment; otherwise read it off the `URL:` line of the PR metadata fetched in step 1 (`https://github.com/<owner>/<repo>/pull/<N>`) — no extra lookup, and it always names the repo the PR actually lives in, even when the head branch is a fork. It MUST match `^[A-Za-z0-9._-]+$` and MUST NOT be exactly `.` or `..` — if it does not, stop rather than interpolate it into a path. A leading dot is legal (`.dotfiles`) and simply yields a hidden directory.
+
 ## Steps
 
 1. **Read the PR.** Fetch metadata + discussion with `read pr://<number>` and the actual diff with `read pr://<number>/diff` (per-file slices via `pr://<number>/diff/<i>`, whole diff via `pr://<number>/diff/all`). For a bare integer this resolves against the current checkout's `owner/repo`; pass `owner/repo/N` to target another repo.
@@ -36,12 +38,13 @@ Do not guess a number, do not pick "the latest PR", do not proceed.
    - A short prose summary of the change.
    - The inline `<svg>` diagram.
    - A legend explaining the color/shape encoding.
-   Write it into a fresh temp directory. BSD `mktemp` on macOS requires trailing `X`s, so do **not** put a `.html` suffix on a `mktemp` template — create the dir first, then write into it: `tmp_dir="$(mktemp -d)"` and save to `$tmp_dir/pr-${pr_number}.html`, where `${pr_number}` is the validated terminal integer.
+   Save it as `~/didx.projects/prs/${repo}/${pr_number}.html`, using the validated repo name and terminal integer; `mkdir -p ~/didx.projects/prs/${repo}` first, neither directory need exist. A re-run for the same PR in the same repo overwrites its file — newest diagram wins.
 
-5. **Output only a link.** Your final reply is just a clickable link to the generated file (`file://<abs-path>`). Do not summarize the PR or explain the diagram in chat — the HTML carries all of that.
+5. **Output only a link.** Your final reply is just a clickable `file://` link to the generated file, tilde expanded to its absolute path. Do not summarize the PR or explain the diagram in chat — the HTML carries all of that.
 
 ## Constraints
 
 - SVG must be inline in the HTML; the file must render offline by opening it directly in a browser.
 - Ground every node/edge in the actual diff — never invent components the PR does not touch.
 - Prefer clarity over completeness: diagram the load-bearing changes, not every one-line edit.
+- **Do not take screenshots.** Never capture, save, or embed an image of the rendered page. Inspecting the file in a headless browser to check the layout is still fine — just do it without capturing an image.

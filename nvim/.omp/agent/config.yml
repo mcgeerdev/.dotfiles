@@ -2,8 +2,8 @@ providers:
   search: anthropic
 symbolPreset: unicode
 theme: 
-  dark: ghostty-matrix
-  light: ghostty-matrix
+  dark: matrix
+  light: matrix
 setupVersion: 1
 modelRoles: 
   default: anthropic/claude-opus-5:high

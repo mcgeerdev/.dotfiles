@@ -1,6 +1,6 @@
 -- matrix.lua — a truecolor Neovim colorscheme.
 --
--- Derived from the cmux "Matrix" terminal theme used by ghostty
+-- Derived from the cmux "Matrix" terminal theme
 -- (https://cmuxthemes.com/themes/matrix/). The terminal exposes only 16 ANSI
 -- slots, which render flat in nvim; this scheme keeps those exact hues but adds
 -- a handful of derived background/UI shades so syntax, diagnostics and floats
