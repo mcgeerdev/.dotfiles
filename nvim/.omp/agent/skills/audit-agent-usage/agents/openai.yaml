@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Usage Audit"
+  short_description: "Audit Claude and OMP transcripts for waste"
+  default_prompt: "Use $audit-agent-usage to analyze my recent Claude and OMP sessions and generate an HTML efficiency report."

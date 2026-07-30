@@ -103,7 +103,7 @@ advisor:
 ttsr: 
   enabled: true
 statusLine: 
-  preset: custom
+  preset: compact
   transparent: true
   separator: ascii
   leftSegments: 
@@ -133,3 +133,12 @@ statusLine:
       format: 24h
       showSeconds: false
 hideThinkingBlock: true
+display: 
+  shimmer: disabled
+  showTokenUsage: true
+tui: 
+  textSizing: false
+  tight: true
+omitThinking: true
+shellMinimizer: 
+  sourceOutlineLevel: default

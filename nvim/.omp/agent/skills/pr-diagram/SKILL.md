@@ -38,6 +38,7 @@ Do not guess a number, do not pick "the latest PR", do not proceed.
    - A short prose summary of the change.
    - The inline `<svg>` diagram.
    - A legend explaining the color/shape encoding.
+   - **Cross-link:** if the sibling value scorecard `~/didx.projects/prs/${repo}/${pr_number}-value.html` exists (from `pr-value`), a relative link to it (`<a href="${pr_number}-value.html">`); omit the link when it does not.
    Save it as `~/didx.projects/prs/${repo}/${pr_number}.html`, using the validated repo name and terminal integer; `mkdir -p ~/didx.projects/prs/${repo}` first, neither directory need exist. A re-run for the same PR in the same repo overwrites its file — newest diagram wins.
 
 5. **Output only a link.** Your final reply is just a clickable `file://` link to the generated file, tilde expanded to its absolute path. Do not summarize the PR or explain the diagram in chat — the HTML carries all of that.
