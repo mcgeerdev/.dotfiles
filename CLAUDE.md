@@ -10,7 +10,9 @@ single-machine reproducibility, not multi-user distribution.
 
 ## WHAT
 - `nvim/` — Neovim config (LazyVim-based). Has its own `CLAUDE.md`.
+- `nvim/.zshrc` — Zsh rc, stowed to `~/.zshrc`.
 - `nvim/.config/starship.toml` — Starship prompt config.
+- `nvim/.config/ghostty/` — Ghostty terminal config (`config` + `themes/matrix`).
 - `nvim/.config/wezterm/wezterm.lua` — WezTerm terminal config.
 - `pkms/` — Personal knowledge submodule (private, gitignored content).
 - `install.sh` — Stow driver. Reads `$STOW_FOLDERS` (comma-separated).
@@ -27,7 +29,8 @@ stow conflict to stderr.
 
 ### Edit a config
 1. Edit the file under `<folder>/.config/...` directly — symlinks point here.
-2. No rebuild step. Reload the relevant tool (`:Lazy sync`, restart wezterm).
+2. No rebuild step. Reload the relevant tool (`:Lazy sync`, `cmd+shift+,` in
+   Ghostty, restart wezterm).
 
 ### Submodules
 `pkms` is a separate repo. Never commit pkms content from this repo;
@@ -42,4 +45,8 @@ autocommit inside `pkms/`.
 - Never commit `pkms/`, `.env`, or anything under `obsidian/`.
 - Never edit symlinked targets in `$HOME` directly — edit the source here so
   changes are tracked.
+- `nvim/.zshrc` is coupled to the Ghostty config: its `_repo_tab_title` precmd
+  hook is gated on `TERM_PROGRAM == ghostty` and relies on
+  `shell-integration-features = no-title`. Break either and tab titles silently
+  stop updating.
 - Commit style: see `~/.claude/rules/git-commit.md` (50/72, imperative).

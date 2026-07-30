@@ -1,0 +1,29 @@
+# Matrix — custom Ghostty theme.
+#
+# A theme file is just a Ghostty config file restricted to color options.
+# Resolved by name from ~/.config/ghostty/themes (searched before the
+# bundled themes in Ghostty.app/Contents/Resources/ghostty/themes).
+
+foreground = #426644
+background = #0f191c
+cursor-color = #ff0000
+
+# Normal (palette 0-7): black, red, green, yellow, blue, magenta, cyan, white
+palette = 0=#0f191c
+palette = 1=#23755a
+palette = 2=#82d967
+palette = 3=#ffd700
+palette = 4=#3f5242
+palette = 5=#409931
+palette = 6=#50b45a
+palette = 7=#507350
+
+# Bright (palette 8-15)
+palette = 8=#688060
+palette = 9=#2fc079
+palette = 10=#90d762
+palette = 11=#faff00
+palette = 12=#4f7e7e
+palette = 13=#11ff25
+palette = 14=#c1ff8a
+palette = 15=#678c61

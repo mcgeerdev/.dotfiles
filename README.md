@@ -23,4 +23,4 @@ This repo is to manage my vim experience in a single repo so that I can clone th
 
 - RayCast - Upgraded mac search: `CMD` + `SPACE`
 - Rectangle - Window management with the keyboard
-- Warp - Upgraded terminal with AI command autocomplete
+- Ghostty - GPU-accelerated native terminal; config managed in this repo
