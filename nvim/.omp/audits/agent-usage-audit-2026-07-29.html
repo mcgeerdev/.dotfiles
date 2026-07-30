@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Usage Audit &mdash; 2026-07-29</title>
+<style>:root {
+  color-scheme: dark;
+  --bg: #0b0f14;
+  --surface: #121923;
+  --surface-2: #182230;
+  --text: #e8eef5;
+  --muted: #9fb0c3;
+  --line: #2b3a4d;
+  --accent: #78dce8;
+  --good: #8bd49c;
+  --warn: #ffd866;
+  --bad: #ff7a90;
+  --radius: 14px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top right, #122538 0, var(--bg) 38rem);
+  color: var(--text);
+  font: 15px/1.55 ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+main {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 48px 0 80px;
+}
+
+header { margin-bottom: 30px; }
+h1 { margin: 0 0 8px; font-size: clamp(30px, 5vw, 48px); letter-spacing: -0.04em; }
+h2 { margin: 0 0 16px; font-size: 22px; }
+h3 { margin: 0 0 8px; font-size: 16px; }
+p { margin: 8px 0; }
+.muted, small { color: var(--muted); }
+
+section {
+  margin-top: 20px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: 0 18px 50px rgb(0 0 0 / 18%);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+}
+
+.card {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface-2);
+}
+
+.metric { font-size: 28px; font-weight: 750; letter-spacing: -0.03em; }
+.good { color: var(--good); }
+.warn { color: var(--warn); }
+.bad { color: var(--bad); }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+th, td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+tr:last-child td { border-bottom: 0; }
+
+.bar {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #263346;
+}
+.bar > span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), #a78bfa); }
+
+.badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+code {
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: #09101a;
+  color: #b8e7ee;
+}
+
+details {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+summary { cursor: pointer; font-weight: 650; }
+
+@media (max-width: 680px) {
+  main { width: min(100% - 20px, 1180px); padding-top: 24px; }
+  section { padding: 17px; overflow-x: auto; }
+  th, td { padding: 9px; }
+}
+
+@media print {
+  :root { color-scheme: light; --bg: #fff; --surface: #fff; --surface-2: #f7f8fa; --text: #111; --muted: #555; --line: #ddd; }
+  body { background: #fff; }
+  main { width: 100%; padding: 0; }
+  section { break-inside: avoid; box-shadow: none; }
+}
+</style></head>
+<body><main>
+<header>
+<h1>Agent Usage Audit</h1>
+<p class="muted">Window 2026-06-29 &rarr; 2026-07-29 (30 days, file-mtime selection) &middot; generated 2026-07-29 09:51 UTC &middot; 395 transcripts &middot; $2367.98 recorded provider cost</p>
+<p><span class="badge">Sources: ~/.claude/projects, ~/.omp/agent/sessions</span> <span class="badge">All transcripts stayed local</span> <span class="badge">10 transcripts reviewed qualitatively</span></p>
+</header>
+
+<section id="summary">
+<h2>1. Executive summary</h2>
+<div class="grid">
+<div class="card"><div class="muted">Recorded cost</div><div class="metric">$2367.98</div><small>OMP only; Claude transcripts carry no cost field</small></div>
+<div class="card"><div class="muted">Advisor share</div><div class="metric bad">26.3%</div><small>$622.84 across 137 of 154 conversations</small></div>
+<div class="card"><div class="muted">Subagent share</div><div class="metric good">4.1%</div><small>$96.71 / 97 subagents &asymp; $1.00 each</small></div>
+<div class="card"><div class="muted">Tool-error rate</div><div class="metric warn">5.3%</div><small>1,162 of 22,082 calls</small></div>
+<div class="card"><div class="muted">Last 7 days</div><div class="metric warn">$1102.13</div><small>46.5% of window spend in 23% of the window</small></div>
+<div class="card"><div class="muted">Exact duplicate calls</div><div class="metric">1,445</div><small>90% of them inside advisor traces</small></div>
+</div>
+<h3>What the data says</h3>
+<p><strong>The advisor is the single largest controllable cost, and it is running with no project-specific configuration.</strong> It consumed $622.84 (26.3%) and produced 15,449 assistant turns against the primary agent's 11,133 &mdash; a ratio of 1.39 overall and a median of 1.33 per conversation. It issued 6,230 <code>read</code>/<code>grep</code>/<code>glob</code> calls to emit 1,669 advisory notes (3.7 lookups per note), and produced 1,297 byte-identical repeat calls. No <code>WATCHDOG.md</code> or <code>WATCHDOG.yml</code> exists at user or project level, so it reviews every turn against no stated priorities and with its default full-workspace remit.</p>
+<p><strong>Delegation, by contrast, is healthy.</strong> 97 subagents across 26 conversations cost $96.71 total, averaged 30 tool calls each, and recorded only 6 duplicate calls in 2,884. The reviewed subagent transcripts had narrow assignments and verified outcomes. No change is warranted here.</p>
+<p><strong>Model routing is not the lever.</strong> Only 11 conversations with &le;12 primary turns cost more than $1, totalling $14.32. Cheap-model substitution on short sessions cannot move a $2367.98 bill. One session (<code>019f12aa</code>) did 441 tool calls and 378 turns on <code>deepseek-v4-pro</code> for $3.70, which is the real routing signal: reasoning level and advisor cadence dominate, not session length.</p>
+<p><strong>465 error bodies (2.1% of tool calls) are addressable today</strong> &mdash; 340 from agent habits the harness can prevent (266 blocked shell forms, 48 Python-kernel calls, 26 malformed internal-URI and tool-argument errors) plus 125 primary results voided by pending advisories. A further 284 speculative path probes are a measured symptom with an unestablished cause, 86 voided results come from your own mid-turn messages and peer coordination, and 331 are legitimate signal or safety controls working as designed. &sect;5 splits all 1,166 bodies across those four buckets.</p>
+</section>
+
+<section id="coverage">
+<h2>2. Data coverage and limitations</h2>
+<table>
+<tr><th>Source</th><th>Root</th><th>Files discovered</th><th>In window</th><th>Cost recorded</th></tr>
+<tr><td>OMP</td><td><code>~/.omp/agent/sessions</code></td><td>408</td><td>388</td><td>Yes ($2367.98)</td></tr>
+<tr><td>Claude Code</td><td><code>~/.claude/projects</code></td><td>225</td><td>7</td><td class="warn">No &mdash; tokens only</td></tr>
+</table>
+<ul>
+<li><strong>Claude Code usage is not price-comparable.</strong> Claude transcripts contain token counts but no cost field, so all dollar figures in this report are OMP-only. Claude contributed 7.9M tokens across 7 files.</li>
+<li><strong>Claude usage has effectively stopped.</strong> Only 7 of 225 Claude transcripts were modified in the last 30 days, versus 388 of 408 for OMP. Comparisons between the two tools in this window are directional, not statistical.</li>
+<li><strong>Cost is provider-reported, not billing-verified.</strong> Treat $2367.98 as an estimate from catalogue pricing recorded per assistant message.</li>
+<li><strong>Window selection uses file modification time.</strong> A conversation started before 2026-06-29 is included in full if it was touched inside the window, so its earlier turns inflate the window slightly. The largest example spans 4.3 days of wall time.</li>
+<li><strong>Error counts are per error body, not per session row.</strong> &sect;5 classifies 1166 error bodies; the session-level total is 1,162. The difference of 4 is four assistant messages that carried two error blocks each, counted once per message at session level. Both figures are correct for their unit.</li>
+<li><strong>Collector defect found and disclosed:</strong> <code>aggregateSessions()</code> in <code>collect-usage.mjs</code> double-counts <code>models[].messages</code> (its <code>addUsage()</code> loop iterates the <code>messages</code> key that was already incremented). Per-session values are correct; only pre-aggregated model message counts are 2&times;. Every model-message figure here was recomputed from raw session records. Token and cost aggregates are unaffected.</li>
+<li><strong>Outcome classification is inferred</strong> from the final assistant message and user follow-ups, not from an authoritative success signal.</li>
+<li><strong>Causation is not measured.</strong> Duplicate-call and cost-share figures are counted; explanations for <em>why</em> the advisor repeats lookups are labelled as hypotheses in &sect;4 and carry a stated test.</li>
+</ul>
+</section>
+
+<section id="usage">
+<h2>3. Usage by source, model, and role</h2>
+<h3>Token composition</h3>
+<div class="grid">
+<div class="card"><div class="muted">Total tokens</div><div class="metric">3298.9M</div></div>
+<div class="card"><div class="muted">Cache reads</div><div class="metric">96.9%</div><small>3196.9M</small></div>
+<div class="card"><div class="muted">Uncached input</div><div class="metric">32.3M</div><small>94.5% of it is the advisor</small></div>
+<div class="card"><div class="muted">Output</div><div class="metric">0.5%</div><small>15.8M</small></div>
+<div class="card"><div class="muted">Reasoning</div><div class="metric">1,557,978</div><small>97% of it is the advisor</small></div>
+</div>
+<p class="muted">Cache dominance is expected and not itself waste. The figure that matters is uncached input: the advisor paid full price on 30,527,487 input tokens with <strong>zero</strong> cache-write tokens recorded, while the primary agent paid for only 1,411,816 and wrote 47.4M of reusable cache.</p>
+<h3>By role</h3>
+<table><tr><th>Role</th><th>Traces</th><th>Assistant turns</th><th>Tool calls</th><th>Errors</th><th>Duplicates</th><th>Tokens</th><th>Cost</th><th>Share</th></tr>
+<tr><td><strong>main</strong></td><td>161</td><td>11,133</td><td>11,299</td><td>742 (6.6%)</td><td>142</td><td>2226.6M</td><td>$1648.43</td><td>69.6%<div class="bar"><span style="width:100%"></span></div></td></tr>
+<tr><td><strong>advisor</strong></td><td>137</td><td>15,449</td><td>7,899</td><td>278 (3.5%)</td><td>1,297</td><td>958.8M</td><td>$622.84</td><td>26.3%<div class="bar"><span style="width:38%"></span></div></td></tr>
+<tr><td><strong>subagent</strong></td><td>97</td><td>1,828</td><td>2,884</td><td>142 (4.9%)</td><td>6</td><td>113.5M</td><td>$96.71</td><td>4.1%<div class="bar"><span style="width:6%"></span></div></td></tr></table>
+<h3>By model</h3>
+<table><tr><th>Model</th><th>Roles</th><th>Assistant msgs</th><th>Tokens</th><th>Reasoning</th><th>Cost</th></tr>
+<tr><td><code>anthropic/claude-opus-4-8</code></td><td>main&times;83, subagent&times;9</td><td>5,356</td><td>1061.0M</td><td>0</td><td>$895.89</td></tr>
+<tr><td><code>anthropic/claude-opus-5</code></td><td>main&times;46</td><td>4,192</td><td>915.3M</td><td>0</td><td>$598.04</td></tr>
+<tr><td><code>openai-codex/gpt-5.6-sol</code></td><td>advisor&times;95</td><td>12,093</td><td>801.8M</td><td>1,225,756</td><td>$505.51</td></tr>
+<tr><td><code>anthropic/claude-opus-4-7</code></td><td>main&times;20, subagent&times;2</td><td>873</td><td>153.0M</td><td>0</td><td>$131.92</td></tr>
+<tr><td><code>openai-codex/gpt-5.5</code></td><td>main&times;1, advisor&times;42</td><td>3,404</td><td>159.5M</td><td>295,705</td><td>$120.45</td></tr>
+<tr><td><code>anthropic/claude-sonnet-4-6</code></td><td>subagent&times;86</td><td>1,628</td><td>100.6M</td><td>0</td><td>$76.81</td></tr>
+<tr><td><code>anthropic/claude-fable-5</code></td><td>main&times;3</td><td>172</td><td>24.1M</td><td>0</td><td>$38.74</td></tr>
+<tr><td><code>deepseek/deepseek-v4-pro</code></td><td>main&times;3</td><td>333</td><td>75.7M</td><td>36,517</td><td>$0.62</td></tr>
+<tr><td><code>claude-opus-4-8</code></td><td>main&times;5</td><td>137</td><td>7.5M</td><td>0</td><td><span class="muted">not recorded</span></td></tr>
+<tr><td><code>claude-sonnet-4-6</code></td><td>main&times;1</td><td>20</td><td>0.4M</td><td>0</td><td><span class="muted">not recorded</span></td></tr></table>
+<h3>Daily trend</h3>
+<table><tr><th>Day</th><th>Primary sessions</th><th>Total</th><th>Main</th><th>Advisor</th><th>Subagents</th><th></th></tr>
+<tr><td>2026-06-22</td><td>2</td><td>$0.00</td><td>$0.00</td><td>$0.00</td><td>$0.00</td><td><div class="bar"><span style="width:1%"></span></div></td></tr>
+<tr><td>2026-06-29</td><td>9</td><td>$15.70</td><td>$12.93</td><td>$2.77</td><td>$0.00</td><td><div class="bar"><span style="width:3%"></span></div></td></tr>
+<tr><td>2026-06-30</td><td>11</td><td>$137.88</td><td>$101.15</td><td>$31.12</td><td>$5.61</td><td><div class="bar"><span style="width:29%"></span></div></td></tr>
+<tr><td>2026-07-01</td><td>5</td><td>$22.46</td><td>$17.15</td><td>$5.31</td><td>$0.00</td><td><div class="bar"><span style="width:5%"></span></div></td></tr>
+<tr><td>2026-07-02</td><td>10</td><td>$99.53</td><td>$66.12</td><td>$24.67</td><td>$8.74</td><td><div class="bar"><span style="width:21%"></span></div></td></tr>
+<tr><td>2026-07-03</td><td>5</td><td>$15.73</td><td>$12.23</td><td>$3.50</td><td>$0.00</td><td><div class="bar"><span style="width:3%"></span></div></td></tr>
+<tr><td>2026-07-06</td><td>2</td><td>$23.93</td><td>$17.68</td><td>$6.25</td><td>$0.00</td><td><div class="bar"><span style="width:5%"></span></div></td></tr>
+<tr><td>2026-07-07</td><td>8</td><td>$82.28</td><td>$63.24</td><td>$19.04</td><td>$0.00</td><td><div class="bar"><span style="width:17%"></span></div></td></tr>
+<tr><td>2026-07-08</td><td>1</td><td>$11.06</td><td>$1.13</td><td>$0.00</td><td>$9.93</td><td><div class="bar"><span style="width:2%"></span></div></td></tr>
+<tr><td>2026-07-09</td><td>7</td><td>$78.78</td><td>$53.46</td><td>$22.97</td><td>$2.35</td><td><div class="bar"><span style="width:16%"></span></div></td></tr>
+<tr><td>2026-07-10</td><td>4</td><td>$108.97</td><td>$106.46</td><td>$1.68</td><td>$0.83</td><td><div class="bar"><span style="width:23%"></span></div></td></tr>
+<tr><td>2026-07-13</td><td>6</td><td>$109.89</td><td>$93.52</td><td>$11.82</td><td>$4.55</td><td><div class="bar"><span style="width:23%"></span></div></td></tr>
+<tr><td>2026-07-14</td><td>4</td><td>$37.02</td><td>$26.68</td><td>$10.34</td><td>$0.00</td><td><div class="bar"><span style="width:8%"></span></div></td></tr>
+<tr><td>2026-07-15</td><td>4</td><td>$230.74</td><td>$148.07</td><td>$81.76</td><td>$0.92</td><td><div class="bar"><span style="width:48%"></span></div></td></tr>
+<tr><td>2026-07-16</td><td>4</td><td>$17.64</td><td>$13.86</td><td>$3.78</td><td>$0.00</td><td><div class="bar"><span style="width:4%"></span></div></td></tr>
+<tr><td>2026-07-17</td><td>2</td><td>$10.65</td><td>$4.17</td><td>$1.62</td><td>$4.86</td><td><div class="bar"><span style="width:2%"></span></div></td></tr>
+<tr><td>2026-07-20</td><td>7</td><td>$76.36</td><td>$60.65</td><td>$15.26</td><td>$0.45</td><td><div class="bar"><span style="width:16%"></span></div></td></tr>
+<tr><td>2026-07-21</td><td>3</td><td>$29.41</td><td>$21.21</td><td>$7.02</td><td>$1.18</td><td><div class="bar"><span style="width:6%"></span></div></td></tr>
+<tr><td>2026-07-22</td><td>6</td><td>$157.81</td><td>$118.96</td><td>$37.34</td><td>$1.51</td><td><div class="bar"><span style="width:33%"></span></div></td></tr>
+<tr><td>2026-07-23</td><td>9</td><td>$76.03</td><td>$58.00</td><td>$18.04</td><td>$0.00</td><td><div class="bar"><span style="width:16%"></span></div></td></tr>
+<tr><td>2026-07-24</td><td>3</td><td>$4.05</td><td>$3.29</td><td>$0.76</td><td>$0.00</td><td><div class="bar"><span style="width:1%"></span></div></td></tr>
+<tr><td>2026-07-25</td><td>2</td><td>$22.80</td><td>$16.90</td><td>$5.90</td><td>$0.00</td><td><div class="bar"><span style="width:5%"></span></div></td></tr>
+<tr><td>2026-07-26</td><td>5</td><td>$116.72</td><td>$88.68</td><td>$27.27</td><td>$0.77</td><td><div class="bar"><span style="width:24%"></span></div></td></tr>
+<tr><td>2026-07-27</td><td>14</td><td>$292.32</td><td>$205.37</td><td>$80.99</td><td>$5.96</td><td><div class="bar"><span style="width:61%"></span></div></td></tr>
+<tr><td>2026-07-28</td><td>21</td><td>$479.20</td><td>$254.01</td><td>$179.48</td><td>$45.71</td><td><div class="bar"><span style="width:100%"></span></div></td></tr>
+<tr><td>2026-07-29</td><td>7</td><td>$111.00</td><td>$83.49</td><td>$24.16</td><td>$3.34</td><td><div class="bar"><span style="width:23%"></span></div></td></tr></table>
+<p class="muted">Daily average was $55.04 over the first 23 days and $157.45 over the last 7. The trend is steeply upward, which raises the value of the advisor changes below.</p>
+<h3>By project</h3>
+<table><tr><th>Project</th><th>Cost</th><th>Advisor</th><th>Advisor share</th><th>Tokens</th></tr>
+<tr><td><code>didx.projects/mono</code></td><td>$1145.79</td><td>$286.42</td><td>25.0%</td><td>1477.5M</td></tr>
+<tr><td><code>devan.projects/incubator/hum</code></td><td>$512.68</td><td>$187.17</td><td>36.5%</td><td>848.3M</td></tr>
+<tr><td><code>didx.projects/tofu</code></td><td>$154.67</td><td>$39.42</td><td>25.5%</td><td>172.9M</td></tr>
+<tr><td><code>devan.projects/infra</code></td><td>$114.11</td><td>$30.77</td><td>27.0%</td><td>154.1M</td></tr>
+<tr><td><code>devan.projects/incubator/ai/subscription/wallet</code></td><td>$92.61</td><td>&mdash;</td><td>&mdash;</td><td>162.7M</td></tr>
+<tr><td><code>sc.projects</code></td><td>$54.04</td><td>$13.95</td><td>25.8%</td><td>68.7M</td></tr>
+<tr><td><code>devan.projects/incubator/github/actions/agent/swarm</code></td><td>$38.65</td><td>$8.36</td><td>21.6%</td><td>56.7M</td></tr>
+<tr><td><code>sc.projects/SecureCitizen.Portal</code></td><td>$33.55</td><td>$7.33</td><td>21.9%</td><td>33.8M</td></tr>
+<tr><td><code>devan.projects/incubator</code></td><td>$31.98</td><td>$7.71</td><td>24.1%</td><td>36.0M</td></tr>
+<tr><td><code>devan.projects/tmp</code></td><td>$29.28</td><td>$7.68</td><td>26.2%</td><td>38.6M</td></tr>
+<tr><td><code>sc.projects/SecureCitizen</code></td><td>$26.29</td><td>$4.64</td><td>17.6%</td><td>31.7M</td></tr>
+<tr><td><code>devan.projects/dobra/robota/hino/hilux</code></td><td>$22.20</td><td>$5.82</td><td>26.2%</td><td>31.8M</td></tr></table>
+</section>
+
+<section id="overhead">
+<h2>4. Advisor and subagent overhead</h2>
+<h3>Advisor &mdash; observed</h3>
+<table>
+<tr><th>Measure</th><th>Value</th><th>Reading</th></tr>
+<tr><td>Advisor traces</td><td>137 of 154 conversations</td><td>Enabled globally via <code>advisor.enabled: true</code>; runs on essentially every session.</td></tr>
+<tr><td>Cost share (median / p75 / p90 / max)</td><td>21.4% / 26.2% / 31.2% / 67.8%</td><td>46 conversations exceed the 25% threshold in the audit rubric.</td></tr>
+<tr><td>Advisor turns vs primary turns</td><td>median 1.33&times;, above 1.0 in 115 of 125</td><td>The reviewer takes more turns than the worker.</td></tr>
+<tr><td>Investigation calls</td><td>3,637 read, 1,590 grep, 1,003 glob</td><td>3.7 workspace lookups per advisory note emitted (1,669 notes).</td></tr>
+<tr><td>Exact duplicate calls</td><td>1,297 (90% of all duplicates)</td><td>Byte-identical repeat lookups, concentrated in five traces; one <code>glob</code> signature fired 153 times in a single trace.</td></tr>
+<tr><td>Path-not-found errors</td><td>251 of 353 (71%)</td><td>The advisor probes paths that do not exist far more than the primary agent does.</td></tr>
+<tr><td>Reasoning tokens</td><td>1,517,296 (97% of all)</td><td>Consequence of <code>advisor: openai-codex/gpt-5.6-sol:high</code>.</td></tr>
+<tr><td>Configuration present</td><td class="bad">None</td><td>No <code>WATCHDOG.md</code> and no <code>WATCHDOG.yml</code> at user or project level; <code>advisor.immuneTurns</code> and <code>advisor.syncBacklog</code> at defaults.</td></tr>
+</table>
+<h3>Advisor &mdash; what the runtime actually guarantees</h3>
+<p>Per <code>omp://advisor-watchdog.md</code>, and correcting a claim in an earlier draft of this report:</p>
+<ul>
+<li><strong>The advisor does retain context within a session.</strong> &ldquo;The advisor's live context is in-memory and append-only; it is retained while the session runs.&rdquo; It receives only the new transcript delta at each primary turn end, not a replay of the whole conversation. <em>Repeated lookups are therefore not explained by an absence of memory.</em></li>
+<li><strong>Its context can be rebuilt mid-session.</strong> Before each advisor prompt the runtime may promote to a larger model, compact the advisor's own history, or <em>re-prime from the current bounded primary transcript</em>; re-prime is a reset that clears the advisor's private transcript and its dedupe ring.</li>
+<li><strong>It does not share the primary agent's file state.</strong> The advisor runs its own <code>ToolSession</code> and &ldquo;does not share the primary agent's file snapshots, seen-lines tracking, conflict state, summary cache&rdquo;. This explains duplication <em>between</em> advisor and primary, but not duplication <em>within</em> the advisor.</li>
+<li><strong>What is missing is priorities and remit, not memory.</strong> <code>WATCHDOG.md</code> supplies review priorities and <code>WATCHDOG.yml</code> declares each advisor's model and tool grant. Neither file exists, so the advisor runs with the default read-only pool and no stated focus.</li>
+</ul>
+<p><span class="badge">hypothesis</span> <strong>Why the repeat lookups happen is not established.</strong> Candidate causes: re-prime/compaction cycles discarding earlier findings; an unbounded review remit that re-walks the tree each cycle; or the model simply re-issuing lookups it already has in context. These are distinguishable &mdash; <code>/advisor status</code> reports context usage, and re-prime events are observable in the advisor's own trace. <strong>Test:</strong> take one long session, correlate duplicate-signature bursts against advisor context-maintenance events. Until that is done, treat the 1,297 duplicates as a measured symptom with an unknown cause.</p>
+<h3>Subagents</h3>
+<table>
+<tr><th>Measure</th><th>Value</th><th>Reading</th></tr>
+<tr><td>Subagent traces</td><td>97 across 26 conversations</td><td>Fan-out is used selectively, not reflexively.</td></tr>
+<tr><td>Cost</td><td>$96.71 (4.1%)</td><td>&asymp; $1.00 per subagent; almost all on <code>claude-sonnet-4-6</code> via the <code>task</code> role.</td></tr>
+<tr><td>Duplicate calls</td><td>6 in 2,884</td><td>Effectively zero repetition.</td></tr>
+<tr><td>Largest fan-out</td><td>12 subagents, $28.20, one conversation</td><td>All twelve had narrow briefs and verifiable outcomes.</td></tr>
+</table>
+<p><strong>Conclusion:</strong> the delegation policy is working and should not be tightened. The advisor's cost and reasoning level are worth acting on now; its repetition needs one measurement before you spend effort on it.</p>
+</section>
+
+<section id="errors">
+<h2>5. Tool-call errors, repetition, and fan-out</h2>
+<p>1,162 error-bearing tool results across 22,082 calls (5.3%), containing <strong>1166 error bodies</strong>. Every body is classified below and the rows sum to 1166 &mdash; nothing is left in an unexplained bucket.</p>
+<table><tr><th>Class</th><th>Count</th><th>Share</th><th>Detail</th></tr>
+<tr><td><strong>path-not-found</strong></td><td>353</td><td>30.3%</td><td>Lookups of paths that do not exist. <strong>251 are advisor calls</strong> (71%), 69 primary, 33 subagent. In the advisor this is speculative probing of files it expects to exist; in primary sessions it is mostly unknown git revisions.</td></tr>
+<tr><td><strong>harness-blocked-command</strong></td><td>305</td><td>26.2%</td><td><code>bashInterceptor</code> rejections. <strong>266 are tool-preference habits</strong> (<code>echo/cat&gt;</code> 78, <code>cd DIR &amp;&amp;</code> 76, <code>grep/rg</code> 65, <code>cat/head/tail</code> 38, <code>sed -i</code> 6, <code>find/fd</code> 3) and <strong>38 are intentional policy guardrails firing correctly</strong> (recursive <code>rm</code> 26, <code>git reset --hard</code> 8, <code>git push --force</code> 2, <code>op</code> 2). 1 unclassified.</td></tr>
+<tr><td><strong>command-nonzero-exit</strong></td><td>133</td><td>11.4%</td><td>Shell commands returning a non-zero exit status: failing tests, failing builds, <code>git</code> errors. 118 primary, 15 subagent. Largely legitimate feedback, not waste.</td></tr>
+<tr><td><strong>advisor-skip</strong></td><td>125</td><td>10.7%</td><td>Primary tool result voided with &ldquo;Skipped due to pending system advisory&rdquo;; the call must be re-issued. 122 primary, 3 subagent.</td></tr>
+<tr><td><strong>queued-user-skip</strong></td><td>80</td><td>6.9%</td><td>Tool result voided because a user message was queued mid-turn. All primary.</td></tr>
+<tr><td><strong>python-kernel-unavailable</strong></td><td>48</td><td>4.1%</td><td><code>eval</code> called with <code>language: "py"</code> where no Python kernel exists. 45 primary, 3 subagent.</td></tr>
+<tr><td><strong>stale-edit-tag</strong></td><td>21</td><td>1.8%</td><td><code>edit</code> rejected on a stale hashline snapshot tag &mdash; the file changed since the last read. All primary.</td></tr>
+<tr><td><strong>provider-or-api-failure</strong></td><td>13</td><td>1.1%</td><td>Model temporarily unavailable, GraphQL/API failures. 8 primary, 4 advisor, 1 subagent.</td></tr>
+<tr><td><strong>timeout</strong></td><td>12</td><td>1.0%</td><td>Tool or command deadline elapsed. All primary.</td></tr>
+<tr><td><strong>cancelled-or-not-executed</strong></td><td>10</td><td>0.9%</td><td>User cancelled the command, or the assistant ended its turn before the call ran.</td></tr>
+<tr><td><strong>approval-denied</strong></td><td>9</td><td>0.8%</td><td>Approval refused &mdash; user rejection or Claude Code auto-mode classifier denial.</td></tr>
+<tr><td><strong>peer-interrupt-skip</strong></td><td>6</td><td>0.5%</td><td>Result voided by a pending peer interrupt. All subagent.</td></tr>
+<tr><td><strong>internal-URI / selector misuse</strong></td><td>21</td><td>1.8%</td><td>Malformed internal URLs and selectors: <code>memory://</code> without a namespace, <code>artifact://</code> without an id, glob patterns against <code>artifact://</code>/<code>local://</code>, <code>skill://</code> without a name, bad <code>pr://</code> and <code>:diff</code> selectors, hashline input missing its <code>[PATH#HASH]</code> header. A small, fully avoidable class.</td></tr>
+<tr><td><strong>tool-argument validation</strong></td><td>5</td><td>0.4%</td><td>Schema rejections: <code>task.tasks</code> not an array, duplicate todo items, empty required fields.</td></tr>
+<tr><td><strong>residual runtime errors</strong></td><td>25</td><td>2.1%</td><td>Long tail with no shared cause, each occurring once or twice: JS scope collisions in <code>eval</code>, <code>ENOTDIR</code>, an unopenable SQLite file, a failed browser selector, individual assertion failures.</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>1166</strong></td><td><strong>100.0%</strong></td><td>Reconciles to 1,162 session-level errors; four messages carried two error bodies each.</td></tr>
+</table>
+<h3>How much of this is actually preventable</h3>
+<p>The classes above answer <em>what</em> failed. This splits them by <em>who can fix it</em>. An earlier draft claimed 917 bodies were preventable waste; that figure double-counted legitimate discovery and user-initiated interruptions, and its stated addends did not correspond to the classes above. Corrected:</p>
+<table>
+<tr><th>Bucket</th><th>Count</th><th>Composition</th><th>Status</th></tr>
+<tr><td><strong>Agent habits the harness can prevent</strong></td><td>340</td><td>266 blocked tool-preference forms, 48 Python-kernel calls, 21 malformed internal URIs/selectors, 5 tool-argument validation failures.</td><td class="good">Actionable now &mdash; R4, R5.</td></tr>
+<tr><td><strong>Voided by advisory timing</strong></td><td>125</td><td>Primary results discarded while an advisory was pending, then re-issued.</td><td class="good">Actionable now &mdash; R3.</td></tr>
+<tr><td><strong>Voided by your input / peer coordination</strong></td><td>86</td><td>80 results voided by a user message queued mid-turn; 6 by a pending peer interrupt.</td><td class="warn">Not agent error and not expected to change &mdash; queuing a message mid-turn is legitimate use.</td></tr>
+<tr><td><strong>Speculative path probing</strong></td><td>284</td><td>251 advisor and 33 subagent lookups of paths that do not exist.</td><td class="warn"><span class="badge">hypothesis</span> Symptom measured; cause unestablished (&sect;4). Do not count as savings until R9 runs.</td></tr>
+<tr><td><strong>Legitimate signal / working controls</strong></td><td>331</td><td>133 non-zero exits (failing tests and builds), 69 primary path misses (mostly unknown git revisions during genuine discovery), 38 policy guardrails firing correctly, 25 residual runtime errors, 21 stale edit tags, 13 provider failures, 12 timeouts, 10 cancellations, 9 approval denials, 1 unclassified block.</td><td>Keep. Suppressing these would hide real failures.</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>1166</strong></td><td colspan="2">340 + 125 + 86 + 284 + 331 = 1166.</td></tr>
+</table>
+<p><strong>Addressable today: 465 bodies (2.1% of 22,082 tool calls).</strong> Not 917.</p>
+<h3>Repetition</h3>
+<p>1,445 exact duplicate tool-call signatures (same tool, byte-identical arguments). 1,297 of them (90%) are advisor calls, concentrated in five traces; the worst repeated one <code>glob</code> signature 153 times and a second 147 times. Cause not established &mdash; see &sect;4.</p>
+<h3>Fan-out</h3>
+<p>49 <code>task</code> calls in the window; 26 conversations used subagents at all. No session showed uncontrolled fan-out, and the one 12-subagent run was a genuinely parallel test-coverage push.</p>
+<h3>Tool mix</h3>
+<p class="muted">Primary agents: <code>bash</code> 4,184, <code>read</code> 2,686, <code>edit</code> 1,290, <code>grep</code> 693, <code>write</code> 622, <code>eval</code> 492. <code>bash</code> is 37% of primary tool calls and the source of all 233 primary-agent policy blocks.</p>
+</section>
+
+<section id="sessions">
+<h2>6. Representative session findings</h2>
+<p class="muted">Ten transcripts reviewed in full (of 395 in window), selected by cost, error count, duplicate density, fan-out, and two low-cost controls. Session ids abbreviated; content paraphrased, never reproduced.</p>
+<table><tr><th>Session</th><th>Role</th><th>Cost</th><th>Turns</th><th>Tools</th><th>Errors</th><th>Dupes</th><th>Finding</th></tr>
+<tr><td><code>019fa81e</code></td><td><span class="badge">advisor</span></td><td>$98.10</td><td>1,421</td><td>1,302</td><td>153</td><td>792</td><td>Advisor attached to the 12-subagent <code>hum</code> feature run, across 119 review cycles. Two identical <code>glob</code> signatures fired <strong>153</strong> and <strong>147</strong> times; one <code>read</code> signature 66 times. All 153 errors were non-existent paths. <em>Observed repetition only &mdash; see the causation note in &sect;4.</em></td></tr>
+<tr><td><code>019fa814</code></td><td><span class="badge">main</span></td><td>$99.10</td><td>492</td><td>562</td><td>23</td><td>8</td><td>Parent of the above: seven user asks spanning two GitHub issues, a PR, a config example and CLI smoke tests. Delegated 12 tightly-scoped subagents (total $28.20) that all landed clean. Main-agent behaviour is efficient; the paired advisor cost as much as the main agent did.</td></tr>
+<tr><td><code>019f6613</code></td><td><span class="badge">advisor</span></td><td>$54.90</td><td>829</td><td>540</td><td>7</td><td>131</td><td>289 review cycles on a CI/e2e workflow session. One <code>read</code> signature repeated 50&times;, one <code>glob</code> 33&times;.</td></tr>
+<tr><td><code>019fa385</code></td><td><span class="badge">advisor</span></td><td>$33.60</td><td>530</td><td>443</td><td>4</td><td>72</td><td>Advisor was <strong>67.8%</strong> of its conversation cost &mdash; the highest ratio in the window. Main agent did 169 tool calls; the advisor did 443.</td></tr>
+<tr><td><code>019fa984</code></td><td><span class="badge">main</span></td><td>$36.40</td><td>245</td><td>282</td><td>30</td><td>1</td><td>Six-issue batch plus a PR. 11% tool-error rate: blocked <code>cat</code>/<code>cd &amp;&amp;</code> commands, a Python-kernel <code>eval</code> attempt, and several advisory-voided results.</td></tr>
+<tr><td><code>019facb1</code></td><td><span class="badge">main</span></td><td>$12.30</td><td>128</td><td>161</td><td>20</td><td>4</td><td>Commit-push-and-run-workflows task. Errors dominated by advisory-voided tool results and <code>cd DIR &amp;&amp;</code> blocks &mdash; not by task difficulty.</td></tr>
+<tr><td><code>019f12aa</code></td><td><span class="badge">main</span></td><td>$3.70</td><td>378</td><td>441</td><td>37</td><td>17</td><td>Parallel worktree swarm on <code>deepseek-v4-pro</code>: 441 tool calls, 378 turns, for $3.70. Errors were real (unknown git revisions), not harness friction. Strongest evidence that heavy agentic work does not require an Opus-class model.</td></tr>
+<tr><td><code>DaemonCoverage</code></td><td><span class="badge">subagent</span></td><td>$4.70</td><td>&mdash;</td><td>94</td><td>4</td><td>0</td><td>Control. Single narrow assignment (raise <code>cmd/humd</code> coverage to 99%, tests only), verified outcome, zero duplicate calls. Delegation is working as intended.</td></tr>
+<tr><td><code>019fa272</code></td><td><span class="badge">main</span></td><td>$1.92</td><td>24</td><td>28</td><td>7</td><td>0</td><td>Control. Skill edit completed in 24 turns; errors were one wrong path guess and one <code>cd</code> block.</td></tr>
+<tr><td><code>f66a2e15</code></td><td><span class="badge">claude</span></td><td>not recorded</td><td>125</td><td>51</td><td>5</td><td>0</td><td>Largest Claude session in the window (2.9M tokens). Two of five errors were auto-mode classifier denials, one caused by a model being temporarily unavailable.</td></tr></table>
+</section>
+
+<section id="models">
+<h2>7. Model and reasoning-level opportunities</h2>
+<p>Current roles from <code>~/.omp/agent/config.yml</code>: <code>default: anthropic/claude-opus-5:high</code>, <code>advisor: openai-codex/gpt-5.6-sol:high</code>, <code>task: anthropic/claude-sonnet-4-6:medium</code>, <code>defaultThinkingLevel: high</code>.</p>
+<table>
+<tr><th>Observation</th><th>Implication</th></tr>
+<tr><td>Advisor runs at <code>:high</code> and owns 97% of all reasoning tokens (1,517,296).</td><td>Reasoning level on the <em>reviewer</em> is the most expensive setting in the configuration, and reviewing a turn delta is a narrower task than authoring the change.</td></tr>
+<tr><td>Every primary session runs <code>opus-5</code> or <code>opus-4-8</code> at <code>high</code>; together $1493.93 (63% of spend).</td><td>Justified for the heavy feature work reviewed, but there is no cheaper default tier for routine sessions.</td></tr>
+<tr><td><code>deepseek-v4-pro</code> completed a 441-call, 378-turn parallel-worktree orchestration for $0.62.</td><td>A capable low-cost model already exists in the configuration and is barely used (3 sessions).</td></tr>
+<tr><td>Short sessions on Opus total only $14.32.</td><td>Do <em>not</em> spend effort on small-session routing; the payoff is negligible.</td></tr>
+<tr><td><code>tier.advisor</code> defaults to <code>none</code>.</td><td>An unexploited price lever that does not change behaviour, only latency class.</td></tr>
+</table>
+</section>
+
+<section id="recommendations">
+<h2>8. Skills and configuration recommendations</h2>
+<p class="muted">Ordered by expected impact. No configuration or skill file was modified by this audit.</p>
+
+<details open><summary>R1. Give the advisor a written remit via WATCHDOG.md / WATCHDOG.yml <span class="badge">implemented 2026-07-29</span> <span class="badge">high confidence</span></summary>
+<p>The advisor currently reviews every turn against no stated priorities, using the default full read-only workspace pool. A priorities file narrows what it considers in scope; a roster file lets you pin its model and tool grant per project. This is a scope fix, <strong>not</strong> a fix for the duplicate lookups &mdash; those have an unestablished cause (&sect;4).</p>
+<table><tr><th style="width:150px">Evidence</th><td>No <code>WATCHDOG.md</code> or <code>WATCHDOG.yml</code> exists at user or project level (verified by filesystem check). Advisor issued 6,230 lookups for 1,669 notes with 251 path-not-found errors.</td></tr>
+<tr><th>Affected</th><td>All 137 OMP conversations with an advisor; $622.84 of observed spend.</td></tr>
+<tr><th>Smallest change</th><td><strong>Done:</strong> canonical roster at <code>~/.dotfiles/nvim/.omp/WATCHDOG.yaml</code>, symlinked to <code>~/.omp/agent/WATCHDOG.yaml</code> via <code>.omp/agent/WATCHDOG.yaml &rarr; ../WATCHDOG.yaml</code>, so one file serves every project. One advisor entry (<code>Doctrine</code>), no <code>model:</code> override (inherits <code>modelRoles.advisor</code>, so no cost change), no <code>tools:</code> override (default read-only pool). The six review priorities and a scope-discipline block live inside <code>advisors[].instructions</code> rather than top-level <code>instructions:</code>, because entries sharing a slug are replaced by the more specific file while top-level instructions are concatenated across every discovered file &mdash; this path is also a project-level roster for <code>~/.dotfiles/nvim</code>, so the entry form yields exactly one copy of the remit everywhere. <strong>Verified live:</strong> a print-mode session produced <code>__advisor.doctrine.jsonl</code>, proving the roster was discovered and passed OMP's own schema validation (a rejected file is logged, skipped, and would have produced plain <code>__advisor.jsonl</code>).</td></tr>
+<tr><th>Expected benefit</th><td>A narrower review remit and advice aligned to your doctrine. Any reduction in lookups per note is a <strong>hypothesis to be measured</strong>, not a promise &mdash; the mechanism linking remit to lookup volume is untested.</td></tr>
+<tr><th>Verify by</th><td>Re-run this audit after a week and compare advisor lookups per <code>advise</code> note (currently 3.7), path-not-found errors (currently 251), and advisor cost share (currently 26.3%). If lookups per note do not move, the remit was not the binding constraint &mdash; run the &sect;4 re-prime correlation test next.</td></tr></table></details>
+
+<details open><summary>R2. Drop the advisor thinking level from high to medium <span class="badge">high confidence</span></summary>
+<p>The advisor is the most expensive reasoner in the system while doing the narrowest task. It reviews a bounded turn delta, not the whole design space.</p>
+<table><tr><th style="width:150px">Evidence</th><td><code>modelRoles.advisor: openai-codex/gpt-5.6-sol:high</code>; advisor holds 1,517,296 reasoning tokens (97% of all) and $622.84 (26.3%).</td></tr>
+<tr><th>Affected</th><td>Every advisor trace.</td></tr>
+<tr><th>Smallest change</th><td>Change one token in <code>~/.omp/agent/config.yml</code>: <code>advisor: openai-codex/gpt-5.6-sol:medium</code>. Fully reversible.</td></tr>
+<tr><th>Expected benefit</th><td>Reduces the advisor reasoning-token line item. A per-token reduction on the largest reasoning consumer &mdash; not a guaranteed proportional cost cut, since token volume may partly rebound.</td></tr>
+<tr><th>Verify by</th><td>Compare advisor reasoning tokens and cost per primary turn over a week of comparable work. Watch for a drop in useful blockers as the counter-signal.</td></tr></table></details>
+
+<details open><summary>R3. Stop advisories from voiding primary tool calls <span class="badge">high confidence</span></summary>
+<p>Primary tool results are discarded mid-turn with &ldquo;Skipped due to pending system advisory&rdquo;, forcing the primary agent to re-issue the same call. That is duplicated work caused by interrupt timing, not by the advice content.</p>
+<table><tr><th style="width:150px">Evidence</th><td>125 advisor-skip voided results plus 80 queued-user-message skips and 6 peer-interrupt skips = 211 discarded tool results; visible in <code>019facb1</code> (20 errors, majority advisory-voided) and <code>019fa984</code>.</td></tr>
+<tr><th>Affected</th><td>All primary OMP sessions with the advisor enabled.</td></tr>
+<tr><th>Smallest change</th><td>Raise <code>advisor.immuneTurns</code> from the default <code>3</code> to <code>6&ndash;8</code> so concerns arrive more often as non-interrupting asides. Keep <code>advisor.syncBacklog: off</code>. Use <code>/advisor off</code> for mechanical sessions.</td></tr>
+<tr><th>Expected benefit</th><td>Removes up to 125 duplicated tool round-trips per 30 days plus the turns spent recovering from them. The 80 queued-message skips are your own mid-turn messages and will not change.</td></tr>
+<tr><th>Verify by</th><td>Count occurrences of the advisory-skip string in new transcripts; target near zero.</td></tr></table></details>
+
+<details open><summary>R4. Put the blocked-shell habits in the instruction file the model reads <span class="badge">high confidence</span></summary>
+<p>The <code>bashInterceptor</code> works, but the agent keeps issuing the same six rejected forms because the rules live in <code>config.yml</code>, which the model never sees. This audit session itself hit the <code>cd DIR &amp;&amp;</code> block once while verifying its own output.</p>
+<table><tr><th style="width:150px">Evidence</th><td>305 blocked commands. <strong>266 are tool-preference habits</strong>: <code>echo/cat &gt;</code> 78, <code>cd DIR &amp;&amp;</code> 76, <code>grep/rg</code> 65, <code>cat/head/tail</code> 38, <code>sed -i</code> 6, <code>find/fd</code> 3. Present in primary sessions (233) and subagents (72), which inherit no such guidance. The other 38 are policy guardrails firing correctly.</td></tr>
+<tr><th>Affected</th><td>All OMP sessions, including subagents.</td></tr>
+<tr><th>Smallest change</th><td>Add a <code>## Shell</code> section to <code>~/.omp/agent/RULES.md</code> &mdash; five bullets covering the six blocked pattern families. <strong>Not</strong> <code>CLAUDE.md</code>: that file is a single <code>@AGENTS.md</code> import line, and <code>AGENTS.md</code> itself declares Bash rewriting as &ldquo;Enforced elsewhere &mdash; do not restate&rdquo;. <code>RULES.md</code> is the correct surface on three counts: it is loaded as an always-apply sticky rule re-attached near the current turn (so it survives the long sessions where these habits resurface), its stated purpose is already &ldquo;hard requirements translated from Claude Code settings&rdquo;, and it is OMP-native, where all 305 blocks occurred. <span class="badge">implemented 2026-07-29</span></td></tr>
+<tr><th>Expected benefit</th><td>Up to ~266 avoidable round-trips per 30 days removed.</td></tr>
+<tr><th>Verify by</th><td>Count <code>Blocked:</code> tool-preference results per 100 tool calls; currently 1.2.</td></tr></table></details>
+
+<details open><summary>R5. Resolve the Python-kernel mismatch <span class="badge">high confidence</span></summary>
+<p>Agents repeatedly call <code>eval</code> with <code>language: "py"</code> in an environment with no Python kernel, then retry in JavaScript.</p>
+<table><tr><th style="width:150px">Evidence</th><td>48 &ldquo;Python backend is unavailable in this session&rdquo; errors (45 primary, 3 subagent), including in <code>019fa984</code>.</td></tr>
+<tr><th>Affected</th><td>Any session using <code>eval</code> for analysis.</td></tr>
+<tr><th>Smallest change</th><td>Either install the Python kernel or add one line to global instructions stating that <code>eval</code> is JavaScript-only here.</td></tr>
+<tr><th>Expected benefit</th><td>48 wasted round-trips per 30 days and removal of a recurring retry pattern.</td></tr>
+<tr><th>Verify by</th><td>Grep new transcripts for the string; expect zero.</td></tr></table></details>
+
+<details><summary>R6. Trial deepseek-v4-pro as a second tier for mechanical work <span class="badge">medium confidence</span></summary>
+<p>A 441-tool-call orchestration completed on <code>deepseek-v4-pro</code> for $3.70 while comparable Opus sessions cost $35&ndash;$99. This is not a claim that Opus is replaceable for design work; it is evidence that a cheap tier is viable for mechanical, high-volume sessions.</p>
+<table><tr><th style="width:150px">Evidence</th><td><code>019f12aa</code>: 378 turns, 441 tool calls; $0.62 total across 3 sessions on that model, versus $1493.93 on the two Opus models.</td></tr>
+<tr><th>Affected</th><td>Mechanical sessions: dependency bumps, coverage work, batch renames, log triage.</td></tr>
+<tr><th>Smallest change</th><td>Add a model tag or switch per-session with <code>/models</code>; do not change <code>modelRoles.default</code>.</td></tr>
+<tr><th>Expected benefit</th><td>Materially lower cost on the subset of sessions moved. Bounded &mdash; quality on design-heavy work is untested here.</td></tr>
+<tr><th>Verify by</th><td>Run three comparable mechanical tasks on each model; compare completion, rework, and cost. Abort if rework rises.</td></tr></table></details>
+
+<details><summary>R7. Set tier.advisor to flex <span class="badge">low confidence</span></summary>
+<p>The advisor is latency-tolerant by construction &mdash; it reviews completed turns. A cheaper service tier trades latency you are not using.</p>
+<table><tr><th style="width:150px">Evidence</th><td><code>tier.advisor</code> is at its default <code>none</code>; the advisor accounts for $622.84.</td></tr>
+<tr><th>Affected</th><td>All advisor traces.</td></tr>
+<tr><th>Smallest change</th><td>Set <code>tier.advisor: flex</code>; revert if advice starts arriving too late to steer.</td></tr>
+<tr><th>Expected benefit</th><td>Price reduction on 26.3% of spend <em>if</em> the provider offers a flex tier for this model. Unverified for <code>openai-codex</code> &mdash; confirm before relying on it.</td></tr>
+<tr><th>Verify by</th><td>Compare advisor cost per 1M tokens before and after.</td></tr></table></details>
+
+<details open><summary>R8. Fix the collector defect; leave delegation alone <span class="badge">high confidence</span></summary>
+<p>The audit found no delegation waste worth changing. The one concrete defect found in the tooling is in this skill&rsquo;s own collector.</p>
+<table><tr><th style="width:150px">Evidence</th><td>97 subagents, $96.71 (4.1%), 6 duplicate calls in 2,884. Separately, <strong>two defects in <code>collect-usage.mjs</code></strong>: (1) <code>aggregateSessions()</code> double-counts <code>models[].messages</code>; (2) <code>ompKind()</code> tests <code>basename === "__advisor.jsonl"</code>, but a named roster advisor writes <code>__advisor.&lt;slug&gt;.jsonl</code> &mdash; verified live as <code>__advisor.doctrine.jsonl</code>. Defect 2 is now active: with R1 implemented, the next audit would classify the advisor as a subagent and silently destroy the advisor-vs-subagent split that is this report's central finding.</td></tr>
+<tr><th>Affected</th><td>Future runs of this skill.</td></tr>
+<tr><th>Smallest change</th><td>Two edits in <code>collect-usage.mjs</code>: initialise the aggregate model record without a <code>messages</code> key (or add it after <code>addUsage()</code>); and change the advisor test to <code>/^__advisor(\.|$)/.test(path.basename(filePath))</code>. The second is required before the next run, not optional.</td></tr>
+<tr><th>Expected benefit</th><td>Prevents a 2&times; overstatement of per-model message counts in later audits.</td></tr>
+<tr><th>Verify by</th><td>Confirm aggregated model messages sum to <code>assistantMessages</code> after the fix.</td></tr></table></details>
+
+<details><summary>R9. Run the advisor-repetition measurement before optimising it <span class="badge">medium confidence</span></summary>
+<p>The largest single anomaly in the data &mdash; one <code>glob</code> signature fired 153 times in a single advisor trace &mdash; has no established cause. Acting on a guess risks changing the wrong setting.</p>
+<table><tr><th style="width:150px">Evidence</th><td>1,297 advisor duplicate calls; runtime docs confirm the advisor keeps append-only in-session context but may compact or re-prime before any prompt.</td></tr>
+<tr><th>Affected</th><td>The five advisor traces holding most duplicates.</td></tr>
+<tr><th>Smallest change</th><td>Enable <code>/advisor dump raw</code> on one long session and inspect where the repeat lookups cluster.</td></tr>
+<tr><th>Expected benefit</th><td>Turns a symptom into a diagnosis. No direct saving; it decides whether R1 or a context-maintenance change is the real fix.</td></tr>
+<tr><th>Verify by</th><td>On one long session, correlate duplicate-signature bursts with advisor context-maintenance/re-prime events and <code>/advisor status</code> context usage.</td></tr></table></details>
+</section>
+
+<section id="plan">
+<h2>9. Prioritized action plan</h2>
+<table>
+<tr><th>#</th><th>Action</th><th>Effort</th><th>Target metric</th><th>Confidence</th></tr>
+<tr><td>1</td><td>Advisor thinking <code>high</code> &rarr; <code>medium</code> (R2)</td><td>1 min</td><td>Advisor reasoning tokens: 1,517,296</td><td>high</td></tr>
+<tr><td>2</td><td>Raise <code>advisor.immuneTurns</code> to 6&ndash;8 (R3)</td><td>1 min</td><td>Advisory-voided results: 125 &rarr; ~0</td><td>high</td></tr>
+<tr><td>3</td><td>Add six shell-habit rules to <code>CLAUDE.md</code> (R4)</td><td>5 min</td><td>Blocked habits: 266 &rarr; &lt;80</td><td>high</td></tr>
+<tr><td>4</td><td>Fix or document the Python-kernel gap (R5)</td><td>5 min</td><td>Python-unavailable errors: 48 &rarr; 0</td><td>high</td></tr>
+<tr><td>5</td><td>Fix the collector message double-count (R8)</td><td>5 min</td><td>Aggregate msgs == assistant turns</td><td>high</td></tr>
+<tr><td>6</td><td>Write <code>~/.omp/agent/WATCHDOG.md</code> (R1)</td><td>20 min</td><td>Lookups per note: 3.7; path-not-found: 251</td><td>high</td></tr>
+<tr><td>7</td><td>Measure advisor repetition cause (R9)</td><td>30 min</td><td>Duplicate bursts vs re-prime events</td><td>medium</td></tr>
+<tr><td>8</td><td>Trial <code>deepseek-v4-pro</code> on 3 mechanical tasks (R6)</td><td>1 week</td><td>Cost per completed mechanical task</td><td>medium</td></tr>
+<tr><td>9</td><td>Try <code>tier.advisor: flex</code> (R7)</td><td>1 min</td><td>Advisor cost per 1M tokens</td><td>low</td></tr>
+</table>
+<p>Steps 1&ndash;5 are single-line, reversible changes totalling under 20 minutes and address 465 addressable error bodies plus the largest reasoning line item. Step 6 needs your judgement. Step 7 is deliberately ordered <em>after</em> the cheap wins because the repetition mechanism is unknown. Re-run this skill in seven days with <code>--previous-summary agent-usage-summary.json</code> to measure movement.</p>
+</section>
+
+<section id="methodology">
+<h2>10. Methodology and privacy notes</h2>
+<ul>
+<li><strong>Collection:</strong> <code>collect-usage.mjs</code> parsed 633 transcript files and included 395 modified since 2026-06-29. All counts, token totals, and costs come from that deterministic pass or from recomputation over its per-session records &mdash; no figure was estimated by a model.</li>
+<li><strong>Grouping:</strong> OMP files were grouped into 154 conversations by session directory (primary file, <code>__advisor.jsonl</code>, and named subagent files), which is how per-conversation advisor and subagent shares were derived.</li>
+<li><strong>Qualitative review:</strong> 10 transcripts read in full, chosen from the collector&rsquo;s cost, duplicate, error, and fan-out candidate lists plus two low-cost controls. Findings paraphrased.</li>
+<li><strong>Error classification:</strong> every error-bearing session was re-scanned and all 1166 error bodies bucketed by pattern into 15 classes that sum to the total, then split again by who can fix them (&sect;5). Three defects in earlier drafts are corrected here: 207 bodies sat in an undisclosed remainder; shell-command failures were understated as 8 when the true figure is 133; and a claimed 917 &ldquo;preventable&rdquo; bodies both double-counted legitimate discovery and user-initiated interruptions and listed addends corresponding to no class. The preventable figure is 465.</li>
+<li><strong>Runtime claims verified against source:</strong> advisor context, delta rendering, reset triggers, and tool isolation were checked in <code>omp://advisor-watchdog.md</code>; configuration keys against <code>omp://settings.md</code>. An earlier draft asserted the advisor has &ldquo;no memory&rdquo; between review cycles. That is false &mdash; its context is in-memory and append-only, retained while the session runs &mdash; and the claim has been removed along with the recommendation that depended on it.</li>
+<li><strong>Evidence discipline:</strong> observed counts are stated plainly; mechanisms that are not measured are labelled <span class="badge">hypothesis</span> and carry a stated test (&sect;4, R1, R9). No dollar savings are claimed anywhere.</li>
+<li><strong>Privacy:</strong> transcripts were read locally and never transmitted. This report contains no prompt text, tool arguments, file contents, secrets, or tokens. Tool arguments were hashed for duplicate detection. Session identifiers are abbreviated to 8 characters. The companion <code>agent-usage-summary.json</code> is written with mode <code>0600</code> and contains metadata only.</li>
+<li><strong>Artifacts:</strong> <code>agent-usage-audit-2026-07-29.html</code> and <code>agent-usage-summary.json</code> in <code>~/.dotfiles/nvim/.omp/audits</code>. The JSON is mode <code>0600</code> and holds session metadata including absolute project paths &mdash; if this directory is inside a published dotfiles repository, exclude it from version control.</li>
+</ul>
+</section>
+</main></body></html>
