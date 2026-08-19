@@ -15,6 +15,9 @@ single-machine reproducibility, not multi-user distribution.
 - `nvim/.config/ghostty/` — Ghostty terminal config (`config` + `themes/matrix`).
 - `nvim/.config/wezterm/wezterm.lua` — WezTerm terminal config.
 - `pkms/` — Personal knowledge submodule (private, gitignored content).
+- `claude/` — Claude/agent config submodule (`mcgeerdev/.claude`). Tracks the
+  live `~/.claude` repo: `AGENTS.md`, `skills/`, `rules/`, `settings.json`.
+  Not a stow package. See "Submodules".
 - `install.sh` — Stow driver. Reads `$STOW_FOLDERS` (comma-separated).
 - `watch.sh` / `addKnowledge.cron` — pkms autocommit helpers.
 
@@ -33,9 +36,26 @@ stow conflict to stderr.
    Ghostty, restart wezterm).
 
 ### Submodules
-`pkms` is a separate repo. Never commit pkms content from this repo;
-`.gitignore` already blocks it. Use `watch.sh` / `addKnowledge.cron` for
-autocommit inside `pkms/`.
+`pkms` and `claude` are separate repos. Neither is a stow package. Never add
+either to `$STOW_FOLDERS`: `stow claude` links the submodule's contents into
+`$HOME` directly, giving you `~/AGENTS.md` and `~/skills` instead of anything
+under `~/.claude`.
+
+Never commit pkms content from this repo; `.gitignore` already blocks it. Use
+`watch.sh` / `addKnowledge.cron` for autocommit inside `pkms/`.
+
+`~/.claude` is the working copy, and `claude/` here is a second checkout that
+only exists to pin a commit. Edit agent config in `~/.claude`, commit and push
+there, then advance the pointer:
+```bash
+git submodule update --remote claude && git add claude && git commit
+```
+On a fresh machine, clone the config into place rather than symlinking the
+submodule, because `~/.claude` also holds untracked runtime state
+(`sessions/`, `projects/`, `plugins/`):
+```bash
+git clone git@github.com:mcgeerdev/.claude.git ~/.claude
+```
 
 ## SUBSYSTEM POINTERS
 - Neovim internals (LSP, plugins, keymaps): `nvim/.config/nvim/CLAUDE.md`
