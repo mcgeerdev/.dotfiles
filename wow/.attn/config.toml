@@ -1,0 +1,60 @@
+# attentiond
+#
+# Stowed from ~/.dotfiles/wow/.attn to ~/.attn, which is where attentiond looks
+# unless $ATTENTIOND_CONFIG or --config says otherwise.
+#
+# Every key here has a default, so this file only needs to say what differs.
+# Unknown keys fail startup rather than being ignored.
+#
+#   Herdr / OMP ─┐
+#   shell / tofu ─┤
+#   GitHub ───────┤──▶ attentiond ──▶ Glance
+#   future tools ─┘
+#
+# Sources that poll get a table. Anything that reports its own lifecycle
+# (command wrappers, tofu runs, CI) posts to /api/events and needs no
+# configuration beyond [events].
+
+[daemon]
+addr = "127.0.0.1:7717"
+log_level = "info"
+log_format = "text"
+
+[events]
+# How long finished or failed work posted to /api/events stays on screen.
+ttl = "1h"
+
+[herdr]
+enabled = true
+poll = "2s"
+# socket = ""    # default: Herdr's own resolution order
+# fixture = ""   # replay a recorded `herdr api snapshot` instead of a live server
+
+[github]
+enabled = true
+poll = "1m"
+
+# What to watch. Empty means every repository the token can see, which is more
+# than you want. Accounts and repositories union rather than intersect.
+# orgs = ["didx-xyz"]
+repos = ["didx-xyz/tofu", "didx-xyz/mono"]
+
+# A draft untouched for this long is reported as stale rather than plain draft.
+stale_draft_after = "336h"
+
+# Pull requests per search before the result is reported as incomplete. The
+# warning reaches /api/work and /api/attention, so a capped list says so.
+limit = 100
+
+[calendar]
+enabled = false
+poll = "5m"
+horizon = "12h"    # how far ahead the Meetings list looks
+lead = "10m"       # a meeting this close moves into the attention queue
+
+# One block per calendar. The address comes from url_env (a secret address,
+# kept out of this public repo), from url, or is derived from the email, which
+# only works for a calendar shared publicly.
+[[calendar.feeds]]
+label = "didx"
+url_env = "ATTENTIOND_CALENDAR_DIDX"

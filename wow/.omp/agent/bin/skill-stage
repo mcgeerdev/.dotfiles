@@ -1,0 +1,189 @@
+#!/usr/bin/env bash
+# Move skills along the production line and keep both harness trees in sync.
+#
+# Two independent axes. Ownership says whose skill it is. Lifecycle says how far
+# along it is. Promoting never changes ownership; adopting never changes stage.
+#
+#   owner    stage       location                              loaded by
+#   adapted  production  ~/.agents/skills/<name>                both harnesses
+#   adapted  testing     ~/.agents/skills/testing/<name>        omp only, hidden
+#   adapted  retired     ~/.agents/skills/retired/<name>        nothing
+#   personal production  ~/.agents/skills/personal/<name>       both harnesses
+#   personal testing     ~/.agents/skills/personal/testing/...  omp only, hidden
+#   personal retired     ~/.agents/skills/personal/retired/...  nothing
+#
+# Every command is idempotent, including `new`. Asking for a state the skill is
+# already in reports that and exits 0.
+
+set -euo pipefail
+
+STORE="$HOME/.agents/skills"
+CLAUDE_TREE="$HOME/.claude/skills"
+REPO_TREE="$HOME/.dotfiles/wow/.omp/agent/skills"
+CLAUDE_PREFIX="../../.agents/skills"
+REPO_PREFIX="../../../../../.agents/skills"
+
+die() { printf 'skill-stage: %s\n' "$1" >&2; exit 1; }
+
+check_owner() {
+  case "$1" in adapted|personal) ;; *) die "unknown owner '$1'. Use adapted or personal." ;; esac
+}
+check_stage() {
+  case "$1" in production|testing|retired) ;; *) die "unknown stage '$1'. Use production, testing or retired." ;; esac
+}
+
+# Path of a skill relative to the store. Symlinks encode exactly this.
+subpath_of() { # owner stage name
+  local pre=""
+  [ "$1" = personal ] && pre="personal/"
+  case "$2" in
+    production) printf '%s%s' "$pre" "$3" ;;
+    *) printf '%s%s/%s' "$pre" "$2" "$3" ;;
+  esac
+}
+
+path_of() { printf '%s/%s' "$STORE" "$(subpath_of "$1" "$2" "$3")"; }
+
+# Echoes "<owner> <stage>", or fails when the skill does not exist.
+locate() {
+  local name="$1" owner stage
+  for owner in adapted personal; do
+    for stage in production testing retired; do
+      if [ -f "$(path_of "$owner" "$stage" "$name")/SKILL.md" ]; then
+        printf '%s %s' "$owner" "$stage"; return 0
+      fi
+    done
+  done
+  return 1
+}
+
+is_live() { [ "$1" = production ]; }
+
+# Production skills of both owners, which are the ones that get symlinks.
+live_names() {
+  local f
+  for f in "$STORE"/*/SKILL.md "$STORE"/personal/*/SKILL.md; do
+    [ -f "$f" ] || continue
+    basename "$(dirname "$f")"
+  done | sort -u
+}
+
+# hide: true belongs on testing skills and nowhere else.
+set_hide() { # file stage
+  local f="$1" stage="$2"
+  if [ "$stage" = testing ]; then
+    grep -q '^hide: true$' "$f" || sed -i '' '/^description:/a\
+hide: true
+' "$f"
+  else
+    sed -i '' '/^hide: true$/d' "$f"
+  fi
+}
+
+# Drop links we own that no longer point at a production skill, then add the
+# missing ones. Links outside .agents/skills are never touched, which is what
+# keeps the unslop alias safe.
+relink() {
+  local pair tree prefix entry target name live added=0 removed=0 owner stage
+  live="$(live_names)"
+  for pair in "$CLAUDE_TREE|$CLAUDE_PREFIX" "$REPO_TREE|$REPO_PREFIX"; do
+    tree="${pair%%|*}"; prefix="${pair##*|}"
+    for entry in "$tree"/*; do
+      [ -L "$entry" ] || continue
+      target="$(readlink "$entry")"
+      case "$target" in *.agents/skills/*) ;; *) continue ;; esac
+      name="$(basename "$entry")"
+      if ! printf '%s\n' "$live" | grep -qx "$name" || [ ! -f "$entry/SKILL.md" ]; then
+        rm "$entry"; removed=$((removed + 1))
+      fi
+    done
+    while IFS= read -r name; do
+      [ -n "$name" ] || continue
+      [ -e "$tree/$name" ] && continue
+      if location=$(locate "$name"); then read -r owner stage <<< "$location"; else continue; fi
+      ln -s "$prefix/$(subpath_of "$owner" "$stage" "$name")" "$tree/$name"
+      added=$((added + 1))
+    done <<< "$live"
+  done
+  printf 'links: %d added, %d removed\n' "$added" "$removed"
+}
+
+# Single mover. Pass `-` on either axis to hold its current value.
+settle() { # name owner|- stage|-
+  local name="$1" to_owner="$2" to_stage="$3" from_owner from_stage src dst location
+  location=$(locate "$name") || die "no skill named '$name'."
+  read -r from_owner from_stage <<< "$location"
+  [ "$to_owner" = - ] && to_owner="$from_owner"
+  [ "$to_stage" = - ] && to_stage="$from_stage"
+  check_owner "$to_owner"; check_stage "$to_stage"
+  if [ "$from_owner" = "$to_owner" ] && [ "$from_stage" = "$to_stage" ]; then
+    printf '%s is already %s/%s\n' "$name" "$to_owner" "$to_stage"; return 0
+  fi
+  src="$(path_of "$from_owner" "$from_stage" "$name")"
+  dst="$(path_of "$to_owner" "$to_stage" "$name")"
+  mkdir -p "$(dirname "$dst")"
+  mv "$src" "$dst"
+  set_hide "$dst/SKILL.md" "$to_stage"
+  relink >/dev/null
+  printf '%s: %s/%s -> %s/%s\n' "$name" "$from_owner" "$from_stage" "$to_owner" "$to_stage"
+}
+
+cmd_list() {
+  local owner stage f name
+  printf '%-36s %-9s %-11s %s\n' SKILL OWNER STAGE LOADED
+  for owner in adapted personal; do
+    for stage in production testing retired; do
+      for f in "$(path_of "$owner" "$stage" '')"*/SKILL.md; do
+        [ -f "$f" ] || continue
+        name="$(basename "$(dirname "$f")")"
+        if is_live "$stage"; then
+          printf '%-36s %-9s %-11s %s\n' "$name" "$owner" "$stage" "both harnesses"
+        elif [ "$stage" = testing ]; then
+          printf '%-36s %-9s %-11s %s\n' "$name" "$owner" "$stage" "omp, hidden"
+        else
+          printf '%-36s %-9s %-11s %s\n' "$name" "$owner" "$stage" "no"
+        fi
+      done
+    done
+  done
+}
+
+cmd_new() {
+  local name="${1:?usage: skill-stage new <name> [--personal]}" owner=adapted
+  [ "${2:-}" = --personal ] && owner=personal
+  case "$name" in personal|testing|retired) die "'$name' is a reserved directory name." ;; esac
+  local cur_owner cur_stage dir location
+  if location=$(locate "$name"); then
+    read -r cur_owner cur_stage <<< "$location"
+    if [ "$cur_owner" = "$owner" ] && [ "$cur_stage" = testing ]; then
+      printf '%s already exists in %s/testing\n' "$name" "$owner"; return 0
+    fi
+    die "'$name' already exists as $cur_owner/$cur_stage. Use move, promote, adopt or retire."
+  fi
+  dir="$(path_of "$owner" testing "$name")"
+  mkdir -p "$dir"
+  {
+    printf -- '---\n'
+    printf 'name: %s\n' "$name"
+    printf 'description: One sentence on what this does, then the phrases that should trigger it.\n'
+    printf 'hide: true\n'
+    printf -- '---\n\n'
+    printf '# %s\n\n' "$name"
+    printf '## Process\n\n1. \n\n## Rules\n\n- \n'
+  } > "$dir/SKILL.md"
+  printf 'created %s in %s/testing\n' "$name" "$owner"
+  printf 'Run it deliberately with /skill:%s after restarting OMP.\n' "$name"
+}
+
+case "${1:-list}" in
+  list) cmd_list ;;
+  new) shift; cmd_new "$@" ;;
+  promote) settle "${2:?usage: skill-stage promote <name>}" - production ;;
+  demote) settle "${2:?usage: skill-stage demote <name>}" - testing ;;
+  retire) settle "${2:?usage: skill-stage retire <name>}" - retired ;;
+  adopt) settle "${2:?usage: skill-stage adopt <name>}" personal - ;;
+  release) settle "${2:?usage: skill-stage release <name>}" adapted - ;;
+  move) settle "${2:?usage: skill-stage move <name> <stage>}" - "${3:?missing stage}" ;;
+  relink) relink ;;
+  *) die "usage: skill-stage [list|new|promote|demote|retire|adopt|release|move|relink]" ;;
+esac

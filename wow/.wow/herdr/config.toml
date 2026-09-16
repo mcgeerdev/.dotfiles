@@ -1,0 +1,117 @@
+# Herdr config for the Way of Work setup.
+#
+# Loaded from $HERDR_CONFIG_PATH ("$HOME/.wow/herdr/config.toml", exported in
+# ~/.zshrc). ~/.config/herdr/config.toml is a symlink to this file so the server
+# picks it up even when it starts from a shell that never sourced ~/.zshrc.
+#
+# Every key below appears in `herdr --default-config`. Validate with
+# `herdr config check`, apply with `herdr server reload-config`.
+
+onboarding = false
+
+# ── Theme ───────────────────────────────────────────────────────────────────
+# "terminal" makes the Herdr UI read the host terminal's ANSI palette, which
+# is how the Ghostty `matrix` theme (themes/matrix in the Ghostty config dir)
+# reaches Herdr. There is no theme import; this is the closest thing.
+#
+# auto_switch stays off because matrix has no light sibling.
+[theme]
+name = "terminal"
+auto_switch = false
+
+# matrix maps ANSI red to a green (#23755a) and ANSI blue to a grey-teal, so
+# inheriting the palette wholesale would erase the colour difference between a
+# blocked agent and a healthy one. Pin the semantic tokens to matrix hexes,
+# keeping red genuinely red so blocked states still read at a glance.
+#
+# panel_bg = "reset" lets the pane area fall through to Ghostty's own
+# background (#0f191c) instead of Herdr repainting it.
+[theme.custom]
+panel_bg = "reset"
+sidebar_bg = "#131f22"
+active_row_bg = "#1b2b2e"
+selection_bg = "#23755a"
+accent = "#90d762"
+green = "#82d967"
+yellow = "#ffd700"
+blue = "#4f7e7e"
+red = "#ff0000"
+
+# ── Keys ────────────────────────────────────────────────────────────────────
+# Herdr owns the Cmd shortcuts; Ghostty unbinds them so the chord reaches the
+# server as input. Every action keeps its prefix binding as the first entry,
+# so Ctrl+B still works and `prefix+?` still documents the real keymap.
+#
+# Cmd+digits go to tabs, Alt+digits to workspaces. The dev.to write-up had
+# this the other way round; tabs are switched far more often, so they get the
+# plainer chord. Cmd+Shift+digits is not an option: macOS owns Cmd+Shift+3,
+# +4 and +5 for screenshots at system level, so those never reach Herdr.
+# Alt+digits needs `macos-option-as-alt = true` in the Ghostty config.
+#
+# Pane focus sits on Cmd+Ctrl rather than plain Cmd because Cmd+K clears the
+# pane and Cmd+H is the macOS Hide shortcut.
+[keys]
+new_tab = ["prefix+c", "cmd+t"]
+close_pane = ["prefix+x", "cmd+w"]
+split_vertical = ["prefix+v", "cmd+d"]
+split_horizontal = ["prefix+minus", "cmd+shift+d"]
+
+cycle_pane_previous = ["prefix+shift+tab", "cmd+["]
+cycle_pane_next = ["prefix+tab", "cmd+]"]
+previous_tab = ["prefix+p", "cmd+shift+["]
+next_tab = ["prefix+n", "cmd+shift+]"]
+
+switch_tab = ["prefix+1..9", "cmd+1..9"]
+switch_workspace = ["prefix+shift+1..9", "alt+1..9"]
+
+focus_pane_left = ["prefix+h", "cmd+ctrl+h"]
+focus_pane_down = ["prefix+j", "cmd+ctrl+j"]
+focus_pane_up = ["prefix+k", "cmd+ctrl+k"]
+focus_pane_right = ["prefix+l", "cmd+ctrl+l"]
+
+# Ghostty binds nothing to Cmd+B, so the chord already falls through to the
+# server and needs no unbind on the Ghostty side.
+toggle_sidebar = ["prefix+b", "cmd+b"]
+
+[ui]
+# Order the agent panel as an attention queue instead of grouping by space:
+# blocked agents rise to the top, which is the same ordering attentiond serves
+# from /api/attention.
+agent_panel_sort = "priority"
+
+# Distinct glyphs per state rather than colour-only dots, so blocked, working,
+# done, idle and unknown stay separable at a glance.
+status_indicators = "symbols"
+
+# Herdr keeps the mouse. Turning this off hands wheel events to Ghostty, which
+# has nothing to scroll while Herdr holds the alternate screen, so pane
+# scrollback becomes unreachable with the trackpad. Pane focus clicks, sidebar
+# and tab-bar clicks, scrollbar and divider dragging go with it.
+#
+# The cost of keeping it: plain Cmd+click no longer opens URLs. That cannot be
+# fixed on either side. Ghostty encodes only shift, alt and ctrl into a mouse
+# report (src/Surface.zig), so Herdr never sees Cmd, and Ghostty skips link
+# matching entirely while a program is reporting mouse events.
+#
+# Two chords open a URL with capture on:
+#   ctrl+click        Herdr opens it itself
+#   shift+cmd+click   shift bypasses reporting, Ghostty matches and opens it
+mouse_capture = true
+
+# Show the state word next to the icon. state_text is the semantic lifecycle
+# state (working / idle / blocked / done / unknown), not a screen scrape.
+[ui.sidebar.agents]
+rows = [["state_icon", "state_text", "workspace", "tab"], ["agent"]]
+
+[ui.sidebar.spaces]
+rows = [["state_icon", "workspace"], ["branch", "git_status"]]
+
+# In-app toasts only. Desktop/system notification delivery stays off until Hum
+# owns audio and attentiond owns routing.
+[ui.toast]
+delivery = "system"
+
+[session]
+# Restore agent panes into their native sessions after a server restart, so an
+# item attentiond saw before the restart keeps the same identity after it.
+resume_agents_on_restore = true

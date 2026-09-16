@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+# attn-run — run a command and report its lifecycle to attentiond.
+#
+#   attn-run tofu plan
+#   attn-run -- make build
+#   attn-run --id deploy-prod --title "deploy prod" -- ./deploy.sh
+#
+# The command owns the terminal: stdin, stdout, stderr and the exit code pass
+# through untouched. Everything attentiond-related is best effort, so a daemon
+# that is down, slow or missing can never break the command you actually ran.
+#
+# Lifecycle posted to POST /api/events:
+#   working          on start
+#   completed        exit 0
+#   needs_attention  the exit code named by --changes-exit, if any
+#   failed           anything else, including a signal
+#
+# --changes-exit exists for `tofu plan -detailed-exitcode`, where 2 means "this
+# worked and there are changes", not "this broke". Reporting that as a failure
+# would make the one tofu command you most want on a dashboard lie. The exit
+# code still reaches the caller untouched, so `if tofu plan -detailed-exitcode`
+# in a script keeps working.
+set -uo pipefail
+
+ATTENTIOND_URL="${ATTENTIOND_URL:-http://127.0.0.1:7717}"
+
+id=""
+title=""
+changes_exit=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --id) id="$2"; shift 2 ;;
+    --title) title="$2"; shift 2 ;;
+    --changes-exit) changes_exit="$2"; shift 2 ;;
+    --) shift; break ;;
+    -*) printf 'attn-run: unknown option %s\n' "$1" >&2; exit 2 ;;
+    *) break ;;
+  esac
+done
+
+if [[ $# -eq 0 ]]; then
+  printf 'usage: attn-run [--id ID] [--title TITLE] [--changes-exit N] [--] command [args...]\n' >&2
+  exit 2
+fi
+
+dir="$PWD"
+project="${dir##*/}"
+
+# A shell function that wraps a binary calls it back as `command tofu ...` to
+# escape itself. That word is plumbing, not part of what ran, so it never
+# reaches the label.
+label=("$@")
+[[ "${label[0]}" == "command" && ${#label[@]} -gt 1 ]] && label=("${label[@]:1}")
+command_line="${label[*]}"
+
+# The identity is the project plus the command, so re-running the same thing in
+# the same place moves one item through its states instead of stacking up.
+[[ -n "$id" ]] || id="${project}:${command_line}"
+[[ -n "$title" ]] || title="${project} · ${command_line}"
+
+report() {
+  local event="$1" severity="${2:-}" code="${3:-}"
+  command -v curl >/dev/null 2>&1 || return 0
+  command -v jq >/dev/null 2>&1 || return 0
+
+  local body
+  body=$(jq -nc \
+    --arg id "$id" \
+    --arg event "$event" \
+    --arg title "$title" \
+    --arg severity "$severity" \
+    --arg dir "$dir" \
+    --arg cmd "$command_line" \
+    --arg code "$code" \
+    '{source: "shell", id: $id, event: $event, title: $title,
+      context: ({dir: $dir, cmd: $cmd}
+                + (if $code == "" then {} else {exit_code: $code} end))}
+     + (if $severity == "" then {} else {severity: $severity} end)') || return 0
+
+  curl -fsS --max-time 2 -o /dev/null \
+    -H 'Content-Type: application/json' \
+    -d "$body" "$ATTENTIOND_URL/api/events" 2>/dev/null || true
+}
+
+report working
+"$@"
+status=$?
+
+if [[ $status -eq 0 ]]; then
+  report completed
+elif [[ -n "$changes_exit" && $status -eq $changes_exit ]]; then
+  report needs_attention warning "$status"
+else
+  report failed warning "$status"
+fi
+
+exit "$status"

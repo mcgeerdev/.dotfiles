@@ -1,0 +1,38 @@
+# The daily starting point.
+#
+# Five sections: Attention, Pull requests, Meetings, Scratchpad, Information.
+# Attention is live against attentiond; the rest are either built-in Glance
+# widgets or marked placeholders waiting on a decision or a private URL.
+
+- name: Work
+  columns:
+    - size: small
+      widgets:
+        - type: calendar
+          first-day-of-week: monday
+
+        - $include: meetings.yml
+
+        - type: html
+          source: |
+            <div class="widget-content-frame padding-widget">
+              <h2 class="uppercase size-h3 color-highlight">Scratchpad</h2>
+              <p class="color-paragraph margin-top-10">
+                Placeholder. Glance ships a <code>to-do</code> widget, but it
+                stores tasks in this browser's local storage and would put a
+                second, private list of work next to the one attentiond holds.
+              </p>
+              <p class="color-paragraph margin-top-10">
+                Captured ideas belong in attentiond, posted to
+                <code>/api/events</code> and read back here like everything else
+                on this page.
+              </p>
+            </div>
+
+    - size: full
+      widgets:
+        - $include: attention.yml
+
+        - $include: pull-requests.yml
+
+        - $include: all-work.yml

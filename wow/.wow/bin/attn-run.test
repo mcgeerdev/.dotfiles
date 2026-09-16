@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+# Tests for attn-run. Run it: ~/.wow/bin/attn-run.test
+#
+# attn-run stands in front of `tofu apply`, so the two things worth pinning are
+# that the caller's exit code survives and that a daemon which is not there
+# cannot break the command. The exit code mapping is here too, because
+# `tofu plan -detailed-exitcode` returning 2 for "there are changes" is a
+# documented convention that is easy to regress into "failed".
+set -uo pipefail
+
+here="$(cd "$(dirname "$0")" && pwd)"
+attn_run="$here/attn-run"
+work="$(mktemp -d)"
+trap 'kill "${server_pid:-}" 2>/dev/null; wait "${server_pid:-}" 2>/dev/null; rm -rf "$work"' EXIT
+
+failures=0
+check() {
+  local name="$1" got="$2" want="$3"
+  if [[ "$got" == "$want" ]]; then
+    printf 'ok   %s\n' "$name"
+  else
+    printf 'FAIL %s\n       got:  %s\n       want: %s\n' "$name" "$got" "$want"
+    failures=$((failures + 1))
+  fi
+}
+
+# A stub that appends every posted body to a file, one JSON object per line.
+python3 - "$work" <<'PY' &
+import json, sys, http.server
+out = sys.argv[1] + "/events.jsonl"
+class H(http.server.BaseHTTPRequestHandler):
+    def do_POST(self):
+        body = self.rfile.read(int(self.headers["Content-Length"]))
+        with open(out, "a") as f:
+            f.write(json.dumps(json.loads(body)) + "\n")
+        self.send_response(202); self.end_headers(); self.wfile.write(b"{}")
+    def log_message(self, *_): pass
+server = http.server.HTTPServer(("127.0.0.1", 0), H)
+with open(sys.argv[1] + "/port", "w") as f:
+    f.write(str(server.server_address[1]))
+server.serve_forever()
+PY
+server_pid=$!
+
+for _ in $(seq 1 50); do [[ -s "$work/port" ]] && break; sleep 0.1; done
+[[ -s "$work/port" ]] || { echo "stub server never started"; exit 1; }
+export ATTENTIOND_URL="http://127.0.0.1:$(cat "$work/port")"
+
+events() { [[ -f "$work/events.jsonl" ]] && cat "$work/events.jsonl" || true; }
+states() { events | python3 -c 'import sys,json; print(",".join(json.loads(l)["event"] for l in sys.stdin))'; }
+reset() { : > "$work/events.jsonl"; }
+
+reset
+"$attn_run" --id t -- sh -c 'exit 0'
+check "success passes exit 0"        "$?"         "0"
+check "success reports completed"    "$(states)"  "working,completed"
+
+reset
+"$attn_run" --id t -- sh -c 'exit 1'
+check "error passes exit 1"          "$?"         "1"
+check "error reports failed"         "$(states)"  "working,failed"
+
+# tofu plan -detailed-exitcode: 2 is a successful plan that found changes.
+reset
+"$attn_run" --id t --changes-exit 2 -- sh -c 'exit 2'
+check "changes passes exit 2"        "$?"         "2"
+check "changes wants a human"        "$(states)"  "working,needs_attention"
+
+# Without the option, 2 is just a failure like any other.
+reset
+"$attn_run" --id t -- sh -c 'exit 2'
+check "plain exit 2 is a failure"    "$(states)"  "working,failed"
+
+# The exit code travels with the item either way.
+reset
+"$attn_run" --id t --changes-exit 2 -- sh -c 'exit 2' >/dev/null
+check "exit code reaches the item" \
+  "$(events | python3 -c 'import sys,json; print([json.loads(l)["context"].get("exit_code") for l in sys.stdin][-1])')" \
+  "2"
+
+# The shell escape word is plumbing, not part of what ran.
+reset
+"$attn_run" -- command sh -c 'exit 0' >/dev/null
+check "command prefix is stripped" \
+  "$(events | python3 -c 'import sys,json; print(json.loads(sys.stdin.readline())["context"]["cmd"])')" \
+  "sh -c exit 0"
+
+# A daemon that is down must never break the command in front of it.
+ATTENTIOND_URL="http://127.0.0.1:1" "$attn_run" --id t -- sh -c 'exit 0'
+check "unreachable daemon still exits 0" "$?" "0"
+ATTENTIOND_URL="http://127.0.0.1:1" "$attn_run" --id t -- sh -c 'exit 7'
+check "unreachable daemon keeps exit 7"  "$?" "7"
+
+if [[ $failures -gt 0 ]]; then
+  printf '\n%d failed\n' "$failures"
+  exit 1
+fi
+printf '\nall passed\n'

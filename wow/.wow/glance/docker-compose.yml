@@ -1,0 +1,28 @@
+name: wow-glance
+
+services:
+  glance:
+    container_name: glance
+    image: glanceapp/glance:v0.8.6
+    restart: unless-stopped
+    # Published on the host loopback only. Glance itself listens on all
+    # interfaces inside the container; the bind address here is what keeps the
+    # dashboard off the LAN.
+    ports:
+      - 127.0.0.1:8080:8080
+    environment:
+      # Where Glance reaches attentiond. Glance runs in a container, attentiond
+      # runs natively on the host, so host.docker.internal is the host's
+      # loopback as seen from inside Docker Desktop. Change the port in one
+      # place: here, or by exporting ATTENTIOND_URL before `make start`.
+      ATTENTIOND_URL: ${ATTENTIOND_URL:-http://host.docker.internal:7717}
+      # /etc is not a shared path in Docker Desktop for macOS, so the usual
+      # /etc/localtime bind mount is not available. TZ does the same job.
+      TZ: ${TZ:-Africa/Johannesburg}
+    volumes:
+      - ./config:/app/config
+      - ./assets:/app/assets
+    # Untracked, optional, and only needed once a widget wants a token.
+    env_file:
+      - path: .env
+        required: false

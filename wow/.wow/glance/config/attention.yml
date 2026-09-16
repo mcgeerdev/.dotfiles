@@ -1,0 +1,60 @@
+# Attention widgets, fed by attentiond (http://127.0.0.1:7717 by default).
+#
+# Included from home.yml. ATTENTIOND_URL comes from docker-compose.yml and is
+# the address as seen from inside the container. Glance fetches this JSON
+# server-side, so it must be host.docker.internal, not localhost.
+#
+# The action buttons are submitted by the browser, so they use the absolute
+# hrefs attentiond puts in each item (built from its --public-url, which is a
+# host address). Glance never runs a Herdr command itself; it only asks
+# attentiond to act.
+#
+# While attentiond is not running these two widgets render an error and the
+# rest of the dashboard is unaffected.
+
+- type: custom-api
+  title: Attention
+  cache: 5s
+  url: ${ATTENTIOND_URL}/api/attention
+  template: |
+    {{/* An incomplete queue has to say so here. A capped list that looks
+         complete is worse than no list. */}}
+    {{ range .JSON.Array "warnings" }}
+      <p class="color-negative margin-bottom-10">{{ .String "" }}</p>
+    {{ end }}
+    {{ $items := .JSON.Array "items" }}
+    {{ if eq (len $items) 0 }}
+      <p class="color-positive">Nothing is waiting on you.</p>
+    {{ else }}
+    <ul class="list list-gap-14">
+      {{ range $items }}
+      {{/* A source that knows a better word for why it is here says so in
+           context.pr_state; otherwise the lifecycle state is the label. */}}
+      {{ $label := .String "context.pr_state" }}
+      {{ if eq $label "" }}{{ $label = .String "state" }}{{ end }}
+      <li>
+        <div class="flex items-center gap-10">
+          <span class="size-h6 shrink-0 color-negative">{{ $label }}</span>
+          <span class="grow text-truncate color-highlight">{{ .String "title" }}</span>
+          <span class="size-h6 shrink-0 color-paragraph" {{ .String "updated_at" | parseTime "rfc3339" | toRelativeTime }}></span>
+        </div>
+        <ul class="list-horizontal-text margin-top-3">
+          <li class="color-paragraph">{{ .String "source" }}</li>
+          {{ range .Array "actions" }}
+          <li>
+            {{ if eq (.String "method") "GET" }}
+              <a class="color-highlight" href="{{ .String "href" }}" target="_blank">{{ .String "label" }}</a>
+            {{ else }}
+              <form method="post" action="{{ .String "href" }}" target="attentiond-action">
+                <button type="submit" class="color-highlight" style="background:none;border:0;padding:0;font:inherit;cursor:pointer">{{ .String "label" }}</button>
+              </form>
+            {{ end }}
+          </li>
+          {{ end }}
+        </ul>
+      </li>
+      {{ end }}
+    </ul>
+    {{ end }}
+    {{/* Actions POST into this hidden frame so clicking one does not navigate the dashboard away. */}}
+    <iframe name="attentiond-action" title="attentiond actions" hidden style="display:none"></iframe>

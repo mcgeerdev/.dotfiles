@@ -1,0 +1,42 @@
+# Meetings, fed by attentiond's calendar source.
+#
+# Reads /api/work rather than /api/attention so the section is the whole day,
+# not only the meeting about to start. The imminent one also appears in the
+# Attention widget above, which is the point of the lead time.
+#
+# Calendar addresses never reach Glance. attentiond fetches the feeds.
+
+- type: custom-api
+  title: Meetings
+  cache: 1m
+  url: ${ATTENTIOND_URL}/api/work
+  template: |
+    {{/* Only this source's caveats: a GitHub warning belongs on that board. */}}
+    {{ range .JSON.Array "warnings" }}
+      {{ $warning := .String "" }}
+      {{ if findMatch "^calendar:" $warning }}
+        <p class="color-negative margin-bottom-10">{{ $warning }}</p>
+      {{ end }}
+    {{ end }}
+    {{ $meetings := .JSON.Array "items.#(source==\"calendar\")#" }}
+    {{ if eq (len $meetings) 0 }}
+      <p class="color-paragraph">Nothing booked in the next few hours.</p>
+    {{ else }}
+    <ul class="list list-gap-10">
+      {{ range $meetings }}
+      {{ $phase := .String "context.phase" }}
+        <div class="flex items-center gap-10">
+          <span class="size-h6 shrink-0 {{ if eq $phase "starting soon" }}color-negative{{ else if eq $phase "in progress" }}color-highlight{{ else }}color-paragraph{{ end }}">{{ .String "context.starts_local" }}</span>
+          <span class="grow text-truncate {{ if ne $phase "later" }}color-highlight{{ end }}">{{ .String "title" }}</span>
+          <span class="size-h6 shrink-0 color-paragraph" {{ .String "context.starts_at" | parseTime "rfc3339" | toRelativeTime }}></span>
+        </div>
+        <ul class="list-horizontal-text margin-top-3">
+          <li class="color-paragraph">{{ .String "context.calendar" }}</li>
+          {{ range .Array "actions" }}
+          <li><a class="color-highlight" href="{{ .String "href" }}" target="_blank">{{ .String "label" }}</a></li>
+          {{ end }}
+        </ul>
+      </li>
+      {{ end }}
+    </ul>
+    {{ end }}

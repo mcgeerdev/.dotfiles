@@ -1,0 +1,128 @@
+# Ghostty configuration — managed in ~/.dotfiles, stowed to ~/.config/ghostty.
+#
+# Edit THIS file, never the symlink target in $HOME.
+# Reload in place with cmd+shift+, (some options need a new window or restart).
+# Full option reference: `ghostty +show-config --default --docs`.
+#
+# Ghostty's generated "config syntax crash course" boilerplate was removed —
+# it documented the file format, not this setup.
+
+# ── Font ────────────────────────────────────────────────────────────────────
+# Installed via `brew install --cask font-fira-code-nerd-font`. Note the family
+# does NOT appear in `ghostty +list-fonts`, which lists only monospace-
+# classified families — the patched non-Mono variant is filtered out. It still
+# resolves: `ghostty +show-face --cp=0x68` reports this face, and a bogus family
+# falls back to JetBrains Mono instead. Use `...Nerd Font Mono` for strictly
+# single-width icon glyphs.
+font-family = "FiraCode Nerd Font"
+font-size = 16
+# Disable ligatures.
+font-feature = -liga
+# Embolden glyphs slightly.
+font-thicken = true
+
+# ── Colors ──────────────────────────────────────────────────────────────────
+# Palette lives in themes/matrix (stowed alongside this file).
+theme = matrix
+# Never rewrite colors for legibility. This theme is ~2.7:1 contrast
+# (#426644 on #0f191c), so any contrast flooring would visibly recolor it.
+# 1 = disabled, which is also the default; set explicitly so the look cannot
+# drift if that default ever changes.
+minimum-contrast = 1
+
+# ── Cursor ──────────────────────────────────────────────────────────────────
+cursor-style-blink = false
+
+# ── Window ──────────────────────────────────────────────────────────────────
+window-width = 110
+window-height = 30
+window-vsync = false
+window-title-font-family = "MonoLisa Variable"
+
+# ── Shell integration ───────────────────────────────────────────────────────
+# Let the shell/PS1 own the title instead of shell integration setting it.
+# Omitted features keep their defaults, so this disables `title` only and
+# leaves cursor/sudo/ssh-env/ssh-terminfo/path untouched.
+shell-integration-features = no-title
+
+# ── Notifications ───────────────────────────────────────────────────────────
+# Notify when a command finishes. Requires OSC 133 prompt marks, which shell
+# integration already provides; disabling `title` above does not affect them.
+#
+# The trigger and the action are SEPARATE keys, and mixing them is rejected:
+# the trigger takes only never | unfocused | always, so an action value like
+# `bell,notify` fails validation there.
+#
+# `unfocused` fires only when this surface is unfocused; `always` also fires
+# while you are watching it. The action default is `bell,no-notify`, so
+# `notify` must be explicit to get a desktop notification, not just a bell.
+notify-on-command-finish = unfocused
+notify-on-command-finish-action = bell,notify
+# Minimum command runtime before it notifies (default 5s):
+#   notify-on-command-finish-after = 30s
+
+# ── Keybinds ────────────────────────────────────────────────────────────────
+# Send ESC-prefixed sequences that TUI apps (nvim, claude, opencode) expect.
+keybind = shift+enter=text:\x1b\r
+keybind = alt+backspace=text:\x1b\x7f
+
+# Panes, splits, tabs and workspaces all belong to herdr now, so Ghostty gives
+# up the Cmd chords below and the keypress is encoded and sent to the pty,
+# where herdr's own [keys] table picks it up (~/.wow/herdr/config.toml).
+# Background: https://dev.to/oronbz/making-ghostty-and-herdr-share-one-keyboard-4p0g
+#
+# Ghostty binds digits twice, once as the character and once as the physical
+# key, so `cmd+1` and `cmd+digit_1` both need removing. There is no
+# `cmd+digit_9` default because `cmd+9` is `last_tab`, not `goto_tab:9`.
+# Check what survives with `ghostty +show-config | grep '^keybind = super'`.
+keybind = cmd+t=unbind
+keybind = cmd+w=unbind
+keybind = cmd+d=unbind
+keybind = cmd+shift+d=unbind
+keybind = cmd+[=unbind
+keybind = cmd+]=unbind
+keybind = cmd+shift+[=unbind
+keybind = cmd+shift+]=unbind
+keybind = cmd+1=unbind
+keybind = cmd+digit_1=unbind
+keybind = cmd+2=unbind
+keybind = cmd+digit_2=unbind
+keybind = cmd+3=unbind
+keybind = cmd+digit_3=unbind
+keybind = cmd+4=unbind
+keybind = cmd+digit_4=unbind
+keybind = cmd+5=unbind
+keybind = cmd+digit_5=unbind
+keybind = cmd+6=unbind
+keybind = cmd+digit_6=unbind
+keybind = cmd+7=unbind
+keybind = cmd+digit_7=unbind
+keybind = cmd+8=unbind
+keybind = cmd+digit_8=unbind
+keybind = cmd+9=unbind
+
+# herdr also answers alt+1..9 (workspaces), cmd+ctrl+h/j/k/l (pane focus) and
+# cmd+b (sidebar). None of those has a Ghostty default, so there is nothing
+# to unbind here; they already fall through to the pty.
+#
+# Workspaces deliberately avoid cmd+shift+1..9: macOS claims cmd+shift+3, +4
+# and +5 for screenshots at system level, so those chords take a screenshot
+# and never reach herdr. Verified by firing them at a live surface.
+
+# Clear the focused herdr pane. Ghostty's own `clear_screen` returns early
+# while the alternate screen is active, which is always the case under herdr,
+# and herdr 0.9 has no clear action to bind. Sending FF (Ctrl+L) hands the job
+# to the shell or agent running in the pane, which is what actually owns the
+# screen. This also replaces the default, so the key can no longer fall
+# through and type a literal "k".
+keybind = cmd+k=text:\x0c
+
+# Ghostty tabs still exist for non-herdr windows, but cmd+t now belongs to
+# herdr, so new Ghostty tabs move to cmd+shift+t. That slot held a second
+# `undo` binding, which cmd+z already provides.
+keybind = cmd+shift+t=new_tab
+
+# Option sends Alt chords instead of composing accented characters, which is
+# what nvim and other TUIs expect. herdr's alt+1..9 workspace switching
+# depends on this being true.
+macos-option-as-alt = true

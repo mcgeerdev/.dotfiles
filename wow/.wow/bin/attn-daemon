@@ -1,0 +1,185 @@
+#!/usr/bin/env bash
+# attn-daemon — the smallest thing that can start, stop and inspect attentiond.
+#
+#   attn-daemon start | stop | restart | status | logs [-f] | run
+#
+# attentiond is a foreground process with no supervisor. `run` keeps it in the
+# foreground, which is what you want in a Herdr pane. `start` detaches it and
+# records a pid, which is what `make start` uses so one command brings up the
+# whole stack.
+#
+# State lives outside the dotfiles repo on purpose: a pid file and a log are
+# machine state, not configuration.
+set -uo pipefail
+
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/attentiond"
+pid_file="$state_dir/attentiond.pid"
+bin_file="$state_dir/attentiond.bin"
+start_file="$state_dir/attentiond.started"
+log_file="$state_dir/attentiond.log"
+secrets="$HOME/.config/secrets.env"
+
+# The installed binary wins; the repo build is the fallback while developing.
+resolve_binary() {
+  if command -v attentiond >/dev/null 2>&1; then
+    command -v attentiond
+    return 0
+  fi
+  local repo="$HOME/devan.projects/incubator/attentiond/bin/attentiond"
+  if [[ -x "$repo" ]]; then
+    printf '%s\n' "$repo"
+    return 0
+  fi
+  printf 'attn-daemon: attentiond is not on PATH and %s does not exist\n' "$repo" >&2
+  printf "  build it: cd ~/devan.projects/incubator/attentiond && go build -o ~/.local/bin/attentiond ./cmd/attentiond\n" >&2
+  return 1
+}
+
+# owns reports whether a pid is the attentiond this script started.
+#
+# A pid file outlives a crash or a reboot and the kernel reuses pids, so
+# `kill -0` alone would confirm a stranger and `stop` would then signal it. Two
+# facts recorded at launch settle it:
+#
+#   argv[0] must equal the binary that was launched. Matching the path anywhere
+#   in the command line is not enough: `tail -f /tmp/attentiond.log` contains
+#   it and is not this daemon.
+#
+#   The process start time must equal the one recorded. Same pid, same path,
+#   different start time means the pid was reused, or someone started their own
+#   copy, and neither is ours to kill.
+#
+# No fallback. Without both records the pid is treated as a stranger, which
+# costs one manual kill and never costs somebody else's process.
+owns() {
+  local pid="$1" command argv0
+  [[ -n "$pid" ]] || return 1
+  [[ -f "$bin_file" && -f "$start_file" ]] || return 1
+
+  command=$(ps -p "$pid" -o command= 2>/dev/null) || return 1
+  [[ -n "$command" ]] || return 1
+  argv0=${command%% *}
+  [[ "$argv0" == "$(<"$bin_file")" ]] || return 1
+
+  [[ "$(process_start "$pid")" == "$(<"$start_file")" ]]
+}
+
+# process_start is the kernel's start time for a pid, which is stable for the
+# life of the process and differs for a reused one.
+process_start() {
+  ps -p "$1" -o lstart= 2>/dev/null | sed 's/^ *//;s/ *$//'
+}
+
+running_pid() {
+  [[ -f "$pid_file" ]] || return 1
+  local pid
+  pid=$(<"$pid_file")
+  [[ -n "$pid" ]] || return 1
+  kill -0 "$pid" 2>/dev/null || return 1
+  if ! owns "$pid"; then
+    # Stale file pointing at a stranger. Drop it rather than act on it.
+    rm -f "$pid_file"
+    return 1
+  fi
+  printf '%s\n' "$pid"
+}
+
+start() {
+  if pid=$(running_pid); then
+    printf 'attentiond already running (pid %s)\n' "$pid"
+    return 0
+  fi
+
+  # Something else already holds the port: a copy started by hand, or one left
+  # behind. Say which, rather than dumping a bind error from a fresh process.
+  if curl -fsS --max-time 1 -o /dev/null http://127.0.0.1:7717/health 2>/dev/null; then
+    printf 'attentiond: something is already serving 127.0.0.1:7717\n' >&2
+    lsof -nP -iTCP:7717 -sTCP:LISTEN 2>/dev/null | sed -n '2,3p' | sed 's/^/  /' >&2
+    printf '  stop it first, or leave it: `make status` will report it either way\n' >&2
+    return 1
+  fi
+
+  local binary
+  binary=$(resolve_binary) || return 1
+  mkdir -p "$state_dir"
+
+  # Sourced here rather than inherited, so a secret reaches the daemon whatever
+  # started it: a shell, make, or a launchd job later on.
+  # shellcheck disable=SC1090
+  [[ -f "$secrets" ]] && . "$secrets"
+
+  nohup "$binary" >>"$log_file" 2>&1 &
+  local pid=$!
+  printf '%s\n' "$pid" >"$pid_file"
+  printf '%s\n' "$binary" >"$bin_file"
+  process_start "$pid" >"$start_file"
+
+  for _ in $(seq 1 30); do
+    sleep 0.2
+    if ! running_pid >/dev/null; then
+      printf 'attentiond exited on startup, last lines:\n' >&2
+      tail -n 15 "$log_file" >&2
+      return 1
+    fi
+    if curl -fsS --max-time 1 -o /dev/null http://127.0.0.1:7717/health 2>/dev/null; then
+      printf 'attentiond: http://127.0.0.1:7717  (log: %s)\n' "$log_file"
+      return 0
+    fi
+  done
+
+  printf 'attentiond started but /health did not answer; see %s\n' "$log_file" >&2
+  return 1
+}
+
+stop() {
+  local pid
+  if ! pid=$(running_pid); then
+    rm -f "$pid_file" "$bin_file" "$start_file"
+    printf 'attentiond not running\n'
+    return 0
+  fi
+  kill "$pid" 2>/dev/null
+  for _ in $(seq 1 25); do
+    running_pid >/dev/null || break
+    sleep 0.2
+  done
+  # Checked again, not assumed: between the signal and now the pid could have
+  # exited and been reused by something that is not ours to kill.
+  if kill -0 "$pid" 2>/dev/null && owns "$pid"; then
+    kill -9 "$pid" 2>/dev/null
+  fi
+  rm -f "$pid_file" "$bin_file" "$start_file"
+  printf 'attentiond stopped\n'
+}
+
+status() {
+  local pid
+  if pid=$(running_pid); then
+    printf '  pid %s  %s\n' "$pid" "$log_file"
+  else
+    printf '  not running\n'
+  fi
+}
+
+case "${1:-}" in
+  start) start ;;
+  stop) stop ;;
+  restart) stop && start ;;
+  status) status ;;
+  logs)
+    shift
+    mkdir -p "$state_dir"
+    touch "$log_file"
+    if [[ "${1:-}" == "-f" ]]; then tail -f "$log_file"; else tail -n 50 "$log_file"; fi
+    ;;
+  run)
+    binary=$(resolve_binary) || exit 1
+    # shellcheck disable=SC1090
+    [[ -f "$secrets" ]] && . "$secrets"
+    exec "$binary" "${@:2}"
+    ;;
+  *)
+    printf 'usage: attn-daemon start|stop|restart|status|logs [-f]|run\n' >&2
+    exit 2
+    ;;
+esac

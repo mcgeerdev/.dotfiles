@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# Tests for attn-daemon. Run it: ~/.wow/bin/attn-daemon.test
+#
+# The property under test is pid ownership. A pid file outlives a crash or a
+# reboot and the kernel reuses pids, so `stop` reading a stale file must not
+# signal whatever now holds that number. Identity is argv[0] plus the recorded
+# process start time, and each test below is one way that can go wrong.
+#
+# Driven through a private XDG_STATE_HOME; never touches port 7717.
+set -uo pipefail
+
+here="$(cd "$(dirname "$0")" && pwd)"
+daemon="$here/attn-daemon"
+work="$(mktemp -d)"
+export XDG_STATE_HOME="$work/state"
+state="$XDG_STATE_HOME/attentiond"
+mkdir -p "$state"
+
+failures=0
+victims=()
+trap 'for v in "${victims[@]:-}"; do [[ -n "$v" ]] && kill -9 "$v" 2>/dev/null; done; rm -rf "$work"' EXIT
+
+check() {
+  local name="$1" got="$2" want="$3"
+  if [[ "$got" == "$want" ]]; then
+    printf 'ok   %s\n' "$name"
+  else
+    printf 'FAIL %s\n       got:  %s\n       want: %s\n' "$name" "$got" "$want"
+    failures=$((failures + 1))
+  fi
+}
+
+started_at() { ps -p "$1" -o lstart= 2>/dev/null | sed 's/^ *//;s/ *$//'; }
+
+# spawn runs a command in the background and returns its pid, keeping it out of
+# the shell's job notifications.
+spawn() {
+  "$@" >/dev/null 2>&1 &
+  local pid=$!
+  disown "$pid" 2>/dev/null
+  victims+=("$pid")
+  printf '%s\n' "$pid"
+}
+
+record() { printf '%s\n' "$1" >"$state/attentiond.pid"; printf '%s\n' "$2" >"$state/attentiond.bin"; printf '%s\n' "$3" >"$state/attentiond.started"; }
+
+# 1. A pid file left behind by a reboot, now held by something unrelated whose
+#    command line happens to mention the daemon. Matching the path anywhere in
+#    argv would kill this.
+touch "$work/attentiond.log"
+stranger=$(spawn /usr/bin/tail -f "$work/attentiond.log")
+record "$stranger" "/usr/local/bin/attentiond" "$(started_at "$stranger")"
+
+check "status ignores a stranger whose argv mentions attentiond" \
+  "$($daemon status 2>&1)" "  not running"
+check "stop refuses to signal it" \
+  "$($daemon stop 2>&1)" "attentiond not running"
+kill -0 "$stranger" 2>/dev/null
+check "the stranger survived" "$?" "0"
+check "the stale pid file was cleared" \
+  "$([[ -f "$state/attentiond.pid" ]] && echo present || echo gone)" "gone"
+
+# 2. Right path, wrong start time: the pid was reused, or this is somebody
+#    else's copy. Either way it is not ours.
+reused=$(spawn /bin/sleep 300)
+record "$reused" "/bin/sleep" "Thu Jan  1 00:00:00 1970"
+
+check "a reused pid is not owned" "$($daemon status 2>&1)" "  not running"
+$daemon stop >/dev/null 2>&1
+kill -0 "$reused" 2>/dev/null
+check "the reused pid survived" "$?" "0"
+kill -9 "$reused" 2>/dev/null
+
+# 3. No records at all, which is how an upgrade or a hand-written file looks.
+orphan=$(spawn /bin/sleep 300)
+printf '%s\n' "$orphan" >"$state/attentiond.pid"
+rm -f "$state/attentiond.bin" "$state/attentiond.started"
+
+check "a pid with no records is not owned" "$($daemon status 2>&1)" "  not running"
+kill -0 "$orphan" 2>/dev/null
+check "the unrecorded process survived" "$?" "0"
+kill -9 "$orphan" 2>/dev/null
+
+# 4. A pid that no longer exists at all.
+record "999999" "/bin/sleep" "Thu Jan  1 00:00:00 1970"
+check "a dead pid reads as not running" "$($daemon status 2>&1)" "  not running"
+
+# 5. The positive control. Both records match a live process, so it is owned and
+#    stop ends it. A real binary rather than a script, so argv[0] is the path
+#    itself and there is no exec to race.
+mine=$(spawn /bin/sleep 300)
+record "$mine" "/bin/sleep" "$(started_at "$mine")"
+
+check "status recognises its own process" \
+  "$($daemon status 2>&1 | grep -c "pid $mine")" "1"
+$daemon stop >/dev/null 2>&1
+sleep 0.4
+kill -0 "$mine" 2>/dev/null
+check "stop ends the process it owns" "$?" "1"
+
+if [[ $failures -gt 0 ]]; then
+  printf '\n%d failed\n' "$failures"
+  exit 1
+fi
+printf '\nall passed\n'
