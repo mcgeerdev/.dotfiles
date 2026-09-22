@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+#
+# Block commits that stage a secret.
+#
+# This repository is public. A credential committed here is public the moment
+# it is pushed, and rewriting history does not un-publish it, so the scan runs
+# before the object is written rather than in CI afterwards.
+#
+# Scope is the staged diff only. Scanning the whole tree on every commit would
+# re-report the same untouched file forever and train you to pass --no-verify.
+#
+# Wire it up with:
+#   git config core.hooksPath githooks
+# which install.sh does for you.
+
+set -euo pipefail
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+	echo "pre-commit: gitleaks not on PATH, refusing to commit unscanned." >&2
+	echo "            install it with: mise use -g gitleaks@8.30.1" >&2
+	echo "            or bypass this one commit with: git commit --no-verify" >&2
+	exit 1
+fi
+
+if ! gitleaks git --staged --no-banner --redact --verbose .; then
+	echo >&2
+	echo "pre-commit: staged changes contain what looks like a secret." >&2
+	echo "            Values above are redacted; the finding names the file and line." >&2
+	echo >&2
+	echo "            Real credential: unstage it, rotate it, keep it out of the repo." >&2
+	echo "            False positive:  append the fingerprint to .gitleaksignore." >&2
+	exit 1
+fi
