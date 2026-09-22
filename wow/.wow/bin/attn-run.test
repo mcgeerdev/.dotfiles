@@ -48,6 +48,7 @@ export ATTENTIOND_URL="http://127.0.0.1:$(cat "$work/port")"
 
 events() { [[ -f "$work/events.jsonl" ]] && cat "$work/events.jsonl" || true; }
 states() { events | python3 -c 'import sys,json; print(",".join(json.loads(l)["event"] for l in sys.stdin))'; }
+labels() { events | python3 -c 'import sys,json; print(",".join(json.loads(l).get("label","-") for l in sys.stdin))'; }
 reset() { : > "$work/events.jsonl"; }
 
 reset
@@ -77,6 +78,45 @@ reset
 check "exit code reaches the item" \
   "$(events | python3 -c 'import sys,json; print([json.loads(l)["context"].get("exit_code") for l in sys.stdin][-1])')" \
   "2"
+
+# `tofu plan -out=tfplan` exits 0 having decided nothing. Reporting that as
+# completed is how an approval goes unnoticed and a state lock stays held.
+reset
+"$attn_run" --id t --awaits-approval -- sh -c 'exit 0'
+check "approval passes exit 0"       "$?"         "0"
+check "approval wants a human"       "$(states)"  "working,needs_attention"
+check "approval is named" \
+  "$(labels)" "-,waiting for approval"
+
+# The label is what attentiond matches to rank the item first and to make a
+# sound, so an unflagged run must not carry it.
+reset
+"$attn_run" --id t -- sh -c 'exit 0'
+check "no label without the flag"    "$(labels)"  "-,-"
+
+# A real failure is still a failure, flag or no flag: nothing was produced to
+# approve.
+reset
+"$attn_run" --id t --awaits-approval -- sh -c 'exit 1'
+check "approval keeps exit 1"        "$?"         "1"
+check "a broken command still fails" "$(states)"  "working,failed"
+check "a failure is not an approval" "$(labels)"  "-,-"
+
+# Both flags together, which is `tofu plan -out=tfplan -detailed-exitcode`.
+# Exit 2 is a plan that found changes and saved them: an approval.
+reset
+"$attn_run" --id t --changes-exit 2 --awaits-approval -- sh -c 'exit 2'
+check "both flags pass exit 2"       "$?"         "2"
+check "a changed saved plan waits"   "$(states)"  "working,needs_attention"
+check "a changed saved plan is named" \
+  "$(labels)" "-,waiting for approval"
+
+# Exit 0 with both flags is a plan that found nothing. There is nothing to
+# approve, and asking anyway teaches you to ignore the queue.
+reset
+"$attn_run" --id t --changes-exit 2 --awaits-approval -- sh -c 'exit 0'
+check "an empty plan is finished"    "$(states)"  "working,completed"
+check "an empty plan is not named"   "$(labels)"  "-,-"
 
 # The shell escape word is plumbing, not part of what ran.
 reset

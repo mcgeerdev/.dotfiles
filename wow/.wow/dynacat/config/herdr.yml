@@ -1,0 +1,119 @@
+# Everything happening in the terminal: Herdr agents and wrapped commands.
+#
+# Sits beside the GitHub widget in a split-column. GitHub is the remote half of
+# "what is in flight", this is the local half. Two sources feed it:
+#
+#   AGENT  source "herdr", one row per detected agent, with a focus action
+#   TERM   source "shell", one row per command run through attn-run
+#
+# Both run inside Herdr panes, which is why one block covers them.
+#
+# Reads /api/work rather than /api/attention, for the same reason the GitHub
+# widget does: this is the whole session, including panes working away that want
+# nothing. The ones that are blocked already appear in Attention.
+#
+# The rows are the server's own order, filtered in the loop rather than by a
+# gjson query, because a query can only match one source at a time and merging
+# two of them would mean re-sorting what attentiond already sorted. The two
+# queries below exist only to answer "is there anything at all".
+#
+# Only detected agents appear under AGENT. attentiond does not report a pane
+# running an ordinary shell, so this is every agent and the tab it is in, not
+# every tab.
+#
+# Open posts to attentiond, which focuses the workspace, then the tab, then the
+# pane. Herdr has no "focus pane by id" method, so that round trip is the only
+# way to land on a specific pane.
+
+- type: custom-api
+  title: Herdr
+  cache: 5s
+  # Matches the Attention widget rather than the GitHub one: a pane changes
+  # state while you watch it, and attentiond polls Herdr every two seconds.
+  update-interval: 5s
+  url: ${ATTENTIOND_URL}/api/work
+  template: |
+    {{ $agents := .JSON.Array "items.#(source==\"herdr\")#" }}
+    {{ $terms := .JSON.Array "items.#(source==\"shell\")#" }}
+    {{ if and (eq (len $agents) 0) (eq (len $terms) 0) }}
+      <p class="color-paragraph">Nothing running in the terminal.</p>
+    {{ else }}
+    <ul class="list list-gap-10 collapsible-container" data-collapse-after="8">
+      {{ range .JSON.Array "items" }}
+      {{ $source := .String "source" }}
+      {{ if or (eq $source "herdr") (eq $source "shell") }}
+
+      {{/* tone drives colour and glyph. Colour alone fails for anyone who
+           cannot separate red from green, so each state also carries a glyph.
+           The six values are the full vocabulary; anything else falls through
+           to neutral. */}}
+      {{ $tone := .String "tone" }}
+      {{ $toneClass := "tone-neutral" }}
+      {{ $glyph := "" }}
+      {{ if eq $tone "ready" }}{{ $toneClass = "tone-ready" }}{{ $glyph = ">" }}
+      {{ else if eq $tone "attention" }}{{ $toneClass = "tone-attention" }}{{ $glyph = "!" }}
+      {{ else if eq $tone "failed" }}{{ $toneClass = "tone-failed" }}{{ $glyph = "x" }}
+      {{ else if eq $tone "active" }}{{ $toneClass = "tone-active" }}{{ $glyph = "~" }}
+      {{ else if eq $tone "done" }}{{ $toneClass = "tone-done" }}{{ $glyph = "." }}
+      {{ end }}
+
+      {{/* An agent is a pane you can jump to; a command is something that ran
+           in one. They read differently enough to deserve a column saying
+           which. */}}
+      {{ $kind := "TERM" }}
+      {{ if eq $source "herdr" }}{{ $kind = "AGENT" }}{{ end }}
+
+      {{/* What this row is. An agent is its workspace, because that is what
+           Herdr's own sidebar calls it. A command is the command. */}}
+      {{ $what := .String "context.cmd" }}
+      {{ if eq $source "herdr" }}{{ $what = .String "context.workspace_label" }}{{ end }}
+
+      {{/* Where it is. A workspace label is not unique: two of mine are both
+           called "tofu", one in sites/cloudapi-dev and one in
+           sites/cloudapi-prod, and the path is the only thing that separates
+           them. Last two segments, so it reads the same on any machine and
+           does not eat the row. */}}
+      {{ $dir := .String "context.cwd" }}
+      {{ if eq $dir "" }}{{ $dir = .String "context.dir" }}{{ end }}
+      {{ $where := findSubmatch "([^/]+/[^/]+)$" $dir }}
+      {{ if eq $where "" }}{{ $where = $dir }}{{ end }}
+
+      {{/* Herdr numbers a tab it has no name for, and names it after the agent
+           when there is one of those. Neither says anything a column should
+           spend width on, so the tab only appears when somebody named it
+           something else. The agent kind is the same word on every row, so
+           only a name assigned through `herdr agent start` is shown. */}}
+      {{ $tab := .String "context.tab_label" }}
+      {{ if or (findMatch "^[0-9]+$" $tab) (eq $tab $what) (eq $tab (.String "context.agent")) }}{{ $tab = "" }}{{ end }}
+      {{ $agent := .String "context.agent_name" }}
+
+      <li class="flex items-center gap-10">
+        <span class="size-h6 shrink-0 color-paragraph" style="display:inline-block;min-width:3.4rem">{{ $kind }}</span>
+        {{/* For an agent, label is Herdr's own status word, so the pane reads
+             the same here as it does in Herdr's sidebar. */}}
+        <span class="size-h6 shrink-0 {{ $toneClass }}" style="display:inline-block;min-width:8.5rem">{{ if $glyph }}{{ $glyph }} {{ end }}{{ .String "label" }}</span>
+        <span class="shrink-0 color-highlight text-truncate">{{ $what }}</span>
+        {{ if $tab }}<span class="size-h6 shrink-0 color-paragraph">{{ $tab }}</span>{{ end }}
+        {{ if $agent }}<span class="size-h6 shrink-0 color-paragraph">{{ $agent }}</span>{{ end }}
+        <span class="grow text-truncate size-h6 color-paragraph">{{ $where }}</span>
+        <span class="size-h6 shrink-0 color-paragraph" {{ .String "updated_at" | parseTime "rfc3339" | toRelativeTime }}></span>
+        {{ range .Array "actions" }}
+        <span class="shrink-0">
+          {{ if eq (.String "method") "GET" }}
+            <a class="size-h6 color-highlight" href="{{ .String "href" }}" target="_blank">{{ .String "label" }}</a>
+          {{ else }}
+            <button type="button" class="size-h6 color-highlight" style="background:none;border:0;padding:0;font:inherit;cursor:pointer"
+              onclick="fetch('{{ .String "href" }}',{method:'POST',mode:'no-cors'});this.disabled=true">{{ .String "label" }}</button>
+          {{ end }}
+        </span>
+        {{ end }}
+      </li>
+
+      {{ end }}
+      {{ end }}
+    </ul>
+    {{ end }}
+    {{/* Open is a fetch rather than a form. Dynacat serves
+         form-action 'self', so a form posting to attentiond on another port
+         never leaves the browser and the pane never gets focused. The same
+         policy allows connect-src over http, which is what this is. */}}

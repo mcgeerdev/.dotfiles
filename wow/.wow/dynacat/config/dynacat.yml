@@ -1,0 +1,30 @@
+# Dynacat entrypoint. Pages live in their own files; this one holds the
+# server-wide settings.
+#
+# No `server.host` here on purpose: Dynacat listens on all interfaces inside the
+# container, and docker-compose.yml publishes the port on 127.0.0.1 only.
+# Setting host to localhost would bind the container's own loopback and make the
+# dashboard unreachable.
+
+server:
+  assets-path: /app/assets
+  # Scratchpad tasks. The default is /app/assets/dynacat.db, which would write
+  # a SQLite file into a stow-managed, version-controlled directory. /app/data
+  # is a gitignored bind mount instead.
+  db-path: /app/data/dynacat.db
+  # The UI editor writes YAML back into the mounted config directory. That
+  # directory is stow-managed and version-controlled; editor writes would
+  # bypass git and silently overwrite comments and intent.
+  allow-editing: false
+
+theme:
+  # Assets are cached by the browser; a CSS change needs a hard refresh
+  # (Ctrl+F5 / Cmd+Shift+R) before it shows.
+  custom-css-file: /assets/user.css
+
+pages:
+  # The landing page. The file name is older than the page name: it holds the
+  # page called Work.
+  - $include: home.yml
+  # Second page, /home, just the speed test.
+  - $include: internet.yml

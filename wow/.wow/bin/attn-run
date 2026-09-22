@@ -20,18 +20,36 @@
 # would make the one tofu command you most want on a dashboard lie. The exit
 # code still reaches the caller untouched, so `if tofu plan -detailed-exitcode`
 # in a script keeps working.
+#
+# --awaits-approval is for a command whose success leaves something for a human
+# to decide: `tofu plan -out=tfplan` exits 0 having done nothing but write a
+# file nobody has agreed to yet. Reporting that as completed is how you lose an
+# afternoon and, once you finally run the apply, hold the state lock while
+# nobody is watching. It reports needs_attention with a label instead, which is
+# what attentiond's [attention] top_labels and [notify] labels match on.
+#
+# Pair it with --id so the plan and the apply are one item: the apply reports
+# working and then completed under the same identity, which is what takes the
+# approval back off the queue.
 set -uo pipefail
 
 ATTENTIOND_URL="${ATTENTIOND_URL:-http://127.0.0.1:7717}"
 
+# The word reported for work that is waiting on a decision. It has to match
+# `[attention] top_labels` and `[notify] labels` in ~/.attn/config.toml, which
+# is what puts it at the top of the queue and makes it make a sound.
+approval_label="waiting for approval"
+
 id=""
 title=""
 changes_exit=""
+awaits_approval=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --id) id="$2"; shift 2 ;;
     --title) title="$2"; shift 2 ;;
     --changes-exit) changes_exit="$2"; shift 2 ;;
+    --awaits-approval) awaits_approval=1; shift ;;
     --) shift; break ;;
     -*) printf 'attn-run: unknown option %s\n' "$1" >&2; exit 2 ;;
     *) break ;;
@@ -39,7 +57,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ $# -eq 0 ]]; then
-  printf 'usage: attn-run [--id ID] [--title TITLE] [--changes-exit N] [--] command [args...]\n' >&2
+  printf 'usage: attn-run [--id ID] [--title TITLE] [--changes-exit N] [--awaits-approval] [--] command [args...]\n' >&2
   exit 2
 fi
 
@@ -59,7 +77,7 @@ command_line="${label[*]}"
 [[ -n "$title" ]] || title="${project} · ${command_line}"
 
 report() {
-  local event="$1" severity="${2:-}" code="${3:-}"
+  local event="$1" severity="${2:-}" code="${3:-}" item_label="${4:-}"
   command -v curl >/dev/null 2>&1 || return 0
   command -v jq >/dev/null 2>&1 || return 0
 
@@ -72,10 +90,12 @@ report() {
     --arg dir "$dir" \
     --arg cmd "$command_line" \
     --arg code "$code" \
+    --arg label "$item_label" \
     '{source: "shell", id: $id, event: $event, title: $title,
       context: ({dir: $dir, cmd: $cmd}
                 + (if $code == "" then {} else {exit_code: $code} end))}
-     + (if $severity == "" then {} else {severity: $severity} end)') || return 0
+     + (if $severity == "" then {} else {severity: $severity} end)
+     + (if $label == "" then {} else {label: $label} end)') || return 0
 
   curl -fsS --max-time 2 -o /dev/null \
     -H 'Content-Type: application/json' \
@@ -86,10 +106,26 @@ report working
 "$@"
 status=$?
 
+# The label only rides along when the caller said this command produces a
+# decision. Without the flag an exit code is just an exit code.
+approval=""
+[[ -n "$awaits_approval" ]] && approval="$approval_label"
+
 if [[ $status -eq 0 ]]; then
-  report completed
+  if [[ -n "$awaits_approval" && -z "$changes_exit" ]]; then
+    # Exit 0 and still not finished: something was produced that nobody has
+    # agreed to yet. Without --changes-exit this is the best that can be known,
+    # because a plan that changed nothing also exits 0.
+    report needs_attention warning "" "$approval"
+  else
+    # With --changes-exit, zero means the command said there is nothing to do.
+    # `tofu plan -out=tfplan -detailed-exitcode` exiting 0 wrote a plan that
+    # applies no changes, and asking somebody to approve that is the fastest
+    # way to teach them to ignore the queue.
+    report completed
+  fi
 elif [[ -n "$changes_exit" && $status -eq $changes_exit ]]; then
-  report needs_attention warning "$status"
+  report needs_attention warning "$status" "$approval"
 else
   report failed warning "$status"
 fi

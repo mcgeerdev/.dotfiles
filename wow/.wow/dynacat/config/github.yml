@@ -1,0 +1,56 @@
+# The GitHub board, fed by attentiond's GitHub source.
+#
+# This reads /api/work rather than /api/attention on purpose: the section is the
+# whole board, including the ones that are somebody else's turn. The subset that
+# wants you already appears in the Attention widget above.
+#
+# The filter is a gjson query, so attentiond does the polling and GitHub
+# credentials never come near Dynacat.
+#
+# Sits beside the Herdr widget in a split-column: both answer "what is in
+# flight", one remote and one on this machine.
+
+- type: custom-api
+  title: GitHub
+  cache: 30s
+  update-interval: 30s
+  url: ${ATTENTIOND_URL}/api/work
+  template: |
+    {{ range .JSON.Array "warnings" }}
+      {{ $warning := .String "" }}
+      {{ if findMatch "^github:" $warning }}
+        <p class="color-negative margin-bottom-10">{{ $warning }}</p>
+      {{ end }}
+    {{ end }}
+    {{ $prs := .JSON.Array "items.#(source==\"github\")#" }}
+    {{ if eq (len $prs) 0 }}
+      <p class="color-paragraph">No open pull requests involve you.</p>
+    {{ else }}
+    <ul class="list list-gap-10 collapsible-container" data-collapse-after="8">
+      {{ range $prs }}
+      {{/* tone drives colour and glyph. Colour alone fails for anyone who
+           cannot separate red from green, so each state also carries a glyph.
+           The six values are the full vocabulary; anything else falls through
+           to neutral. */}}
+      {{ $tone := .String "tone" }}
+      {{ $toneClass := "tone-neutral" }}
+      {{ $glyph := "" }}
+      {{ if eq $tone "ready" }}{{ $toneClass = "tone-ready" }}{{ $glyph = ">" }}
+      {{ else if eq $tone "attention" }}{{ $toneClass = "tone-attention" }}{{ $glyph = "!" }}
+      {{ else if eq $tone "failed" }}{{ $toneClass = "tone-failed" }}{{ $glyph = "x" }}
+      {{ else if eq $tone "active" }}{{ $toneClass = "tone-active" }}{{ $glyph = "~" }}
+      {{ else if eq $tone "done" }}{{ $toneClass = "tone-done" }}{{ $glyph = "." }}
+      {{ end }}
+      <li class="flex items-center gap-10">
+        {{/* label is the human word for why this item is here; the daemon
+             owns the vocabulary. */}}
+        <span class="size-h6 shrink-0 {{ $toneClass }}">{{ if $glyph }}{{ $glyph }} {{ end }}{{ .String "label" }}</span>
+        {{/* The board keeps a snoozed pull request, because it is still open
+             and still yours; the mark is what says it left the queue on
+             purpose. `^` is the opposite: you put it at the top. */}}
+        <a class="grow text-truncate {{ if .Bool "snoozed" }}color-paragraph{{ else }}color-highlight{{ end }}" href="{{ .String "context.url" }}" target="_blank">{{ if .Bool "snoozed" }}zz {{ end }}{{ if .Bool "bumped" }}^ {{ end }}{{ .String "title" }}</a>
+        <span class="size-h6 shrink-0 color-paragraph" {{ .String "updated_at" | parseTime "rfc3339" | toRelativeTime }}></span>
+      </li>
+      {{ end }}
+    </ul>
+    {{ end }}

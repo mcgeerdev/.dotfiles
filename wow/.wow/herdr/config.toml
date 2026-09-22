@@ -106,10 +106,24 @@ rows = [["state_icon", "state_text", "workspace", "tab"], ["agent"]]
 [ui.sidebar.spaces]
 rows = [["state_icon", "workspace"], ["branch", "git_status"]]
 
-# In-app toasts only. Desktop/system notification delivery stays off until Hum
-# owns audio and attentiond owns routing.
+# Herdr paints nothing. attentiond owns the popups on this machine: it already
+# holds one queue over agents, shell commands and pull requests, and two tools
+# announcing the same finished agent is how you learn to ignore both.
+#
+# This switch covers everything Herdr shows, including notification.show over
+# the socket, which is why attentiond delivers through macOS directly
+# (`[notify] route = "system"` in ~/.attn/config.toml) instead of through here.
 [ui.toast]
-delivery = "system"
+delivery = "off"
+
+# The other half of Herdr announcing itself: without this it still plays a
+# sound when an agent changes state in a background workspace. attentiond's
+# notification carries its own sound.
+#
+# The copied-to-clipboard popup ([ui.toast.clipboard]) stays on. That is
+# feedback for something you just did, not an interruption.
+[ui.sound]
+enabled = false
 
 [session]
 # Restore agent panes into their native sessions after a server restart, so an

@@ -106,16 +106,47 @@ wow() {
 # Report long tofu commands to attentiond so the dashboard knows they are
 # running. Everything else passes straight through, and attn-run never changes
 # the exit code.
+#
+# A saved plan gets special handling. `tofu plan -out=FILE` releases the state
+# lock when it finishes and leaves a decision behind; `tofu apply FILE` takes
+# the lock again and needs no prompt. Both halves report under one item id, so
+# the plan puts "waiting for approval" at the top of the attention queue and
+# the apply takes it back off. The alternative, a bare `tofu apply`, holds the
+# lock through its own confirmation prompt, which is the whole problem.
 tofu() {
+  local approval_id="${PWD##*/}:tofu approval"
+
   case "$1" in
-    plan|apply|destroy|init|refresh|import|test|validate)
-      # `plan -detailed-exitcode` returns 2 for "worked, and there are
-      # changes". That is a plan worth looking at, not a broken command.
-      if [[ "$1" == plan && "$*" == *-detailed-exitcode* ]]; then
-        attn-run --changes-exit 2 -- command tofu "$@"
+    plan)
+      # The two flags are independent, so the options accumulate. Picking one
+      # branch would drop --changes-exit from `plan -out=tfplan
+      # -detailed-exitcode` and report a successful changed plan as failed.
+      local opts=()
+
+      # Exit 2 is "worked, and there are changes", not a broken command. It
+      # also tells attn-run that exit 0 means there is nothing to approve.
+      [[ "$*" == *-detailed-exitcode* ]] && opts+=(--changes-exit 2)
+
+      # Only a saved plan is an approval: it exists on disk, the lock is
+      # released, and `tofu apply FILE` finishes it. A plan without -out leaves
+      # nothing to apply, so it stays an ordinary item.
+      if [[ "$*" == *-out=* || "$*" == *" -out "* ]]; then
+        opts+=(--id "$approval_id" --awaits-approval)
+      fi
+
+      attn-run "${opts[@]}" -- command tofu "$@"
+      ;;
+    apply)
+      # A bare word after `apply` is a saved plan file, which is the other half
+      # of the item the plan created. A flag is not.
+      if [[ -n "${2:-}" && "$2" != -* ]]; then
+        attn-run --id "$approval_id" -- command tofu "$@"
       else
         attn-run -- command tofu "$@"
       fi
+      ;;
+    destroy|init|refresh|import|test|validate)
+      attn-run -- command tofu "$@"
       ;;
     *)
       command tofu "$@"

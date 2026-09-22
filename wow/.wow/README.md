@@ -4,7 +4,7 @@ Configuration for the local attention-management environment. Stowed from
 `~/.dotfiles/wow/.wow` to `~/.wow`.
 
 ```
-Glance      overview, the visual attention surface
+Dynacat     overview, the visual attention surface
   |
 attentiond  state aggregation and action bridge
   |
@@ -13,7 +13,7 @@ Herdr       execution and workspace environment
 OMP         coding and research agent
 ```
 
-Each layer only talks to the one below it. Glance reads JSON and renders it.
+Each layer only talks to the one below it. Dynacat reads JSON and renders it.
 attentiond holds the normalized state and is the only thing that acts. Herdr
 owns the terminals. OMP reports its own lifecycle into Herdr through the
 installed integration.
@@ -22,23 +22,30 @@ installed integration.
 
 ```
 ~/.attn/
-└── config.toml                    attentiond: sources, polling, GitHub scope
+└── config.toml                    attentiond: sources, queue order, notifications
 
 ~/.wow/
 ├── Makefile                       start / stop / restart / logs / status / open
 ├── README.md
 ├── bin/
+│   ├── attn-daemon                start / stop / inspect attentiond
+│   ├── attn-daemon.test           its tests
 │   ├── attn-run                   run a command, report it to attentiond
 │   └── attn-run.test              its tests
-├── glance/
+├── dynacat/
 │   ├── docker-compose.yml         the container, ports, ATTENTIOND_URL
-│   ├── .gitignore                 keeps .env out of the repo
+│   ├── .gitignore                 keeps .env and data/ out of the repo
 │   ├── assets/user.css            custom CSS, served at /assets/
+│   ├── data/                      scratchpad tasks in SQLite, gitignored
 │   └── config/
-│       ├── glance.yml             server settings, includes the page
-│       ├── home.yml               the Work page: the four sections
-│       ├── attention.yml          the attentiond widgets, included by home.yml
-│       └── pull-requests.yml      the GitHub board, included by home.yml
+│       ├── dynacat.yml            server settings, includes both pages
+│       ├── home.yml               the Work page
+│       ├── attention.yml          the attention queue, included by home.yml
+│       ├── github.yml             the GitHub board, included by home.yml
+│       ├── herdr.yml              agents in this Herdr session, beside it
+│       ├── all-work.yml           everything attentiond knows, included by home.yml
+│       ├── stale.yml              work nothing has happened to in a month
+│       └── internet.yml           the Home page, the speed test alone
 └── herdr/
     └── config.toml                Herdr config
 ```
@@ -71,7 +78,8 @@ The config is deliberately small. Every key in it appears in
 | `ui.agent_panel_sort = "priority"` | sidebar is an attention queue, blocked agents first |
 | `ui.status_indicators = "symbols"` | distinct glyphs per state instead of colour-only dots |
 | `ui.sidebar.agents.rows` | shows `state_text`, the semantic state word, next to each agent |
-| `ui.toast.delivery = "herdr"` | in-app toasts only, no OS notification permissions |
+| `ui.toast.delivery = "off"` | Herdr announces nothing; attentiond owns every popup |
+| `ui.sound.enabled = false` | and no sound either, for the same reason |
 | `session.resume_agents_on_restore` | agent panes keep their identity across a server restart |
 
 ### Agent state
@@ -141,65 +149,348 @@ by default.
 
 ### Exit codes
 
-| Exit | Reported | |
+| Exit | Flags | Reported |
 | --- | --- | --- |
-| 0 | `completed` | |
-| `--changes-exit N` | `needs_attention` | a result worth reading, not a break |
-| anything else | `failed` | including a signal |
+| 0 | | `completed` |
+| 0 | `--awaits-approval` | `needs_attention`, labelled `waiting for approval` |
+| 0 | `--awaits-approval --changes-exit N` | `completed`; the command said there is nothing to do |
+| N | `--changes-exit N` | `needs_attention`, labelled if `--awaits-approval` |
+| anything else | | `failed`, including a signal |
 
 `--changes-exit` exists for `tofu plan -detailed-exitcode`, where 2 means the
 plan worked and found changes. Calling that a failure would make the one tofu
-command you most want on a dashboard lie. The zsh wrapper passes
-`--changes-exit 2` when it sees `-detailed-exitcode` on a plan, and the exit
-code still reaches you untouched either way.
+command you most want on a dashboard lie. The exit code still reaches you
+untouched in every row above.
 
-`bin/attn-run.test` covers this: exit passthrough for 0, 1, 2 and 7, the three
-states, and that an unreachable daemon changes nothing. Run it after editing
-the wrapper, since it sits in front of `tofu apply`.
+The third row is the one worth reading twice. `--changes-exit` does two jobs:
+it names the exit code that means "changes", and it tells `attn-run` that zero
+now means "no changes". A plan that saved a file applying nothing is finished,
+not waiting for you, and asking for approval anyway is the fastest way to teach
+yourself to ignore the queue.
 
-## Glance
+### Approvals and the state lock
+
+`tofu apply` on its own takes the state lock, plans, then stops at a
+confirmation prompt while still holding it. Miss the prompt and the lock sits
+held by a process doing nothing, which costs everybody else, not you.
+
+The wrapper steers you off that path. `tofu plan -out=FILE` releases the lock
+when it finishes and leaves a decision behind, so `attn-run --awaits-approval`
+reports it as `waiting for approval` rather than completed. `[attention]
+top_labels` puts that at the top of the Attention block, above a mergeable pull
+request and above a meeting about to start, and `[notify] labels` turns it into
+a system notification with a sound.
+
+Both halves report under one item id, `<directory>:tofu approval`, so
+`tofu apply FILE` clears the approval: it reports `working` under the same
+identity, then `completed`, and the item drops to `done` and ages out.
+
+The `plan` options accumulate rather than choosing a branch, because the two
+flags are independent:
+
+| Command | Options passed |
+| --- | --- |
+| `tofu plan` | none |
+| `tofu plan -detailed-exitcode` | `--changes-exit 2` |
+| `tofu plan -out=tfplan` | `--id <dir>:tofu approval --awaits-approval` |
+| `tofu plan -out=tfplan -detailed-exitcode` | both, in either flag order |
+| `tofu apply tfplan` | `--id <dir>:tofu approval` |
+| `tofu apply -var-file=x.tfvars` | none, because it is not applying a saved plan |
+
+Only `-out` earns an approval. A plan without it leaves nothing on disk to
+apply, so there is nothing to approve and it stays an ordinary item.
+
+The word `waiting for approval` is written in three places and all three must
+agree: `bin/attn-run`, and `top_labels` and `labels` in `~/.attn/config.toml`.
+
+A mid-run prompt inside a bare `tofu apply` is still invisible. `attn-run`
+passes stdin, stdout and stderr straight through and never reads them, which is
+exactly why it cannot break the command it wraps. Seeing a prompt would mean
+matching patterns against terminal output through Herdr's `pane.output_matched`,
+and a saved plan removes the prompt instead.
+
+`bin/attn-run.test` covers this: exit passthrough for 0, 1, 2 and 7, every
+reported state, both flags together in both outcomes, that the approval label
+appears only when asked for, and that an unreachable daemon changes nothing.
+Run it after editing the wrapper, since it sits in front of `tofu apply`.
+
+## Dynacat
 
 ```bash
 make start     # docker compose up -d
-make status    # glance, herdr and attentiond in one view
+make status    # dynacat, herdr and attentiond in one view
 make logs      # follow
 make stop
 make open      # http://127.0.0.1:8080
 ```
 
-Pinned to `glanceapp/glance:v0.8.6`. Published on `127.0.0.1:8080` only, so the
+Pinned to `panonim/dynacat:3.0.0`. Published on `127.0.0.1:8080` only, so the
 dashboard never reaches the LAN. `restart: unless-stopped` means it comes back
 with Docker Desktop but stays down after `make stop`.
 
-Glance itself listens on all interfaces inside the container on purpose. Setting
-`server.host` to `localhost` in `glance.yml` would bind the container's own
+Dynacat itself listens on all interfaces inside the container on purpose. Setting
+`server.host` to `localhost` in `dynacat.yml` would bind the container's own
 loopback and make the published port dead. The host bind address is what does
 the confining.
 
 Config changes are picked up on save. Changes to `docker-compose.yml` or the
 environment need `make restart`.
 
-### The page
+The UI editor (`server.allow-editing: false`, `ENABLE_EDITOR: "false"`) is
+disabled. It writes YAML back into the mounted config directory, which is a
+stow-managed tree of hand-written, version-controlled files. An editor write
+would bypass git and silently overwrite comments and intent.
 
-One page, `Work`, four sections:
+### Why Dynacat instead of Glance
+
+Glance polls each widget on its cache timer. The page is stale until the next
+poll fires, and a short cache taxes attentiond for nothing when nothing has
+changed. Dynacat pushes page updates over SSE; `custom-api` widgets get their
+own `update-interval` independent of `cache`. The attention queue updates every
+5 seconds and the page changes under you without a reload. That is what the
+stack is for.
+
+### The pages
+
+`Work` is the landing page at `/`, seven blocks:
 
 | Section | State |
 | --- | --- |
-| Attention | live, two `custom-api` widgets against attentiond |
-| Pull requests | live, `custom-api` over attentiond's GitHub source |
-| Meetings | Glance `calendar` widget plus a placeholder for the agenda |
-| Scratchpad | placeholder, capture belongs in attentiond, see below |
+| Attention | live, `custom-api` widget against `/api/attention`, 5s interval |
+| GitHub | live, `custom-api` over attentiond's GitHub source, 30s interval |
+| Herdr | live, agents and wrapped commands, beside GitHub, 5s interval |
+| All work | live, everything the daemon holds, 30s interval |
+| Stale | live, `/api/stale`, 5m interval, collapsed |
+| Scratchpad | live, Dynacat `to-do` widget, tasks in SQLite on this host |
+| Calendar | Dynacat `calendar` widget, month grid only |
 
-Pull requests come through attentiond, not from Glance. attentiond polls GitHub
-for the open pull requests you authored and the ones waiting on your review,
-labels each with the word that explains it (`review requested`, `checks
-running`, `rebase required`, `ready to merge`, `stale draft`), and serves them
-alongside everything else. The widget filters `/api/work` down to
+`Home` is the second page, at `/home`, with two blocks:
+
+| Block | State |
+| --- | --- |
+| Internet | live, Dynacat `monitor` widget, three sites, 2m interval |
+| Speed test | Dynacat `speedtest` widget over LibreSpeed, 6h interval |
+
+GitHub items come through attentiond, not from Dynacat. attentiond polls GitHub
+for the open pull requests you authored, the ones waiting on your review, and
+the ones you have already reviewed, labels each with the word that explains it
+(`review requested`, `checks running`, `rebase required`, `ready to merge`,
+`stale draft`), and serves them alongside everything else.
+
+That third search is the one that catches a pull request you approved and now
+have to merge: approving it consumes the review request, so without it the
+branch disappears from the board exactly when it becomes your job. Each item
+says which search found it in `context.role`: `author`, `reviewer` or
+`reviewed`.
+
+The widget filters `/api/work` down to
 `source == "github"` with a gjson query, so the board shows every pull request
 while the Attention widget above shows only the ones waiting on you.
 
 No GitHub credential lives here. attentiond finds one from `GITHUB_TOKEN`,
 `GH_TOKEN`, or `gh auth token`, in that order.
+
+Herdr sits beside it in a `split-column`, covering everything happening in the
+terminal. Two sources feed it, with a column saying which:
+
+| Kind | Source | One row per |
+| --- | --- | --- |
+| `AGENT` | `herdr` | detected agent, with an Open button that focuses the pane |
+| `TERM` | `shell` | command run through `attn-run` |
+
+Both run inside Herdr panes, which is why one block covers them. GitHub is the
+remote half of "what is in flight" and this is the local half.
+
+The rows are attentiond's own order, filtered inside the loop rather than by a
+gjson query. A query matches one source at a time, and merging two of them
+would mean re-sorting what the daemon already sorted; Dynacat's `append` only
+returns `[]any`, which its sort helpers will not take anyway.
+
+An agent row shows its workspace, a command row shows the command. Both show
+the last two segments of the directory, because a workspace label is not
+unique: two of mine are both called `tofu`, one in `sites/cloudapi-dev` and one
+in `sites/cloudapi-prod`, and the path is the only thing that separates them.
+The tab name and the agent kind appear only when they say something: Herdr
+numbers a tab it has no name for and otherwise names it after the agent, and
+the kind is the same word on every row.
+
+Only agents appear under `AGENT`. attentiond does not report a pane running an
+ordinary shell, so this is every agent and the tab it is in, not every tab.
+
+#### A Dynacat bug this works around
+
+`split-column` renders a `.masonry` container and `masonry.js` is supposed to
+move its children into `.masonry-column` wrappers. It never does: the page
+fetches its content and morphs it in *after* `setupMasonries()` runs, so the
+container initialises while empty, `items.length` is 0, the column count clamps
+away, and `data-initialized` then stops it re-running when the widgets arrive.
+The two widgets end up as bare flex items about 100px wide inside an 800px
+column.
+
+`user.css` gives those orphaned children the sizing and wrapping the columns
+would have had, using masonry's own 330px `minColumnWidth` as the flex basis.
+Two fit while there is room for two, and they stack below roughly 640px of
+window. The rules are scoped to `.masonry > .widget`, so if the bug is fixed
+upstream the children become `.masonry-column` and the rules stop applying with
+no cleanup needed.
+
+### Item states
+
+attentiond puts a `tone` field on every item. The widget templates read it to
+pick a CSS class; `user.css` turns that class into a colour. The six tones are
+the complete vocabulary:
+
+| Tone | Meaning | CSS class |
+| --- | --- | --- |
+| `ready` | one action from finished; `ready to merge` is the only example | `.tone-ready` |
+| `attention` | wants you now: review requested, changes requested, rebase required, blocked agent, meeting starting soon | `.tone-attention` |
+| `failed` | broken: checks failing, failed command | `.tone-failed` |
+| `active` | running: working, checks running, meeting in progress | `.tone-active` |
+| `done` | finished and unread | `.tone-done` |
+| `neutral` | somebody else's turn | `.tone-neutral` |
+
+`ready` gets the strongest treatment on screen: its own amber accent colour,
+bold weight, a left border, and a `>` glyph. Every tone also carries a glyph
+because colour alone fails for anyone who cannot separate red from green.
+
+The words (`ready to merge`, `review requested`, etc.) come from the daemon via
+the `label` field. The templates never construct them; they only render them.
+
+### Queue order
+
+The daemon sorts. The templates render in the order they receive, so what sits
+at the top is a decision in `~/.attn/config.toml` and in attentiond, not in a
+widget. Highest first:
+
+| Rank | What sits there |
+| --- | --- |
+| 110 | anything you bumped by hand |
+| 100 | a saved tofu plan waiting for approval, from `[attention] top_labels` |
+| 50 | a meeting starting soon, the only work here with a deadline |
+| 40 | a pull request ready to merge |
+| 30 | a review requested in a `[github] priority_repos` repository, which is `didx-xyz/tofu` |
+| 20 | a review requested anywhere else |
+| 10 | everything else that wants you: a blocked agent, failing checks, a rebase |
+| 5 | done and unread |
+| 0 | running, or somebody else's turn |
+
+Finished work leaves the Attention section after `[attention] done_ttl`, ten
+minutes here, and keeps appearing in All work below it. Herdr only retires a
+done pane when you focus it, so without that clock a finished agent you never
+clicked would hold a place in the queue for as long as the pane stayed open.
+
+### Snooze, bump, stale
+
+Each control has one home, so no row carries a button that does nothing for
+it. Both decisions outlive a daemon restart: attentiond keeps them in
+`~/.local/state/attentiond/decisions.json`, the one piece of state no source
+can rebuild.
+
+| Button | Where it is |
+| --- | --- |
+| `Snooze 4h`, `Bump` | Attention, beside Open |
+| `Bump` | Stale, beside Open |
+| `Wake`, `Unbump` | All work, on the rows carrying a decision |
+
+`Snooze 4h` takes an item out of the Attention section for the rest of the
+working stretch. It stays in All work, greyed and marked `zz`, with `Wake`
+beside it: that is the only section that still shows a snoozed item, which is
+why undo lives there and not in the queue that dropped it. Notifications about
+it stop too. The snooze ends early when the item's label moves, so a review you
+deferred comes straight back when it turns into `ready to merge`: that is new
+information, not the thing you postponed.
+
+`Bump` puts one item above everything, rank 110, marked `^`. It is the same
+kind of statement as `top_labels`, one week at a time instead of one class of
+work forever, so it goes above it. `Unbump`, in All work, gives the source's
+own rank back.
+
+`[attention] stale_after`, thirty days here, is the other end. Past it an item
+leaves the Attention section, the GitHub board and All work, and appears only
+under Stale. The clock is the item's own: for a pull request that is the last
+push, review or comment, so thirty days means nobody has touched the work, not
+that you stopped scrolling. All work prints the count it is holding back, so
+the board never looks complete when it is not. Bump is the way out, and a
+bumped item cannot go stale again until it is cleared.
+
+### Notifications
+
+A dashboard only works on somebody who is looking at it. attentiond is the
+other half, and on this machine it is the only thing allowed to interrupt you:
+`[notify] route = "system"` posts to macOS Notification Center through
+`terminal-notifier`, and Herdr's own toasts and sounds are off.
+
+The route matters because Herdr's `[ui.toast] delivery` is one switch over
+everything Herdr shows, socket calls included. Silencing Herdr's agent toasts
+through it would have silenced attentiond too, so attentiond stopped going
+through Herdr.
+
+`[notify] labels` names what is worth an interruption:
+
+| Label | What it means |
+| --- | --- |
+| `done` | an agent finished a turn, or a wrapped command finished |
+| `blocked` | an agent is waiting on you |
+| `waiting for approval` | a saved tofu plan nobody has applied |
+| `checks running` | a pull request started its checks |
+| `ready to merge` | a pull request is green and approved |
+
+OMP's own notifications are off (`completion.notify`, `ask.notify`). It routed
+them through `herdr notification show`, which is the same popup attentiond
+already posts for `done` and `blocked`.
+
+Only a change notifies, never a first sighting. A repeat of the same label on
+the same item is suppressed for fifteen minutes, unless the item goes back to
+working in between: two agent turns four minutes apart are two notifications,
+a pull request bouncing between `ready to merge` and `approved` is one. A
+change that happens while the daemon is down is never announced, and the item
+is at the top of the queue when it comes back.
+
+A snoozed item is silent: it is the one popup you have already refused. The
+snooze lapses when the item's label moves, so the change that ends it still
+reaches you.
+
+### Scratchpad
+
+A Dynacat `to-do` widget with `storage: server`, so tasks sit in SQLite at
+`dynacat/data/dynacat.db` rather than in one browser's localStorage. The
+default path is `/app/assets/dynacat.db`, which would drop a database into a
+stow-managed, version-controlled directory; `server.db-path` moves it to a
+gitignored bind mount.
+
+It is not in attentiond, and that is the point. The daemon models work with a
+lifecycle: something starts, runs, finishes, or wants a human. A half-formed
+thought has no lifecycle, and posting it to `/api/events` would file it in the
+attention queue, which is the one place it does not belong. The queue is for
+things that are already work.
+
+### Internet
+
+Two questions on two timescales, so two blocks. The `monitor` widget answers
+"is the link up", the speed test answers "what throughput am I getting", and
+neither answers the other.
+
+`monitor` sends one GET per site per check and calls a site OK on HTTP 200.
+The three sites are Cloudflare's resolver, Google's resolver and GitHub: two
+independent resolvers so one provider having a bad day does not read as an
+outage, and GitHub because it is what attentiond polls. All three answer 200
+to a plain GET from inside the container, so no `alt-status-codes` are set.
+Each row shows the status, the response time and a strip of ticks for recent
+checks. At `cache: 2m` the strip covers the last 30 minutes; it is held in
+memory and starts empty after a container restart.
+
+The page uses the default 1600px width. At `slim` the three sites pack into
+columns narrow enough to clip `200 OK • 50ms`.
+
+### Speed test
+
+The speed test runs on its interval, not when you open the page, so `/home`
+shows the last result until the timer fires. No `server` is set, so the widget
+picks a public LibreSpeed server and saturates the link for 15 seconds in each
+direction; that is why the interval is hours. The test runs from inside the
+container, through Docker Desktop's VM, so the number is the link as the
+container sees it, not as the host sees it. Dynacat ships the widget as work
+in progress and it renders a WIP badge.
 
 ### Which repositories
 
@@ -232,64 +523,62 @@ POST /api/events                                     any local process reports l
 POST /api/actions/{source}/{kind}/{target}/{action}  go back to where the work is
 ```
 
-Glance fetches JSON server-side, from inside the container, so its widget URLs
+Dynacat fetches JSON server-side, from inside the container, so its widget URLs
 use `host.docker.internal`. On Docker Desktop that name resolves to the host and
 reaches services bound to the host's `127.0.0.1`, which is the only address
 attentiond will listen on. Change the port in one place, `ATTENTIOND_URL` in
-`glance/docker-compose.yml`, or by exporting `ATTENTIOND_URL` before `make
+`dynacat/docker-compose.yml`, or by exporting `ATTENTIOND_URL` before `make
 start`.
 
 Action links are the other direction. They are submitted by the browser, not by
-Glance, so they use a host address:
+Dynacat, so they use a host address:
 
 ```
 http://127.0.0.1:7717/api/actions/herdr/pane/w1:p1/focus
 ```
 
-**Glance never runs a Herdr command.** It renders the `href` attentiond puts in
+Dynacat never runs a Herdr command. It renders the `href` attentiond puts in
 each item and asks attentiond to act. Anything that needs to reach the machine
-gets added to attentiond, not to a Glance widget. That is what keeps the
+gets added to attentiond, not to a Dynacat widget. That is what keeps the
 dashboard a read model with buttons, and keeps one place that knows how to touch
 Herdr.
 
-While attentiond is down, its two widgets show an error and the rest of the page
+While attentiond is down, its widgets show an error and the rest of the page
 is unaffected. This is the normal state of things, not a failure.
 
 ## Still manual
 
-- **attentiond is not installed as a service.** Start it from its repository
+- attentiond is not installed as a service. Start it from its repository
   with `go run ./cmd/attentiond` and no flags; it reads `~/.attn/config.toml`.
   Add `--herdr-fixture testdata/session-snapshot.json` to see the dashboard
   with data while Herdr is empty. No launchd job yet.
-- **Meetings has no data source.** Glance v0.8.6 has no iCal or CalDAV widget,
-  and a private `.ics` URL has not been supplied. The widget text spells out the
-  two options.
-- **Pull requests needs a GitHub credential.** attentiond resolves one from
-  `GITHUB_TOKEN`, `GH_TOKEN` or `gh auth token`. Without one the source turns
-  itself off and the widget shows no pull requests.
-- **`glance/.env` is untracked and optional.** Compose loads it if present. Keep
+- GitHub needs a credential. attentiond resolves one from `GITHUB_TOKEN`,
+  `GH_TOKEN` or `gh auth token`. Without one the source turns itself off and
+  the widget shows no pull requests.
+- `dynacat/.env` is untracked and optional. Compose loads it if present. Keep
   tokens there, never in `config/`.
-- **Scratchpad holds nothing yet.** Glance's `to-do` widget would store tasks in
-  one browser's local storage, a second list of work competing with the one
-  attentiond holds. Capture goes to `POST /api/events` when attentiond grows it.
+- `dynacat/data/dynacat.db` is the scratchpad, and nothing backs it up. It is
+  one table, `todo_tasks`, keyed by `list_id` and `position`.
 
 ## Removing this
 
-Five files here are new: `Makefile`, `README.md`, `glance/.gitignore`,
-`glance/config/attention.yml`, `glance/config/pull-requests.yml`. Delete those,
-and `~/.dotfiles/wow/.attn/config.toml` with the `~/.attn` link stow made for
-it.
+Nine files here are new: `Makefile`, `README.md`, `dynacat/.gitignore`,
+`dynacat/config/attention.yml`, `dynacat/config/github.yml`,
+`dynacat/config/herdr.yml`, `dynacat/config/all-work.yml`,
+`dynacat/config/stale.yml`, `dynacat/config/internet.yml`. Delete those, and
+`~/.dotfiles/wow/.attn/config.toml` with the `~/.attn` link stow made for it.
 
 Four already existed and were rewritten in place, so they are restored, not
-removed:
+removed. They arrived as Glance's vendored defaults, in a directory called
+`glance/` before the move to Dynacat:
 
 - `herdr/config.toml` was an empty file. `: > herdr/config.toml`.
-- `glance/config/home.yml` held the stock Glance sample page: calendar, the RSS
-  feeds that now live in the Information widget, Twitch channels, Hacker News
-  and Lobsters, YouTube videos, two Reddit widgets, London weather, markets, and
-  GitHub releases. Take a fresh copy from `docs/glance.yml` in
-  [glanceapp/glance](https://github.com/glanceapp/glance/blob/v0.8.6/docs/glance.yml).
-- `glance/config/glance.yml` was:
+- `dynacat/config/home.yml` held the stock sample page: calendar, the RSS feeds
+  that now live in the Information widget, Twitch channels, Hacker News and
+  Lobsters, YouTube videos, two Reddit widgets, London weather, markets, and
+  GitHub releases. Take a fresh copy from `docs/docs/dynacat.yml` in
+  [Panonim/dynacat](https://github.com/Panonim/dynacat/blob/main/docs/docs/dynacat.yml).
+- `dynacat/config/dynacat.yml` was:
 
   ```yaml
   server:
@@ -302,7 +591,7 @@ removed:
     - $include: home.yml
   ```
 
-- `glance/docker-compose.yml` was:
+- `dynacat/docker-compose.yml` was:
 
   ```yaml
   services:
@@ -319,7 +608,7 @@ removed:
       env_file: .env
   ```
 
-Never touched, never delete: `glance/.env`, `glance/assets/user.css`, the
+Never touched, never delete: `dynacat/.env`, `dynacat/assets/user.css`, the
 `~/.wow` stow link itself, and the `HERDR_CONFIG_PATH` export in `~/.zshrc`.
 All four predate this setup.
 

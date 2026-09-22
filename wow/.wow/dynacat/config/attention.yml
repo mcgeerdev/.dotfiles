@@ -1,0 +1,84 @@
+# Attention widget, fed by attentiond (http://127.0.0.1:7717 by default).
+#
+# Included from home.yml. ATTENTIOND_URL comes from docker-compose.yml and is
+# the address as seen from inside the container. Dynacat fetches this JSON
+# server-side, so it must be host.docker.internal, not localhost.
+#
+# The action buttons are sent by the browser, so they use the absolute hrefs
+# attentiond puts in each item (built from its --public-url, which is a host
+# address). Open goes to GitHub or focuses a Herdr pane; Snooze and Bump change
+# attentiond's own queue. Dynacat never runs a command itself; it only asks
+# attentiond to act.
+#
+# While attentiond is not running this widget renders an error and the
+# rest of the dashboard is unaffected.
+
+- type: custom-api
+  title: Attention
+  cache: 5s
+  update-interval: 5s
+  url: ${ATTENTIOND_URL}/api/attention
+  template: |
+    {{/* An incomplete queue has to say so here. A capped list that looks
+         complete is worse than no list. */}}
+    {{ range .JSON.Array "warnings" }}
+      <p class="color-negative margin-bottom-10">{{ .String "" }}</p>
+    {{ end }}
+    {{ $items := .JSON.Array "items" }}
+    {{ if eq (len $items) 0 }}
+      <p class="color-positive">Nothing is waiting on you.</p>
+    {{ else }}
+    <ul class="list list-gap-14">
+      {{ range $items }}
+      {{/* tone drives colour and glyph. Colour alone fails for anyone who
+           cannot separate red from green, so each state also carries a glyph.
+           The six values are the full vocabulary; anything else falls through
+           to neutral. */}}
+      {{ $tone := .String "tone" }}
+      {{ $toneClass := "tone-neutral" }}
+      {{ $glyph := "" }}
+      {{ if eq $tone "ready" }}{{ $toneClass = "tone-ready" }}{{ $glyph = ">" }}
+      {{ else if eq $tone "attention" }}{{ $toneClass = "tone-attention" }}{{ $glyph = "!" }}
+      {{ else if eq $tone "failed" }}{{ $toneClass = "tone-failed" }}{{ $glyph = "x" }}
+      {{ else if eq $tone "active" }}{{ $toneClass = "tone-active" }}{{ $glyph = "~" }}
+      {{ else if eq $tone "done" }}{{ $toneClass = "tone-done" }}{{ $glyph = "." }}
+      {{ end }}
+      <li {{ if eq $tone "ready" }}class="tone-ready-item"{{ end }}>
+        <div class="flex items-center gap-10">
+          {{/* label is the human word for why this item is here; the daemon
+               owns the vocabulary. The glyph prefix makes tone scannable
+               without relying on colour alone. */}}
+          <span class="size-h6 shrink-0 {{ $toneClass }}">{{ if $glyph }}{{ $glyph }} {{ end }}{{ .String "label" }}</span>
+          {{/* A bumped item is first because you said so, not because of what
+               it is. The mark is the difference between the queue being wrong
+               and the queue doing what you told it. */}}
+          <span class="grow text-truncate color-highlight">{{ if .Bool "bumped" }}^ {{ end }}{{ .String "title" }}</span>
+          <span class="size-h6 shrink-0 color-paragraph" {{ .String "updated_at" | parseTime "rfc3339" | toRelativeTime }}></span>
+        </div>
+        <ul class="list-horizontal-text margin-top-3">
+          <li class="color-paragraph">{{ .String "source" }}</li>
+          {{ range .Array "actions" }}
+          <li>
+            {{ if eq (.String "method") "GET" }}
+              <a class="color-highlight" href="{{ .String "href" }}" target="_blank">{{ .String "label" }}</a>
+            {{ else }}
+              <button type="button" class="color-highlight" style="background:none;border:0;padding:0;font:inherit;cursor:pointer"
+                onclick="fetch('{{ .String "href" }}',{method:'POST',mode:'no-cors'});this.disabled=true">{{ .String "label" }}</button>
+            {{ end }}
+          </li>
+          {{ end }}
+        </ul>
+      </li>
+      {{ end }}
+    </ul>
+    {{ end }}
+    {{/* A fetch, not a form. Dynacat serves `form-action 'self'`, so a form
+         posting to attentiond on another port is dropped by the browser
+         before it is sent, silently. The same policy allows connect-src over
+         http, which is what this is.
+
+         no-cors because attentiond sets no CORS headers and should not: it
+         has no authentication, and a readable response would hand the
+         contents of this queue to any page open in this browser. The request
+         still arrives. The widget re-renders every five seconds, which is
+         where the result shows up. */}}

@@ -1,0 +1,47 @@
+# The daily starting point.
+#
+# Five sections: Attention, Pull requests, All work, Stale, Scratchpad, plus
+# the calendar. Attention, Pull requests, All work and Stale are live against
+# attentiond; the calendar and the scratchpad are built-in Dynacat widgets.
+
+- name: Work
+  # SSE-pushed live updates are the reason this stack uses Dynacat: the
+  # attention queue changes under you without a reload. This is the default,
+  # but stated here so the intent is explicit.
+  dynamic-updates: true
+  columns:
+    - size: small
+      widgets:
+        - type: calendar
+          first-day-of-week: monday
+
+        # A place for a thought that is not work yet. Server storage, so it
+        # survives a browser profile, a different machine on the same host, and
+        # a container replacement; the file is a gitignored bind mount.
+        #
+        # This is deliberately not in attentiond. The daemon models work with a
+        # lifecycle: something starts, runs, finishes or wants a human. A note
+        # has no lifecycle, and posting one to /api/events would put it in the
+        # attention queue, which is the one place it does not belong.
+        - type: to-do
+          title: Scratchpad
+          id: scratchpad
+          storage: server
+
+    - size: full
+      widgets:
+        - $include: attention.yml
+
+        # Side by side: both answer "what is in flight", one remote and one on
+        # this machine. A split-column falls back to one column when the window
+        # is too narrow, so nothing is lost on a laptop screen.
+        - type: split-column
+          widgets:
+            - $include: github.yml
+            - $include: herdr.yml
+
+        - $include: all-work.yml
+
+        # Everything the daemon has stopped showing above, because nothing has
+        # happened to it in a month. Out of the way, and still reachable.
+        - $include: stale.yml

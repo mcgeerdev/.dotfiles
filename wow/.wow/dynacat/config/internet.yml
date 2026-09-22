@@ -1,0 +1,67 @@
+# The Home page: is the link up, and how fast is it.
+#
+# Included from dynacat.yml as the second page, so Work stays the landing page
+# at / and this one lives at /home.
+#
+# Two blocks, because "internet" is two questions on two timescales:
+#
+# - `monitor` answers "is it up right now". One GET per site per check, the
+#   response time in milliseconds, and a strip of ticks for the recent checks.
+# - `speedtest` answers "what throughput am I getting". It saturates the link
+#   for 15 seconds in each direction, so it runs hours apart and cannot answer
+#   the first question.
+#
+# Both are built-in Dynacat widgets (3.0.0, internal/dynacat/widget-monitor.go
+# and widget-speedtest.go). Neither needs a token or a second container.
+#
+# The request path for both is the container, then Docker Desktop's VM, then
+# the internet. These are the link as the container sees it, which is not the
+# same measurement as the same checks run natively on the host.
+
+- name: Home
+  slug: home
+  # Default width (1600px). Slim (1100px) squeezed the monitor into three
+  # columns narrow enough to clip "200 OK • 50ms"; centering keeps the two
+  # blocks off the top edge of an otherwise empty page.
+  center-vertically: true
+  columns:
+    # A page must have one or two `full` columns, so the blocks go in one
+    # rather than in a fixed-width `small`.
+    - size: full
+      widgets:
+        # Runs on its interval, not when you open the page: /home shows the
+        # last result until the timer fires. Dynacat still marks this widget
+        # work in progress, so it renders a WIP badge.
+        - type: speedtest
+          # The default, stated because it is the one number that matters here:
+          # with no `server` set, the widget picks a public community-hosted
+          # LibreSpeed server, and each run saturates the link for 15 seconds
+          # in each direction. Six hours apart is polite; seconds apart is not.
+          update-interval: 6h
+
+        # Three probes: two DNS resolvers on separate networks, so one
+        # provider having a bad day does not read as "the internet is down",
+        # and GitHub because it is what attentiond polls. All three answer 200
+        # to a plain GET from inside this container, so no `alt-status-codes`
+        # are needed.
+        #
+        # A failed check shows ERROR with the reason on hover, and the widget
+        # keeps rendering the sites that answered.
+        - type: monitor
+          title: Internet
+          # Every two minutes, matching the widget's default browser poll. The
+          # history strip holds 15 checks and drops anything older than an
+          # hour, so this covers the last 30 minutes. It lives in memory and
+          # starts empty after a container restart.
+          cache: 2m
+          show-history: true
+          sites:
+            # One word each. Both styles lay the sites out side by side and
+            # clip what does not fit, and the status line is the part worth
+            # reading.
+            - title: Cloudflare
+              url: https://one.one.one.one
+            - title: Google
+              url: https://dns.google
+            - title: GitHub
+              url: https://github.com

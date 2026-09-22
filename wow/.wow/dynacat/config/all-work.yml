@@ -1,0 +1,81 @@
+# Everything attentiond knows, in one list, from every source.
+#
+# Last on the page on purpose: the sections above are the ones that want a
+# decision. This is the backstop, for when something is missing from them and
+# you want to see what the daemon actually holds.
+
+- type: custom-api
+  title: All work
+  cache: 5s
+  update-interval: 30s
+  url: ${ATTENTIOND_URL}/api/work
+  template: |
+    {{/* What this list is not showing. The backstop has to admit when it is
+         holding something back, or it stops being a backstop. */}}
+    {{ $stale := .JSON.Int "stale_count" }}
+    {{ if gt $stale 0 }}
+      <p class="size-h6 color-paragraph margin-bottom-10">{{ $stale }} stale, in the section below</p>
+    {{ end }}
+    {{ $items := .JSON.Array "items" }}
+    {{ if eq (len $items) 0 }}
+      <p class="color-paragraph">Nothing in flight.</p>
+    {{ else }}
+    <ul class="list list-gap-10 collapsible-container" data-collapse-after="8">
+      {{ range $items }}
+      {{/* What kind of work this is. Herdr panes and shell commands are both
+           terminal but mean different things: one is an agent waiting on you,
+           the other a command that ran. An unknown source falls back to its
+           own name rather than a blank column. */}}
+      {{ $source := .String "source" }}
+      {{ $kind := $source }}
+      {{ if eq $source "herdr" }}{{ $kind = "AGENT" }}{{ end }}
+      {{ if eq $source "github" }}{{ $kind = "PR" }}{{ end }}
+      {{ if eq $source "calendar" }}{{ $kind = "CAL" }}{{ end }}
+      {{ if eq $source "shell" }}{{ $kind = "TERM" }}{{ end }}
+
+      {{/* tone drives colour and glyph. Colour alone fails for anyone who
+           cannot separate red from green, so each state also carries a glyph.
+           The six values are the full vocabulary; anything else falls through
+           to neutral. */}}
+      {{ $tone := .String "tone" }}
+      {{ $toneClass := "tone-neutral" }}
+      {{ $glyph := "" }}
+      {{ if eq $tone "ready" }}{{ $toneClass = "tone-ready" }}{{ $glyph = ">" }}
+      {{ else if eq $tone "attention" }}{{ $toneClass = "tone-attention" }}{{ $glyph = "!" }}
+      {{ else if eq $tone "failed" }}{{ $toneClass = "tone-failed" }}{{ $glyph = "x" }}
+      {{ else if eq $tone "active" }}{{ $toneClass = "tone-active" }}{{ $glyph = "~" }}
+      {{ else if eq $tone "done" }}{{ $toneClass = "tone-done" }}{{ $glyph = "." }}
+      {{ end }}
+
+      <li class="flex items-center gap-10">
+        <span class="size-h6 shrink-0 color-paragraph" style="display:inline-block;min-width:3.2rem">{{ $kind }}</span>
+        {{/* label is the human word for why this item is here; the daemon
+             owns the vocabulary. */}}
+        <span class="size-h6 shrink-0 {{ $toneClass }}" style="display:inline-block;min-width:8.5rem">{{ if $glyph }}{{ $glyph }} {{ end }}{{ .String "label" }}</span>
+        {{/* A snoozed item is deferred, not lost: this is the only section
+             that still shows it, so it says so. A bumped one carries the
+             mark that explains why it is first in the queue above. */}}
+        <span class="grow text-truncate {{ if .Bool "snoozed" }}color-paragraph{{ else }}color-highlight{{ end }}">{{ if .Bool "snoozed" }}zz {{ end }}{{ if .Bool "bumped" }}^ {{ end }}{{ .String "title" }}</span>
+        <span class="size-h6 shrink-0 color-paragraph" {{ .String "updated_at" | parseTime "rfc3339" | toRelativeTime }}></span>
+        {{/* Wake and Unbump live here and nowhere else, because this is the
+             only section that still shows a snoozed item: the Attention block
+             dropped it, which was the point of snoozing it. Undo has to sit
+             next to the mark that says why the row is quiet, or the only way
+             back is curl.
+
+             Snooze and Bump are not repeated here. Each control has one home:
+             those two are in Attention, Bump again in Stale, these two here,
+             and a row that carries no decision gets no button at all. */}}
+        {{ range .Array "actions" }}
+        {{ $id := .String "id" }}
+        {{ if or (eq $id "wake") (eq $id "unbump") }}
+        <span class="shrink-0">
+          <button type="button" class="size-h6 color-highlight" style="background:none;border:0;padding:0;font:inherit;cursor:pointer"
+            onclick="fetch('{{ .String "href" }}',{method:'POST',mode:'no-cors'});this.disabled=true">{{ .String "label" }}</button>
+        </span>
+        {{ end }}
+        {{ end }}
+      </li>
+      {{ end }}
+    </ul>
+    {{ end }}

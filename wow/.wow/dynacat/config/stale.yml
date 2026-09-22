@@ -1,0 +1,64 @@
+# Work nothing has happened to for longer than [attention] stale_after.
+#
+# Last on the page, collapsed, and slow to refresh. A month-old pull request is
+# not news; it is the list you read on purpose, once, when you have time.
+#
+# These items are in no other section. attentiond keeps them out of
+# /api/attention and /api/work entirely, which is what stops a forgotten branch
+# from sitting in the backstop forever teaching you to skim it. The All work
+# widget above prints the count so the board never looks complete while this
+# section is holding something.
+#
+# Bump is the way back: it puts the item at the top of the attention queue and
+# exempts it from going stale again until you clear it.
+
+- type: custom-api
+  title: Stale
+  cache: 30s
+  update-interval: 5m
+  url: ${ATTENTIOND_URL}/api/stale
+  template: |
+    {{ $items := .JSON.Array "items" }}
+    {{ if eq (len $items) 0 }}
+      <p class="color-paragraph">Nothing has been forgotten.</p>
+    {{ else }}
+    <ul class="list list-gap-10 collapsible-container" data-collapse-after="5">
+      {{ range $items }}
+      {{ $source := .String "source" }}
+      {{ $kind := $source }}
+      {{ if eq $source "herdr" }}{{ $kind = "AGENT" }}{{ end }}
+      {{ if eq $source "github" }}{{ $kind = "PR" }}{{ end }}
+      {{ if eq $source "calendar" }}{{ $kind = "CAL" }}{{ end }}
+      {{ if eq $source "shell" }}{{ $kind = "TERM" }}{{ end }}
+
+      {{/* No tone colours here. Everything in this list is the same kind of
+           thing, and painting a month-old failure red would put it back in
+           competition with work that is actually moving. */}}
+      <li class="flex items-center gap-10">
+        <span class="size-h6 shrink-0 color-paragraph" style="display:inline-block;min-width:3.2rem">{{ $kind }}</span>
+        <span class="size-h6 shrink-0 color-paragraph" style="display:inline-block;min-width:8.5rem">{{ .String "label" }}</span>
+        <span class="grow text-truncate color-paragraph">{{ .String "title" }}</span>
+        <span class="size-h6 shrink-0 color-paragraph" {{ .String "updated_at" | parseTime "rfc3339" | toRelativeTime }}></span>
+        <ul class="list-horizontal-text shrink-0">
+          {{ range .Array "actions" }}
+          {{ $id := .String "id" }}
+          {{ if or (eq $id "open") (eq $id "bump") }}
+          <li>
+            {{ if eq (.String "method") "GET" }}
+              <a class="color-highlight" href="{{ .String "href" }}" target="_blank">{{ .String "label" }}</a>
+            {{ else }}
+              <button type="button" class="color-highlight" style="background:none;border:0;padding:0;font:inherit;cursor:pointer"
+                onclick="fetch('{{ .String "href" }}',{method:'POST',mode:'no-cors'});this.disabled=true">{{ .String "label" }}</button>
+            {{ end }}
+          </li>
+          {{ end }}
+          {{ end }}
+        </ul>
+      </li>
+      {{ end }}
+    </ul>
+    {{ end }}
+    {{/* Bump is a fetch rather than a form: Dynacat's own CSP sends
+         form-action 'self', which drops a cross-origin form post before it
+         leaves the browser. This section refreshes every five minutes, so a
+         bumped item stays on screen with its button disabled until then. */}}

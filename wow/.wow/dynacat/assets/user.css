@@ -1,0 +1,121 @@
+/* Dynacat custom CSS, served at /assets/user.css.
+ *
+ * Browsers cache this. A hard refresh (Cmd+Shift+R) is needed to see a change.
+ */
+
+/* Text size.
+ *
+ * Dynacat sizes everything in rem off a 10px root, so its body text lands at
+ * 1.3rem = 13px. Setting the root is the one honest lever: it scales the whole
+ * design together instead of leaving 13px labels beside 18px titles.
+ *
+ *   13.85px root x 1.3rem = 18px body, which is what
+ *   https://docs.terragrunt.com/getting-started renders its prose at.
+ *
+ * So `1rem` is now 13.85px here, not 16px and not 18px. A browser's default
+ * root is 16px; the dashboard overrides it to 10px so that its own rem values read as
+ * "tenths of a pixel-ish"; this moves that dial and nothing else.
+ *
+ * Line height is deliberately untouched. Terragrunt runs 1.6 for long-form
+ * prose, which would add a third of the height to every dashboard row and turn
+ * a scannable list into a scroll.
+ */
+:root {
+  font-size: 13.85px;
+}
+
+/* Tone classes.
+ *
+ * These six classes are the dashboard's whole rendering of attentiond's `tone`
+ * field. The words (ready, attention, failed, active, done, neutral) come from
+ * the daemon; the colours come from here. Each class is used by at least one
+ * widget template. Glyphs in the templates carry the same signal for anyone
+ * who cannot rely on colour alone.
+ *
+ * `ready` gets its own accent because it is the most important state on the
+ * page. `color-positive` is taken by done and `color-negative` by attention and
+ * failed, so a new property distinguishes it visually.
+ */
+:root {
+  /* Amber: distinct from green (done) and red (attention/failed), and warmer
+   * than the blue highlight, so it reads as urgent-but-good. */
+  --color-ready: #e8a020;
+}
+
+.tone-ready {
+  color: var(--color-ready);
+  font-weight: 600;
+}
+
+/* ready items get a left border so they separate from the rows below even in
+ * a long list, and even on a monochrome display. */
+.tone-ready-item {
+  border-left: 3px solid var(--color-ready);
+  padding-left: 0.5rem;
+}
+
+/* attention and failed share the theme's negative colour: both are bad, and
+ * red is the right answer for both. They separate on weight and on their
+ * glyphs, because five distinguishable colours cannot carry six tones. */
+.tone-attention {
+  color: var(--color-negative);
+}
+
+.tone-failed {
+  color: var(--color-negative);
+  font-weight: 600;
+}
+
+.tone-active {
+  color: var(--color-highlight);
+}
+
+.tone-done {
+  color: var(--color-positive);
+}
+
+.tone-neutral {
+  color: var(--color-paragraph);
+}
+
+/* Split column, working around Dynacat 3.0.0.
+ *
+ * `split-column` renders a `.masonry` container whose children masonry.js is
+ * supposed to move into `.masonry-column` wrappers. It never does here:
+ * setupMasonries() runs before Dynacat morphs the page content in, so it
+ * initialises on an empty container, `items.length` is 0, its clamp collapses
+ * the column count, and `data-initialized` then stops it re-running when the
+ * widgets arrive. They end up as bare flex items and shrink to their content,
+ * about 100px each inside an 800px column.
+ *
+ * This gives those orphaned children the sizing and the wrapping the columns
+ * would have had, using masonry.js's own 330px minColumnWidth default as the
+ * flex basis: two fit while there is room for two, and they stack when there
+ * is not. When masonry does build columns the children are `.masonry-column`,
+ * not `.widget`, so these rules stop applying on their own and need no
+ * cleanup.
+ */
+.masonry:has(> .widget) {
+  flex-wrap: wrap;
+}
+
+.masonry > .widget {
+  /* 330px is masonry.js's minColumnWidth default. It is the basis rather than
+   * a width, so a wrapped child still fills its line. */
+  flex: 1 1 330px;
+  /* Without this, text-truncate inside a flex item measures against its
+   * content instead of the column and the row overflows. */
+  min-width: 0;
+  /* The container centres its children, which is right for columns of equal
+   * height and wrong for two widgets of different heights: their headers end
+   * up on different lines. */
+  align-self: flex-start;
+}
+
+/* The container already has a 23px gap. The stacked-widget top margin is for
+ * widgets above one another, and on a side-by-side child it just pushes the
+ * second one's header out of line with the first. */
+.masonry > .widget + .widget {
+  margin-top: 0;
+}
+

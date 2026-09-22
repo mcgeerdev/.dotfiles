@@ -6,7 +6,7 @@ theme:
   light: matrix
 setupVersion: 2
 modelRoles:
-  advisor: openai-codex/gpt-6-astra:medium
+  advisor: openai-codex/gpt-5.6-sol:high
   commit: anthropic/claude-haiku-4-5:low
   plan: anthropic/claude-fable-5:high
   slow: anthropic/claude-opus-5:high
@@ -147,7 +147,7 @@ omitThinking: true
 shellMinimizer:
   sourceOutlineLevel: default
 live:
-  voice: sol
+  voice: vale
 tts:
   localVoice: am_puck
 speech:
@@ -166,3 +166,7 @@ enabledProviders:
   - claude
 dev:
   autoqaConsent: granted
+completion:
+  notify: "off"
+ask:
+  notify: "off"

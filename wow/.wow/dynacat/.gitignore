@@ -1,0 +1,6 @@
+# Local secrets for Dynacat widgets. Never commit this.
+.env
+
+# Scratchpad tasks, written by Dynacat's server-side to-do storage. Local
+# state, not configuration: it belongs on this machine, not in the repo.
+data/

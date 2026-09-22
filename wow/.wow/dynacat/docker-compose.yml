@@ -1,17 +1,17 @@
-name: wow-glance
+name: wow-dynacat
 
 services:
-  glance:
-    container_name: glance
-    image: glanceapp/glance:v0.8.6
+  dynacat:
+    container_name: dynacat
+    image: panonim/dynacat:3.0.0
     restart: unless-stopped
-    # Published on the host loopback only. Glance itself listens on all
+    # Published on the host loopback only. Dynacat itself listens on all
     # interfaces inside the container; the bind address here is what keeps the
     # dashboard off the LAN.
     ports:
       - 127.0.0.1:8080:8080
     environment:
-      # Where Glance reaches attentiond. Glance runs in a container, attentiond
+      # Where Dynacat reaches attentiond. Dynacat runs in a container, attentiond
       # runs natively on the host, so host.docker.internal is the host's
       # loopback as seen from inside Docker Desktop. Change the port in one
       # place: here, or by exporting ATTENTIOND_URL before `make start`.
@@ -19,9 +19,16 @@ services:
       # /etc is not a shared path in Docker Desktop for macOS, so the usual
       # /etc/localtime bind mount is not available. TZ does the same job.
       TZ: ${TZ:-Africa/Johannesburg}
+      # The UI editor writes YAML back into the mounted config directory. That
+      # directory is a stow-managed tree of hand-written, version-controlled
+      # files; editor writes would bypass git and overwrite comments and intent.
+      ENABLE_EDITOR: "false"
     volumes:
       - ./config:/app/config
       - ./assets:/app/assets
+      # Scratchpad tasks, so they survive a container replacement. Gitignored:
+      # this is local state, not configuration.
+      - ./data:/app/data
     # Untracked, optional, and only needed once a widget wants a token.
     env_file:
       - path: .env
