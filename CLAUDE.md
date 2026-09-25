@@ -57,6 +57,20 @@ submodule, because `~/.claude` also holds untracked runtime state
 git clone git@github.com:mcgeerdev/.claude.git ~/.claude
 ```
 
+### Way of Work changes
+`main` only receives release merges. Never commit to it directly.
+
+- Changes ride the current `release/<version>` branch, checked out in the
+  worktree `~/.dotfiles-release` (`~/.wow/bin/wow-worktree` creates and
+  updates it). The live checkout `~/.dotfiles` stays on `main`.
+- One commit per change, conventional subject (`feat(wow): …`), 50/72,
+  no AI attribution or `Co-Authored-By` trailers.
+- Never `git rm` a file. `git mv` it to
+  `archive/wow/YYYY-MM/<repo-relative-path>` and fix its references.
+- Merging the release PR tags `YYYY.MM.N`, publishes a GitHub release
+  (notes = PR body), and cuts the next `release/*` branch
+  (`.github/workflows/release.yaml`). `wow-sync` applies it locally.
+
 ## SUBSYSTEM POINTERS
 - Neovim internals (LSP, plugins, keymaps): `nvim/.config/nvim/CLAUDE.md`
 - Plugin specs: `nvim/.config/nvim/lua/plugins/`

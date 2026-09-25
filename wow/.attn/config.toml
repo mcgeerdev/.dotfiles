@@ -90,7 +90,9 @@ poll = "1m"
 # What to watch. Empty means every repository the token can see, which is more
 # than you want. Accounts and repositories union rather than intersect.
 # orgs = ["didx-xyz"]
-repos = ["didx-xyz/tofu", "didx-xyz/mono"]
+# mcgeerdev/.dotfiles is here for the weekly WOW release PR: it sits on the
+# Pull requests board until you merge it.
+repos = ["didx-xyz/tofu", "didx-xyz/mono", "mcgeerdev/.dotfiles"]
 
 # Reviews owed here go to the top of the queue, above everything except a
 # meeting about to start. tofu is the infrastructure authority repository: a

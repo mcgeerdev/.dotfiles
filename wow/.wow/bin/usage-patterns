@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# usage-patterns — headless monthly behaviour patterns from the weekly
+# digests, committed to the release branch. 1st of the month 09:30 +
+# RunAtLoad catch-up; the guard skips when the previous month's file
+# already exists. An explicit YYYY-MM argument bypasses the guard.
+#
+#   usage-patterns           previous calendar month
+#   usage-patterns 2026-09   that month, even if already reported
+set -uo pipefail
+
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+
+wt=$("$HOME/.wow/bin/wow-worktree") || { echo "usage-patterns: no worktree, skipping"; exit 0; }
+
+if [[ $# -gt 0 ]]; then
+  month="$1"
+else
+  month=$(date -v-1m +%Y-%m)
+  if [[ -f "$wt/wow/.omp/audits/patterns/$month.json" ]]; then
+    echo "usage-patterns: patterns for $month exist, skipping"
+    exit 0
+  fi
+fi
+
+exec "$HOME/.wow/bin/attn-run" \
+  --id wow:usage-patterns --title "wow · monthly patterns" -- \
+  env WOW_MONTH="$month" bash -c '
+    set -euo pipefail
+    wt="$HOME/.dotfiles-release"
+    omp -p --cwd "$wt" --model anthropic/claude-sonnet-5 --max-time 30m \
+      --approval-mode yolo \
+      "Read skill://usage-audit/patterns.md and follow it exactly. Report month $WOW_MONTH."
+    cd "$wt"
+    branch=$(git branch --show-current)
+    git add wow/.omp/audits/patterns
+    git diff --staged --quiet || git commit -m "chore(audits): monthly patterns $WOW_MONTH"
+    git push origin "$branch"
+    if [[ -z $(gh pr list --head "$branch" --json number --jq ".[0].number // empty") ]]; then
+      gh pr create --base main --head "$branch" \
+        --title "Release ${branch#release/}" --label release \
+        --body "Weekly WOW release. The improve run maintains this body."
+    fi
+  '

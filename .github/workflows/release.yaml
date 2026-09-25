@@ -1,0 +1,55 @@
+name: Release
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+concurrency:
+  group: release-management
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  release:
+    if: |
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'release/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          ref: main
+
+      - name: Extract version from branch
+        id: version
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: echo "version=${HEAD_REF#release/}" >> "$GITHUB_OUTPUT"
+
+      - name: Tag and release
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "${VERSION}" -m "Release ${VERSION}"
+          git push origin "${VERSION}"
+          gh pr view "$PR_NUMBER" --json body -q '.body' > /tmp/notes.md
+          gh release create "${VERSION}" --title "${VERSION}" --notes-file /tmp/notes.md
+
+      - name: Cut next release branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          chmod +x .github/workflows/scripts/calver.sh
+          next=$(./.github/workflows/scripts/calver.sh --next)
+          git checkout -b "release/${next}"
+          git push origin "release/${next}"

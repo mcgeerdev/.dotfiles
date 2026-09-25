@@ -1,0 +1,34 @@
+# Way of Work page: released behaviour patterns (Patterns) and the latest
+# release's notes (Changelog). Fetched server-side from the public repo;
+# long caches, the sources change weekly/monthly.
+#
+# Patterns reads main, which only receives release merges, so the page shows
+# released patterns and the URL survives each new release/* branch. Release
+# notes render pre-wrapped, not as markdown.
+
+- name: WOW
+  slug: wow
+  columns:
+    - size: full
+      widgets:
+        - type: custom-api
+          title: Patterns
+          cache: 1h
+          url: https://raw.githubusercontent.com/mcgeerdev/.dotfiles/main/wow/.omp/audits/patterns/summary.json
+          template: |
+            {{ $month := .JSON.String "month" }}
+            {{ if $month }}<p class="size-h5 color-paragraph margin-bottom-10">{{ $month }}</p>{{ end }}
+            <ul class="list list-gap-10">
+              {{ range .JSON.Array "patterns" }}
+              <li class="color-highlight">{{ .String "" }}</li>
+              {{ end }}
+            </ul>
+
+        - type: custom-api
+          title: Changelog
+          cache: 1h
+          url: https://api.github.com/repos/mcgeerdev/.dotfiles/releases/latest
+          template: |
+            <p class="size-h4 color-highlight">{{ .JSON.String "name" }}</p>
+            <p class="size-h6 color-paragraph margin-bottom-10" {{ .JSON.String "published_at" | parseTime "rfc3339" | toRelativeTime }}></p>
+            <div class="color-paragraph" style="white-space: pre-wrap">{{ .JSON.String "body" }}</div>

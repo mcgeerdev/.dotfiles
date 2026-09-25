@@ -26,5 +26,7 @@ pages:
   # The landing page. The file name is older than the page name: it holds the
   # page called Work.
   - $include: home.yml
-  # Second page, /home, just the speed test.
+  # Way of Work releases: patterns and changelog, at /wow.
+  - $include: wow.yml
+  # Third page, /home, just the speed test.
   - $include: internet.yml

@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# usage-digest — headless weekly omp usage digest, committed to the
+# release branch. Mondays 09:00 + RunAtLoad catch-up (launchd runs a
+# sleep-missed job at wake but skips powered-off ones; the guard makes
+# the login/boot firing a no-op unless overdue). This is also what keeps
+# the release PR alive: even a week with no improvements gets its digest
+# commit, so the PR exists and has the 7-day cadence.
+set -uo pipefail
+
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+
+wt=$("$HOME/.wow/bin/wow-worktree") || { echo "usage-digest: no worktree, skipping"; exit 0; }
+
+if find "$wt/wow/.omp/audits/weekly" -name '*.json' -mtime -6 2>/dev/null | grep -q .; then
+  echo "usage-digest: digest newer than 6 days exists, skipping"
+  exit 0
+fi
+
+exec "$HOME/.wow/bin/attn-run" \
+  --id wow:usage-digest --title "wow · weekly usage digest" -- \
+  bash -c '
+    set -euo pipefail
+    wt="$HOME/.dotfiles-release"
+    omp -p --cwd "$wt" --model anthropic/claude-sonnet-5 --max-time 30m \
+      --approval-mode yolo \
+      "Read skill://usage-audit/digest.md and follow it exactly."
+    cd "$wt"
+    branch=$(git branch --show-current)
+    git add wow/.omp/audits/weekly
+    git diff --staged --quiet || git commit -m "chore(audits): weekly digest $(date +%F)"
+    git push origin "$branch"
+    if [[ -z $(gh pr list --head "$branch" --json number --jq ".[0].number // empty") ]]; then
+      gh pr create --base main --head "$branch" \
+        --title "Release ${branch#release/}" --label release \
+        --body "Weekly WOW release. The improve run maintains this body."
+    fi
+  '

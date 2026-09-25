@@ -264,7 +264,15 @@ stack is for.
 | Scratchpad | live, Dynacat `to-do` widget, tasks in SQLite on this host |
 | Calendar | Dynacat `calendar` widget, month grid only |
 
-`Home` is the second page, at `/home`, with two blocks:
+`WOW` is the second page, at `/wow`, fetched from the public
+`mcgeerdev/.dotfiles` repository with a 1h cache:
+
+| Block | State |
+| --- | --- |
+| Patterns | `custom-api` over `wow/.omp/audits/patterns/summary.json` on `main` |
+| Changelog | `custom-api` over the GitHub releases API, latest release notes |
+
+`Home` is the third page, at `/home`, with two blocks:
 
 | Block | State |
 | --- | --- |
@@ -546,12 +554,65 @@ Herdr.
 While attentiond is down, its widgets show an error and the rest of the page
 is unaffected. This is the normal state of things, not a failure.
 
+## WOW automation
+
+Four LaunchAgents audit omp usage and turn it into one weekly release PR.
+Agents commit and push; you merge the PR; everything after the merge is
+automatic.
+
+| Label | Script | When | Does |
+| --- | --- | --- | --- |
+| `wow.usage-digest` | `bin/usage-digest` | Mon 09:00 | weekly JSON digest from `stats.db` and `history.db` (sonnet), commit, push, open the release PR if none is open |
+| `wow.wow-improve` | `bin/wow-improve` | Mon 09:45 | up to 3 improvement commits citing the digest, rewrites the PR body (default model) |
+| `wow.usage-patterns` | `bin/usage-patterns` | 1st, 09:30 | monthly patterns JSON plus the dashboard `summary.json` (sonnet) |
+| `wow.wow-sync` | `bin/wow-sync` | daily 10:00 | after a merge: fast-forward `~/.dotfiles` to `origin/main`, re-stow `wow`, reinstall the other three agents |
+
+Every job also has `RunAtLoad`, so it fires at login. launchd runs a job
+missed during sleep at the next wake but drops one missed while the machine
+was off; the login firing covers that. Each script checks first whether its
+work is already done (digest younger than 6 days, month already reported,
+improvements already committed, `main` current) and exits without posting
+anything. Real runs go through `attn-run`, so they show on the dashboard and
+as a notification.
+
+The release flow copies `didx.projects/mono`'s, inverted: the release branch
+carries the real changes.
+
+- The current branch is the newest `release/YYYY.MM.N` on origin. Agents work
+  in the worktree `~/.dotfiles-release`, which `bin/wow-worktree` creates and
+  fast-forwards. `~/.dotfiles` stays on `main` as the live stow tree.
+- One PR, `Release YYYY.MM.N` (label `release`), grows until you merge it.
+  It also sits on the Pull requests board, because `mcgeerdev/.dotfiles` is in
+  `[github] repos`.
+- Merging runs `.github/workflows/release.yaml`: tag `YYYY.MM.N`, GitHub
+  release with the PR body as notes, then the next `release/*` branch from
+  `.github/workflows/scripts/calver.sh`.
+- Deletions are `git mv` into `archive/wow/YYYY-MM/<path>`, never `git rm`.
+
+Outputs, on the release branch: `wow/.omp/audits/weekly/YYYY-MM-DD.json`,
+`wow/.omp/audits/patterns/YYYY-MM.json` and `patterns/summary.json`. The
+instructions are `skill://usage-audit/{digest,patterns,improve}.md`. Logs go
+to `~/Library/Logs/wow.<job>.log`.
+
+```bash
+make digest-install    # copy the plists into ~/Library/LaunchAgents and load them
+make digest-status     # state and last exit code per job
+make digest-run        # kickstart a job now; also patterns-run, improve-run, sync-run
+make digest-uninstall
+```
+
+The plists are copied, not stowed: launchd's handling of symlinked plists
+varies by macOS version. `wow-sync` reinstalls with `WOW_SKIP=wow.wow-sync`,
+because booting out its own label would kill it mid-run. It fails loudly if
+`main` has local commits, since nothing but release merges should land there.
+
 ## Still manual
 
 - attentiond is not installed as a service. Start it from its repository
   with `go run ./cmd/attentiond` and no flags; it reads `~/.attn/config.toml`.
   Add `--herdr-fixture testdata/session-snapshot.json` to see the dashboard
-  with data while Herdr is empty. No launchd job yet.
+  with data while Herdr is empty. It has no launchd job; the WOW agents above
+  still run while it is down, their events are just lost.
 - GitHub needs a credential. attentiond resolves one from `GITHUB_TOKEN`,
   `GH_TOKEN` or `gh auth token`. Without one the source turns itself off and
   the widget shows no pull requests.
@@ -567,6 +628,11 @@ Nine files here are new: `Makefile`, `README.md`, `dynacat/.gitignore`,
 `dynacat/config/herdr.yml`, `dynacat/config/all-work.yml`,
 `dynacat/config/stale.yml`, `dynacat/config/internet.yml`. Delete those, and
 `~/.dotfiles/wow/.attn/config.toml` with the `~/.attn` link stow made for it.
+
+The WOW automation adds `launchd/`, `dynacat/config/wow.yml`,
+`bin/wow-worktree`, `bin/usage-digest`, `bin/usage-patterns`,
+`bin/wow-improve` and `bin/wow-sync`. Run `make digest-uninstall` first, then
+delete them and `git worktree remove ~/.dotfiles-release`.
 
 Four already existed and were rewritten in place, so they are restored, not
 removed. They arrived as Glance's vendored defaults, in a directory called

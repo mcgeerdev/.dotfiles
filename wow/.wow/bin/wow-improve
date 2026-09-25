@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# wow-improve — weekly improvement commits on the release branch, PR body
+# refresh. Mondays 09:45 + RunAtLoad; guard: only runs when a digest from
+# the last 7 days exists and this run has not already happened since it.
+set -uo pipefail
+
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+
+wt=$("$HOME/.wow/bin/wow-worktree") || { echo "wow-improve: no worktree, skipping"; exit 0; }
+
+newest=$(find "$wt/wow/.omp/audits/weekly" -name '*.json' -mtime -6 2>/dev/null | sort | tail -1)
+if [[ -z "$newest" ]]; then
+  echo "wow-improve: no digest in the last 7 days, skipping"
+  exit 0
+fi
+# One improve pass per digest: skip if the branch already has a commit
+# newer than the digest file that is not the digest commit itself.
+if [[ -n $(git -C "$wt" log --since="$(date -r "$newest" '+%Y-%m-%d %H:%M:%S')" \
+    --invert-grep --grep='^chore(audits)' --oneline 2>/dev/null) ]]; then
+  echo "wow-improve: improvements already committed for this digest, skipping"
+  exit 0
+fi
+
+exec "$HOME/.wow/bin/attn-run" \
+  --id wow:improve --title "wow · weekly improvements" -- \
+  omp -p --cwd "$HOME/.dotfiles-release" --max-time 45m --approval-mode yolo \
+  "Read skill://usage-audit/improve.md and follow it exactly."

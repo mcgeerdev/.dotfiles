@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# wow-worktree — ensure ~/.dotfiles-release is a worktree of ~/.dotfiles
+# checked out on the newest origin release/* branch, up to date; print its
+# path. Exits 1 (quietly, for guards) when offline or no release branch
+# exists yet.
+set -euo pipefail
+
+repo="$HOME/.dotfiles"
+wt="$HOME/.dotfiles-release"
+
+git -C "$repo" fetch origin --prune --quiet || {
+  echo "wow-worktree: fetch failed (offline?)" >&2; exit 1; }
+
+branch=$(git -C "$repo" ls-remote --heads origin 'release/*' \
+  | awk '{sub("refs/heads/", "", $2); print $2}' | sort -V | tail -1)
+[[ -n "$branch" ]] || { echo "wow-worktree: no release/* branch on origin" >&2; exit 1; }
+
+if [[ ! -d "$wt" ]]; then
+  git -C "$repo" worktree add "$wt" "$branch" --quiet
+elif [[ "$(git -C "$wt" branch --show-current)" != "$branch" ]]; then
+  git -C "$wt" checkout "$branch" --quiet
+fi
+git -C "$wt" pull --ff-only --quiet origin "$branch"
+echo "$wt"
