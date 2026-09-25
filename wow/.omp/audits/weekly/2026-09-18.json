@@ -13,7 +13,6 @@
     {"folder": "-didx.projects-tofu-sites-cloudapi-dev", "agent_type": "advisor", "msgs": 959, "cost": 66.29, "tokens": 55906614},
     {"folder": "-didx.projects-mono", "agent_type": "main", "msgs": 379, "cost": 58.29, "tokens": 97558035},
     {"folder": "-.herdr-worktrees-tofu-worktree-rapid-field-4f96", "agent_type": "main", "msgs": 398, "cost": 48.84, "tokens": 65460979},
-    {"folder": "-didx.projects-mono", "agent_type": "advisor", "msgs": 376, "cost": 42.17, "tokens": 34118550},
     {"folder": "-didx.projects-tofu", "agent_type": "advisor", "msgs": 132, "cost": 33.62, "tokens": 24721762},
     {"folder": "-.herdr-worktrees-tofu-worktree-rapid-field-4f96", "agent_type": "advisor", "msgs": 487, "cost": 23.58, "tokens": 40407605},
     {"folder": "-didx.projects-tofu-sites-cloudapi-prod", "agent_type": "main", "msgs": 150, "cost": 21.08, "tokens": 24468087},
@@ -79,7 +78,7 @@
   "delta": {"vs": "2026-09-11", "cost_pct": 38.71, "tokens_pct": 30.72, "tool_calls_pct": -2.79},
   "watch": [
     "cost up 38.71% vs prior week ($973.82 vs $702.05)",
-    "-devan.projects-incubator-attentiond main agent cost $170.42, top project this week, absent from prior week's top 11",
-    "bash tool error rate 11.23% (160/1425 calls), highest among tools with material volume"
+    "-devan.projects-incubator-attentiond emerged as top project ($247.24 combined), absent from prior week's by_project list",
+    "bash tool error rate 11.23% (160/1425 calls), up from 9.76% prior week"
   ]
 }
