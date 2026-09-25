@@ -1,8 +1,8 @@
 {
   "date": "2026-09-25",
   "window_days": 7,
-  "totals": {"cost": 506.68, "tokens": 1017736595, "messages": 8134, "tool_calls": 6956,
-             "prompts": 210, "api_errors": 36},
+  "totals": {"cost": 506.69, "tokens": 1017736595, "messages": 8134, "tool_calls": 6956,
+             "prompts": 211, "api_errors": 36},
   "by_project": [
     {"folder": "-.dotfiles-wow-.wow", "agent_type": "main", "msgs": 481, "cost": 55.46, "tokens": 83966403},
     {"folder": "-didx.projects-tofu-sites-cloudapi-dev", "agent_type": "main", "msgs": 383, "cost": 42.8, "tokens": 54842123},
@@ -73,7 +73,7 @@
   ],
   "prompts_by_cwd": [
     {"cwd": "/Users/devanmcgeer/didx.projects/tofu/sites/cloudapi-dev", "prompts": 37},
-    {"cwd": "/Users/devanmcgeer/.dotfiles/wow/.omp/agent", "prompts": 35},
+    {"cwd": "/Users/devanmcgeer/.dotfiles/wow/.omp/agent", "prompts": 36},
     {"cwd": "/Users/devanmcgeer/didx.projects/mono", "prompts": 32},
     {"cwd": "/Users/devanmcgeer/.herdr/worktrees/tofu/worktree-green-harbor-2ca3/sites/cloudapi-dev", "prompts": 17},
     {"cwd": "/Users/devanmcgeer/.herdr/worktrees/tofu/worktree-rapid-cloud-b6ce", "prompts": 16},
@@ -83,10 +83,10 @@
     {"cwd": "/Users/devanmcgeer/.dotfiles/wow/.wow", "prompts": 11},
     {"cwd": "/Users/devanmcgeer/.dotfiles/wow/.omp/audits", "prompts": 10}
   ],
-  "delta": {"vs": "2026-09-18", "cost_pct": -47.97, "tokens_pct": -11.64, "tool_calls_pct": 63.79},
+  "delta": {"vs": "2026-09-18", "cost_pct": -47.98, "tokens_pct": -11.64, "tool_calls_pct": 63.79},
   "watch": [
-    "cost down 47.97% vs prior week ($506.68 vs $973.82)",
-    "tool_calls up 63.79% vs prior week (6956 vs 4247) despite cost falling",
-    "eval tool error rate 12.83% (34/265), highest among tools with material volume, above bash's 11.66%"
+    "tool_calls up 63.79% vs prior week (6956 vs 4247) while cost fell 47.98%",
+    "new project -.herdr-worktrees-infra-worktree-silver-stone-bb37 appeared, advisor session cost $34.47 on 2026-09-23, absent from prior week's by_project list",
+    "read tool error rate rose to 1.02% (34/3329) from 0.32% (3/925) prior week"
   ]
 }
