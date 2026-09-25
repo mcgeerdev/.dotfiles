@@ -31,10 +31,11 @@ WHERE timestamp >= strftime('%s', 'now', '-7 days') * 1000
   AND error_message IS NOT NULL;
 
 -- tools
-SELECT tool_name, count(*) AS calls, sum(coalesce(is_error, 0)) AS errors
+SELECT tool_name, agent_type, count(*) AS calls,
+       sum(coalesce(is_error, 0)) AS errors
 FROM tool_calls
 WHERE timestamp >= strftime('%s', 'now', '-7 days') * 1000
-GROUP BY tool_name ORDER BY calls DESC LIMIT 15;
+GROUP BY tool_name, agent_type ORDER BY calls DESC LIMIT 20;
 
 -- top_sessions
 SELECT session_file, round(sum(cost_total), 2) AS cost
@@ -67,7 +68,7 @@ these keys:
              "prompts": 0, "api_errors": 0},
   "by_project": [{"folder": "", "agent_type": "", "msgs": 0, "cost": 0.0, "tokens": 0}],
   "by_model": [{"model": "", "msgs": 0, "cost": 0.0}],
-  "tools": [{"tool": "", "calls": 0, "errors": 0}],
+  "tools": [{"tool": "", "agent_type": "", "calls": 0, "errors": 0}],
   "top_sessions": [{"session_file": "", "cost": 0.0}],
   "prompts_by_cwd": [{"cwd": "", "prompts": 0}],
   "delta": {"vs": null, "cost_pct": null, "tokens_pct": null, "tool_calls_pct": null},
@@ -79,4 +80,4 @@ these keys:
 (null if none); the `_pct` fields are percentage change of totals against
 it. `watch` is at most 3 short strings naming anomalies (a spike, a new
 expensive session, a tool error-rate change) — facts with numbers, no
-advice.
+advice. A tool-call or error-rate item names the `agent_type` behind it.
