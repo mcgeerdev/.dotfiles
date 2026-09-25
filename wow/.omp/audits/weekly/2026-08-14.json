@@ -1,7 +1,7 @@
 {
   "date": "2026-08-14",
   "window_days": 7,
-  "totals": {"cost": 452.66, "tokens": 618746375, "messages": 5385, "tool_calls": 4316,
+  "totals": {"cost": 452.64, "tokens": 618746375, "messages": 5385, "tool_calls": 4317,
              "prompts": 173, "api_errors": 34},
   "by_project": [
     {"folder": "-sc.projects-SecureCitizen", "agent_type": "main", "msgs": 588, "cost": 103.65, "tokens": 143283236},
@@ -66,10 +66,10 @@
     {"cwd": "/Users/devanmcgeer/didx.projects/tofu-wt/dd-slack-cspm/sites/didx-org", "prompts": 6},
     {"cwd": "/Users/devanmcgeer/explore.repos/obdium", "prompts": 1}
   ],
-  "delta": {"vs": "2026-08-07", "cost_pct": -32.2, "tokens_pct": -28.4, "tool_calls_pct": -13.7},
+  "delta": {"vs": "2026-08-07", "cost_pct": -32.2, "tokens_pct": -28.4, "tool_calls_pct": -13.8},
   "watch": [
-    "bash tool error rate 11.4% (100/876)",
-    "claude-opus-5 at 62.0% of total cost ($280.84 of $452.66)",
-    "top session $82.09 in -sc.projects-SecureCitizen.Portal (__advisor.doctrine)"
+    "cost down 32.2% vs prior week ($452.64 vs $667.48)",
+    "claude-opus-5 at 62.0% of total cost ($280.84 of $452.64)",
+    "bash tool error rate 11.4% (100/876), most errors of any tool"
   ]
 }
