@@ -1,7 +1,7 @@
 {
   "date": "2026-08-07",
   "window_days": 7,
-  "totals": {"cost": 667.48, "tokens": 864010294, "messages": 6939, "tool_calls": 5002,
+  "totals": {"cost": 667.48, "tokens": 864010294, "messages": 6939, "tool_calls": 5007,
              "prompts": 242, "api_errors": 91},
   "by_project": [
     {"folder": "-didx.projects-tofu-wt-dd-slack-cspm", "agent_type": "main", "msgs": 887, "cost": 180.88, "tokens": 258208020},
@@ -77,8 +77,8 @@
   ],
   "delta": {"vs": null, "cost_pct": null, "tokens_pct": null, "tool_calls_pct": null},
   "watch": [
-    "bash tool error rate 16.5% (191/1155)",
+    "bash tool error rate 16.5% (191/1155), highest of any tool",
     "claude-opus-5 at 67.1% of total cost ($448.09 of $667.48)",
-    "top session $84.89 in -didx.projects-tofu-wt-dd-slack-cspm"
+    "top session $84.89 in -didx.projects-tofu-wt-dd-slack-cspm (2026-08-07T08-18-39)"
   ]
 }
