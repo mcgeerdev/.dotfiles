@@ -7,7 +7,9 @@
 # commit, so the PR exists and has the 7-day cadence.
 set -uo pipefail
 
-export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+# mise shims last: gitleaks (pre-commit hook) lives only there, and an
+# inactive shim such as gh must not shadow the Homebrew binary.
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$HOME/.local/share/mise/shims"
 
 wt=$("$HOME/.wow/bin/wow-worktree") || { echo "usage-digest: no worktree, skipping"; exit 0; }
 
