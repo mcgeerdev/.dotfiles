@@ -1,0 +1,64 @@
+{
+  "date": "2026-08-21",
+  "window_days": 7,
+  "totals": {"cost": 406.64, "tokens": 509980784, "messages": 4171, "tool_calls": 3175,
+             "prompts": 177, "api_errors": 39},
+  "by_project": [
+    {"folder": "-didx.projects-tofu", "agent_type": "main", "msgs": 970, "cost": 175.07, "tokens": 187983673},
+    {"folder": "-didx.projects-didx-xyz.github.io", "agent_type": "main", "msgs": 437, "cost": 88.15, "tokens": 137076704},
+    {"folder": "-didx.projects-tofu", "agent_type": "advisor", "msgs": 1506, "cost": 72.19, "tokens": 105857113},
+    {"folder": "-didx.projects-didx-xyz.github.io", "agent_type": "advisor", "msgs": 448, "cost": 24.64, "tokens": 30265704},
+    {"folder": "-didx.projects-mono", "agent_type": "main", "msgs": 164, "cost": 20.15, "tokens": 19248835},
+    {"folder": "-didx.projects-mono", "agent_type": "advisor", "msgs": 228, "cost": 6.78, "tokens": 6360993},
+    {"folder": "-didx.projects-tofu", "agent_type": "subagent", "msgs": 103, "cost": 4.95, "tokens": 7254640},
+    {"folder": "-devan.projects-incubator-hum", "agent_type": "main", "msgs": 34, "cost": 3.93, "tokens": 3433866},
+    {"folder": "-didx.projects-didx-xyz.github.io", "agent_type": "subagent", "msgs": 85, "cost": 3.81, "tokens": 5310349},
+    {"folder": "-didx.projects", "agent_type": "main", "msgs": 43, "cost": 2.74, "tokens": 2880270},
+    {"folder": "-didx.projects-mono", "agent_type": "subagent", "msgs": 38, "cost": 1.39, "tokens": 1246205},
+    {"folder": "-devan.projects-incubator-hum", "agent_type": "subagent", "msgs": 25, "cost": 1.03, "tokens": 1716864},
+    {"folder": "-devan.projects-incubator-hum", "agent_type": "advisor", "msgs": 39, "cost": 0.92, "tokens": 769677},
+    {"folder": "-didx.projects", "agent_type": "advisor", "msgs": 51, "cost": 0.91, "tokens": 575891}
+  ],
+  "by_model": [
+    {"model": "claude-opus-5", "msgs": 1648, "cost": 290.04},
+    {"model": "gpt-5.6-sol", "msgs": 2272, "cost": 105.43},
+    {"model": "claude-sonnet-4-6", "msgs": 251, "cost": 11.17}
+  ],
+  "tools": [
+    {"tool": "read", "calls": 1141, "errors": 16},
+    {"tool": "bash", "calls": 604, "errors": 77},
+    {"tool": "grep", "calls": 369, "errors": 8},
+    {"tool": "write", "calls": 217, "errors": 18},
+    {"tool": "advise", "calls": 192, "errors": 0},
+    {"tool": "eval", "calls": 191, "errors": 13},
+    {"tool": "edit", "calls": 114, "errors": 5},
+    {"tool": "glob", "calls": 95, "errors": 10},
+    {"tool": "mcp__node_repl_js", "calls": 79, "errors": 18},
+    {"tool": "todo", "calls": 56, "errors": 9},
+    {"tool": "hub", "calls": 48, "errors": 2},
+    {"tool": "web_search", "calls": 33, "errors": 0},
+    {"tool": "yield", "calls": 18, "errors": 2},
+    {"tool": "task", "calls": 9, "errors": 0},
+    {"tool": "ask", "calls": 6, "errors": 0}
+  ],
+  "top_sessions": [
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-didx-xyz.github.io/2026-08-20T08-34-53-368Z_01a01e4f-1138-7000-8f59-dc770f724e56.jsonl", "cost": 87.16},
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu/2026-08-19T13-57-14-439Z_01a01a4f-d447-7000-8f08-de76fdb64d3c.jsonl", "cost": 61.54},
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu/2026-08-17T07-41-32-609Z_01a00eab-2641-7000-b618-3903b116c0aa.jsonl", "cost": 55.92},
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu/2026-08-17T07-41-32-609Z_01a00eab-2641-7000-b618-3903b116c0aa/__advisor.doctrine.jsonl", "cost": 46.7},
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu/2026-08-18T07-20-56-637Z_01a013be-a63d-7000-9097-c4cc1de5658f.jsonl", "cost": 32.14}
+  ],
+  "prompts_by_cwd": [
+    {"cwd": "/Users/devanmcgeer/didx.projects/tofu", "prompts": 147},
+    {"cwd": "/Users/devanmcgeer/didx.projects/mono", "prompts": 14},
+    {"cwd": "/Users/devanmcgeer/didx.projects/didx-xyz.github.io", "prompts": 14},
+    {"cwd": "/Users/devanmcgeer/didx.projects", "prompts": 1},
+    {"cwd": "/Users/devanmcgeer/devan.projects/incubator/hum", "prompts": 1}
+  ],
+  "delta": {"vs": "2026-08-14", "cost_pct": -10.2, "tokens_pct": -17.6, "tool_calls_pct": -26.4},
+  "watch": [
+    "bash tool error rate 12.7% (77/604)",
+    "claude-opus-5 at 71.3% of total cost ($290.04 of $406.64)",
+    "top session $87.16 in -didx.projects-didx-xyz.github.io"
+  ]
+}
