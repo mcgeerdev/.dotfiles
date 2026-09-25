@@ -23,6 +23,13 @@ Don't spend a call on cleanup. Create scratch trees with `mktemp -d` and leave
 them. If a tree inside a repository has to go, such as a stale `.terraform`,
 ask the User.
 
+## Browser
+
+`browser.relay: true` sends every `browser.open` to the User's Chrome, and
+`tab.screenshot()` there fails unless that tab is in the foreground. For
+localhost and other pages that need no login, open with
+`app: { relay: false }` to get headless Chromium, where screenshots work.
+
 ## Shell
 
 `bashInterceptor` rejects these forms, but only after the call is spent. It
