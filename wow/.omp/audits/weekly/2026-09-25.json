@@ -1,8 +1,8 @@
 {
   "date": "2026-09-25",
   "window_days": 7,
-  "totals": {"cost": 523.36, "tokens": 1044183995, "messages": 8256, "tool_calls": 7043,
-             "prompts": 212, "api_errors": 36},
+  "totals": {"cost": 506.68, "tokens": 1017736595, "messages": 8134, "tool_calls": 6956,
+             "prompts": 210, "api_errors": 36},
   "by_project": [
     {"folder": "-.dotfiles-wow-.wow", "agent_type": "main", "msgs": 481, "cost": 55.46, "tokens": 83966403},
     {"folder": "-didx.projects-tofu-sites-cloudapi-dev", "agent_type": "main", "msgs": 383, "cost": 42.8, "tokens": 54842123},
@@ -14,16 +14,16 @@
     {"folder": "-.herdr-worktrees-tofu-worktree-rapid-cloud-b6ce", "agent_type": "main", "msgs": 279, "cost": 29.89, "tokens": 42330398},
     {"folder": "-.herdr-worktrees-tofu-worktree-green-harbor-2ca3-sites-cloudapi-dev", "agent_type": "main", "msgs": 215, "cost": 27.16, "tokens": 39180027},
     {"folder": "-didx.projects-mono", "agent_type": "main", "msgs": 365, "cost": 26.88, "tokens": 35927424},
-    {"folder": "-.herdr-worktrees-tofu-worktree-rapid-field-4f96", "agent_type": "main", "msgs": 97, "cost": 25.44, "tokens": 25685399},
     {"folder": "-.herdr-worktrees-tofu-worktree-rapid-cloud-b6ce", "agent_type": "advisor", "msgs": 682, "cost": 19.64, "tokens": 73982437},
     {"folder": "-.herdr-worktrees-tofu-worktree-brave-stone-1a70-sites-cloudapi-dev", "agent_type": "main", "msgs": 197, "cost": 18.71, "tokens": 27084219},
+    {"folder": "-.herdr-worktrees-tofu-worktree-rapid-field-4f96", "agent_type": "main", "msgs": 55, "cost": 15.65, "tokens": 13550069},
     {"folder": "-.herdr-worktrees-infra-worktree-silver-stone-bb37", "agent_type": "main", "msgs": 218, "cost": 14.42, "tokens": 34165675},
-    {"folder": "-.herdr-worktrees-tofu-worktree-rapid-field-4f96", "agent_type": "advisor", "msgs": 186, "cost": 13.65, "tokens": 26107521},
     {"folder": "-didx.projects-tofu-sites-cloudapi-dev", "agent_type": "advisor", "msgs": 418, "cost": 12.47, "tokens": 21525611},
     {"folder": "-devan.projects-incubator-attentiond", "agent_type": "advisor", "msgs": 152, "cost": 11.62, "tokens": 22461063},
     {"folder": "-devan.projects-infra", "agent_type": "main", "msgs": 68, "cost": 8.26, "tokens": 8249925},
     {"folder": "-didx.projects-mono", "agent_type": "advisor", "msgs": 365, "cost": 7.86, "tokens": 14060699},
     {"folder": "-.herdr-worktrees-tofu-worktree-green-harbor-2ca3-sites-cloudapi-dev", "agent_type": "advisor", "msgs": 213, "cost": 6.91, "tokens": 12505261},
+    {"folder": "-.herdr-worktrees-tofu-worktree-rapid-field-4f96", "agent_type": "advisor", "msgs": 106, "cost": 6.78, "tokens": 11795451},
     {"folder": "-.herdr-worktrees-tofu-worktree-brave-stone-1a70-sites-cloudapi-dev", "agent_type": "advisor", "msgs": 211, "cost": 5.74, "tokens": 10256734},
     {"folder": "-.herdr-worktrees-tofu-worktree-lucky-cloud-bd4c", "agent_type": "main", "msgs": 42, "cost": 3.03, "tokens": 2838759},
     {"folder": "-devan.projects-infra", "agent_type": "subagent", "msgs": 29, "cost": 2.31, "tokens": 1168443},
@@ -38,9 +38,9 @@
     {"folder": "/private-tmp-omp-smoke/", "agent_type": "advisor", "msgs": 3, "cost": 0.04, "tokens": 17970}
   ],
   "by_model": [
-    {"model": "claude-opus-5", "msgs": 2185, "cost": 264.93},
+    {"model": "claude-opus-5", "msgs": 2143, "cost": 255.14},
     {"model": "gpt-6-sol", "msgs": 2922, "cost": 89.94},
-    {"model": "gpt-5.6-sol", "msgs": 1844, "cost": 69.67},
+    {"model": "gpt-5.6-sol", "msgs": 1764, "cost": 62.8},
     {"model": "claude-opus-5-5", "msgs": 754, "cost": 52.11},
     {"model": "gpt-6-astra", "msgs": 367, "cost": 25.77},
     {"model": "claude-fable-5", "msgs": 47, "cost": 13.37},
@@ -48,21 +48,21 @@
     {"model": "claude-sonnet-5", "msgs": 69, "cost": 3.17}
   ],
   "tools": [
-    {"tool": "read", "calls": 3360, "errors": 34},
-    {"tool": "bash", "calls": 1156, "errors": 134},
-    {"tool": "grep", "calls": 611, "errors": 7},
-    {"tool": "glob", "calls": 456, "errors": 12},
-    {"tool": "edit", "calls": 358, "errors": 22},
-    {"tool": "advise", "calls": 355, "errors": 0},
+    {"tool": "read", "calls": 3329, "errors": 34},
+    {"tool": "bash", "calls": 1149, "errors": 134},
+    {"tool": "grep", "calls": 604, "errors": 7},
+    {"tool": "glob", "calls": 453, "errors": 12},
+    {"tool": "edit", "calls": 355, "errors": 21},
+    {"tool": "advise", "calls": 322, "errors": 0},
     {"tool": "eval", "calls": 265, "errors": 34},
     {"tool": "hub", "calls": 188, "errors": 4},
-    {"tool": "write", "calls": 159, "errors": 0},
+    {"tool": "write", "calls": 156, "errors": 0},
     {"tool": "web_search", "calls": 54, "errors": 1},
     {"tool": "todo", "calls": 46, "errors": 1},
     {"tool": "yield", "calls": 13, "errors": 0},
     {"tool": "ask", "calls": 7, "errors": 0},
-    {"tool": "recall", "calls": 6, "errors": 0},
-    {"tool": "task", "calls": 6, "errors": 0}
+    {"tool": "task", "calls": 6, "errors": 0},
+    {"tool": "recall", "calls": 6, "errors": 0}
   ],
   "top_sessions": [
     {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-.dotfiles-wow-.wow/2026-09-17T07-20-13-423Z_01a0ae3c-c56f-71fc-8f61-3fe1f1f3749a.jsonl", "cost": 46.51},
@@ -73,20 +73,20 @@
   ],
   "prompts_by_cwd": [
     {"cwd": "/Users/devanmcgeer/didx.projects/tofu/sites/cloudapi-dev", "prompts": 37},
+    {"cwd": "/Users/devanmcgeer/.dotfiles/wow/.omp/agent", "prompts": 35},
     {"cwd": "/Users/devanmcgeer/didx.projects/mono", "prompts": 32},
-    {"cwd": "/Users/devanmcgeer/.dotfiles/wow/.omp/agent", "prompts": 30},
-    {"cwd": "/Users/devanmcgeer/.herdr/worktrees/tofu/worktree-rapid-field-4f96", "prompts": 19},
     {"cwd": "/Users/devanmcgeer/.herdr/worktrees/tofu/worktree-green-harbor-2ca3/sites/cloudapi-dev", "prompts": 17},
     {"cwd": "/Users/devanmcgeer/.herdr/worktrees/tofu/worktree-rapid-cloud-b6ce", "prompts": 16},
+    {"cwd": "/Users/devanmcgeer/.herdr/worktrees/tofu/worktree-rapid-field-4f96", "prompts": 12},
     {"cwd": "/Users/devanmcgeer/.herdr/worktrees/tofu/worktree-brave-stone-1a70/sites/cloudapi-dev", "prompts": 12},
     {"cwd": "/Users/devanmcgeer/.herdr/worktrees/infra/worktree-silver-stone-bb37", "prompts": 11},
     {"cwd": "/Users/devanmcgeer/.dotfiles/wow/.wow", "prompts": 11},
     {"cwd": "/Users/devanmcgeer/.dotfiles/wow/.omp/audits", "prompts": 10}
   ],
-  "delta": {"vs": null, "cost_pct": null, "tokens_pct": null, "tool_calls_pct": null},
+  "delta": {"vs": "2026-09-18", "cost_pct": -47.97, "tokens_pct": -11.64, "tool_calls_pct": 63.79},
   "watch": [
-    "bash tool error rate 134/1156 (11.6%), highest of any high-volume tool",
-    "claude-opus-5 drives $264.93 of $523.36 total cost (50.6%)",
-    "top session -.dotfiles-wow-.wow 2026-09-17 cost $46.51, highest single session of the week"
+    "cost down 47.97% vs prior week ($506.68 vs $973.82)",
+    "tool_calls up 63.79% vs prior week (6956 vs 4247) despite cost falling",
+    "eval tool error rate 12.83% (34/265), highest among tools with material volume, above bash's 11.66%"
   ]
 }
