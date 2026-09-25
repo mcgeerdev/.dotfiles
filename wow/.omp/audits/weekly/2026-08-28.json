@@ -53,10 +53,10 @@
     {"cwd": "/Users/devanmcgeer/Downloads/usage-side-notch", "prompts": 2},
     {"cwd": "/Users/devanmcgeer/didx.projects/tofu/sites/sarb", "prompts": 1}
   ],
-  "delta": {"vs": "2026-08-21", "cost_pct": -19.34, "tokens_pct": -16.38, "tool_calls_pct": -0.16},
+  "delta": {"vs": "2026-08-21", "cost_pct": -19.3, "tokens_pct": -16.4, "tool_calls_pct": -0.2},
   "watch": [
-    "bash tool error rate 15.5% (69/445)",
-    "claude-opus-5 at 66.8% of total cost ($219.01 of $327.99)",
-    "top session $120.92 in -didx.projects-tofu"
+    "cost down 19.3% vs prior week ($327.99 vs $406.64) while tool_calls held flat (3170 vs 3175)",
+    "write tool error rate 21.05% (40/190), up from 8.29% (18/217) prior week",
+    "top session cost $120.92 (tofu, 2026-08-24), up from prior week's top of $87.16"
   ]
 }
