@@ -13,6 +13,7 @@
     {"folder": "-didx.projects-tofu-sites-cloudapi-dev", "agent_type": "advisor", "msgs": 959, "cost": 66.29, "tokens": 55906614},
     {"folder": "-didx.projects-mono", "agent_type": "main", "msgs": 379, "cost": 58.29, "tokens": 97558035},
     {"folder": "-.herdr-worktrees-tofu-worktree-rapid-field-4f96", "agent_type": "main", "msgs": 398, "cost": 48.84, "tokens": 65460979},
+    {"folder": "-didx.projects-mono", "agent_type": "advisor", "msgs": 376, "cost": 42.17, "tokens": 34118550},
     {"folder": "-didx.projects-tofu", "agent_type": "advisor", "msgs": 132, "cost": 33.62, "tokens": 24721762},
     {"folder": "-.herdr-worktrees-tofu-worktree-rapid-field-4f96", "agent_type": "advisor", "msgs": 487, "cost": 23.58, "tokens": 40407605},
     {"folder": "-didx.projects-tofu-sites-cloudapi-prod", "agent_type": "main", "msgs": 150, "cost": 21.08, "tokens": 24468087},
@@ -41,20 +42,26 @@
     {"model": "claude-sonnet-4-6", "msgs": 86, "cost": 3.11}
   ],
   "tools": [
-    {"tool": "bash", "calls": 1425, "errors": 160},
-    {"tool": "read", "calls": 925, "errors": 3},
-    {"tool": "edit", "calls": 460, "errors": 4},
-    {"tool": "grep", "calls": 318, "errors": 9},
-    {"tool": "write", "calls": 269, "errors": 4},
-    {"tool": "eval", "calls": 258, "errors": 28},
-    {"tool": "advise", "calls": 253, "errors": 0},
-    {"tool": "hub", "calls": 204, "errors": 1},
-    {"tool": "todo", "calls": 56, "errors": 0},
-    {"tool": "glob", "calls": 51, "errors": 3},
-    {"tool": "web_search", "calls": 16, "errors": 0},
-    {"tool": "ask", "calls": 7, "errors": 0},
-    {"tool": "yield", "calls": 3, "errors": 0},
-    {"tool": "task", "calls": 2, "errors": 0}
+    {"tool": "bash", "agent_type": "main", "calls": 1417, "errors": 158},
+    {"tool": "read", "agent_type": "main", "calls": 772, "errors": 2},
+    {"tool": "edit", "agent_type": "main", "calls": 457, "errors": 4},
+    {"tool": "grep", "agent_type": "main", "calls": 270, "errors": 9},
+    {"tool": "eval", "agent_type": "main", "calls": 258, "errors": 28},
+    {"tool": "write", "agent_type": "main", "calls": 258, "errors": 4},
+    {"tool": "advise", "agent_type": "advisor", "calls": 253, "errors": 0},
+    {"tool": "hub", "agent_type": "main", "calls": 155, "errors": 1},
+    {"tool": "read", "agent_type": "advisor", "calls": 108, "errors": 1},
+    {"tool": "todo", "agent_type": "main", "calls": 56, "errors": 0},
+    {"tool": "hub", "agent_type": "subagent", "calls": 49, "errors": 0},
+    {"tool": "read", "agent_type": "subagent", "calls": 45, "errors": 0},
+    {"tool": "glob", "agent_type": "main", "calls": 44, "errors": 2},
+    {"tool": "grep", "agent_type": "advisor", "calls": 35, "errors": 0},
+    {"tool": "web_search", "agent_type": "main", "calls": 16, "errors": 0},
+    {"tool": "grep", "agent_type": "subagent", "calls": 13, "errors": 0},
+    {"tool": "write", "agent_type": "subagent", "calls": 11, "errors": 0},
+    {"tool": "bash", "agent_type": "subagent", "calls": 8, "errors": 2},
+    {"tool": "ask", "agent_type": "main", "calls": 7, "errors": 0},
+    {"tool": "glob", "agent_type": "advisor", "calls": 7, "errors": 1}
   ],
   "top_sessions": [
     {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-devan.projects-incubator-attentiond/2026-09-12T19-24-45-196Z_01a09714-4d0c-7501-86c8-15f252842995.jsonl", "cost": 152.97},
@@ -78,7 +85,7 @@
   "delta": {"vs": "2026-09-11", "cost_pct": 38.71, "tokens_pct": 30.72, "tool_calls_pct": -2.79},
   "watch": [
     "cost up 38.71% vs prior week ($973.82 vs $702.05)",
-    "-devan.projects-incubator-attentiond emerged as top project ($247.24 combined), absent from prior week's by_project list",
-    "bash tool error rate 11.23% (160/1425 calls), up from 9.76% prior week"
+    "bash (main) tool error rate 11.15% (158/1417 calls), highest among major tools",
+    "-devan.projects-incubator-attentiond main agent cost $170.42, 17.5% of total cost"
   ]
 }
