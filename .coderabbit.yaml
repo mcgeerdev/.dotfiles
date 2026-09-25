@@ -1,0 +1,5 @@
+# The weekly WOW release PR is reviewed by its owner. No automatic
+# CodeRabbit reviews; `@coderabbitai review` still works on demand.
+reviews:
+  auto_review:
+    enabled: false
