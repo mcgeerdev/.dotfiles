@@ -8,6 +8,11 @@ set -uo pipefail
 # inactive shim such as gh must not shadow the Homebrew binary.
 export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$HOME/.local/share/mise/shims"
 
+# One WOW job at a time. RunAtLoad fires all four at login; they share the
+# release worktree, and wow-sync's reinstall would kill a job mid-run.
+# lockf re-runs this script holding the lock, so guards see finished work.
+[[ -n ${WOW_LOCKED:-} ]] || WOW_LOCKED=1 exec lockf -t 7200 "$HOME/Library/Caches/wow-jobs.lock" "$0" "$@"
+
 wt=$("$HOME/.wow/bin/wow-worktree") || { echo "wow-improve: no worktree, skipping"; exit 0; }
 
 newest=$(find "$wt/wow/.omp/audits/weekly" -name '*.json' -mtime -6 2>/dev/null | sort | tail -1)
