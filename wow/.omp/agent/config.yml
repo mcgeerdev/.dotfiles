@@ -6,15 +6,15 @@ theme:
   light: matrix
 setupVersion: 2
 modelRoles:
-  advisor: openai-codex/gpt-5.6-sol:high
+  advisor: openai-codex/gpt-6-sol:high
   commit: anthropic/claude-haiku-4-5:low
   plan: anthropic/claude-fable-5:high
-  slow: anthropic/claude-opus-5:high
-  smol: anthropic/claude-sonnet-4-6:low
-  task: anthropic/claude-sonnet-4-6:medium
+  slow: anthropic/claude-opus-5-5:high
+  smol: anthropic/claude-sonnet-5:low
+  task: anthropic/claude-sonnet-5:medium
   tiny: anthropic/claude-haiku-4-5:high
   vision: anthropic/claude-haiku-4-5
-  default: anthropic/claude-opus-5:high
+  default: anthropic/claude-opus-5-5:high
 mcp:
   enableProjectConfig: false
 skills:
@@ -30,7 +30,7 @@ startup:
   checkUpdate: true
   changelogMode: summary
 power:
-  sleepPrevention: system
+  sleepPrevention: idle
 compaction:
   handoffSaveToDisk: true
 memory:
@@ -42,6 +42,19 @@ edit:
   mode: hashline
 bash:
   enabled: true
+eval:
+  # The mise python shim fails `omp setup python --check`; stop offering py.
+  py: false
+# Nothing local runs; stop probing these servers on every start.
+disabledProviders:
+  - ollama
+  - lm-studio
+  - llama.cpp
+retry:
+  fallbackChains:
+    # Keep reviews going when the ChatGPT Plus quota runs out.
+    advisor:
+      - anthropic/claude-sonnet-5:medium
 bashInterceptor:
   enabled: true
   patterns:

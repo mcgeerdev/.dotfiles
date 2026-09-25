@@ -18,9 +18,10 @@
 # 2026-07-29 usage audit measured the single advisor at 26.3% of 30-day spend,
 # so add a second entry only with a deliberate reason.
 #
-# `model` is omitted, so this advisor inherits modelRoles.advisor. To review at
-# a cheaper reasoning level without touching config.yml, set it here, e.g.
-#   model: openai-codex/gpt-5.6-sol:medium
+# `model` pins this advisor to medium effort instead of inheriting
+# modelRoles.advisor (gpt-6-sol:high). The 2026-09-24 audit measured the
+# advisor at 43.2% of 30-day spend. `maxNotesPerUpdate` caps accepted
+# non-blocker notes per review at 2 (default 4); blockers are never capped.
 #
 # `tools` is omitted, so the advisor keeps its default read-only pool
 # (read, grep, glob). Do not grant edit/write/bash/eval here: advisor tool
@@ -28,6 +29,8 @@
 
 advisors:
   - name: Doctrine
+    model: openai-codex/gpt-6-sol:medium
+    maxNotesPerUpdate: 2
     instructions: |
       Review priorities, in order. Raise a note only when one is at stake.
 

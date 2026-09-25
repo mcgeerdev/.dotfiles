@@ -17,12 +17,15 @@ If you need a paragraph long comment to justify why a workaround is OK, the code
 
 ## Shell
 
-`bashInterceptor` rejects these forms, but only after the call is spent. Reach
-for the tool first.
+`bashInterceptor` rejects these forms, but only after the call is spent. It
+checks the whole command and then every fragment split on `;`, `&&`, `||`,
+`|`, `&` and newlines, so a blocked word anywhere in the command fails it.
+Reach for the tool first.
 
 - Write files with `write`, never `echo`/`printf`/`cat` redirection.
 - Set the directory in the bash `cwd` field, never `cd DIR && …`.
-- Read files with `read`, never `cat`/`head`/`tail`/`less`.
-- Search with `grep`/`glob`, never a leading `grep`/`rg`/`find`/`fd`. Inside a
-  pipeline that computes a count or set difference, they are fine.
+- Read files with `read`, never `cat`/`head`/`tail`/`less`, not even as
+  `| cat` or `| head` at the end of a pipeline.
+- Search with `grep`/`glob`, never `grep`/`rg`/`find -name`/`fd`, not even
+  after `;`, `&&` or `|`. Filter output in `eval` when a pipeline needs it.
 - Edit in place with `edit`, never `sed -i`/`perl -i`.
