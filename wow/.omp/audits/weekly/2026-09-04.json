@@ -71,10 +71,10 @@
     {"cwd": "/Users/devanmcgeer/didx.projects/tofu/sites/yoma-prod", "prompts": 4},
     {"cwd": "/Users/devanmcgeer/didx.projects/tofu/sites/cloudapi-prod", "prompts": 3}
   ],
-  "delta": {"vs": "2026-08-28", "cost_pct": 365.06, "tokens_pct": 387.31, "tool_calls_pct": 213.88},
+  "delta": {"vs": "2026-08-28", "cost_pct": 365.1, "tokens_pct": 387.3, "tool_calls_pct": 213.9},
   "watch": [
-    "cost up 365% vs prior week ($1525.34 vs $327.99)",
-    "single session cost $683.10 in -didx.projects-tofu-sites-didx-org advisor, 44.8% of total",
-    "gpt-5.6-sol overtook claude-opus-5 as top-cost model ($907.38 vs $581.61)"
+    "cost up 365.1% vs prior week ($1525.34 vs $327.99), driven by new project -didx.projects-tofu-sites-didx-org",
+    "top session cost $683.10 (tofu-sites-didx-org advisor doctrine, 2026-08-31), 5.6x prior week's top of $120.92",
+    "api_errors 58, up from 24 prior week (+141.7%)"
   ]
 }
