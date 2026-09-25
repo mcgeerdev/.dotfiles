@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # wow-improve — weekly improvement commits on the release branch, PR body
-# refresh. Mondays 09:45 + RunAtLoad; guard: only runs when a digest from
-# the last 7 days exists and this run has not already happened since it.
+# refresh. Mondays 09:45 + RunAtLoad; guard: only runs when this calendar
+# week has a committed digest and no improvement commits since it.
 set -uo pipefail
 
 # mise shims last: gitleaks (pre-commit hook) lives only there, and an
@@ -15,14 +15,23 @@ export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$HO
 
 wt=$("$HOME/.wow/bin/wow-worktree") || { echo "wow-improve: no worktree, skipping"; exit 0; }
 
-newest=$(find "$wt/wow/.omp/audits/weekly" -name '*.json' -mtime -6 2>/dev/null | sort | tail -1)
+# Guards go by file name and commit time, not mtime: checkout rewrites
+# mtimes, and the week starts on Monday whatever day the digest ran.
+monday=$(date -v-"$(( $(date +%u) - 1 ))"d +%F)
+newest=$(ls "$wt/wow/.omp/audits/weekly" 2>/dev/null \
+  | awk -v m="$monday.json" '/^[0-9-]+\.json$/ && $0 >= m' | sort | tail -1)
 if [[ -z "$newest" ]]; then
-  echo "wow-improve: no digest in the last 7 days, skipping"
+  echo "wow-improve: no digest since $monday, skipping"
+  exit 0
+fi
+since=$(git -C "$wt" log -1 --format=%ct -- "wow/.omp/audits/weekly/$newest")
+if [[ -z "$since" ]]; then
+  echo "wow-improve: $newest is not committed yet, skipping"
   exit 0
 fi
 # One improve pass per digest: skip if the branch already has a commit
-# newer than the digest file that is not the digest commit itself.
-if [[ -n $(git -C "$wt" log --since="$(date -r "$newest" '+%Y-%m-%d %H:%M:%S')" \
+# after the digest commit that is not an audit commit.
+if [[ -n $(git -C "$wt" log --since="@$since" \
     --invert-grep --grep='^chore(audits)' --oneline 2>/dev/null) ]]; then
   echo "wow-improve: improvements already committed for this digest, skipping"
   exit 0
