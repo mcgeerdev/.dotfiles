@@ -590,6 +590,10 @@ carries the real changes.
 - Merging runs `.github/workflows/release.yaml`: tag `YYYY.MM.N`, GitHub
   release with the PR body as notes, then the next `release/*` branch from
   `.github/workflows/scripts/calver.sh`.
+- The `master` ruleset on `main` allows squash merges only, so each release
+  lands as one commit. The per-change commits stay reachable from the PR
+  ref after the branch is deleted: `git fetch origin refs/pull/<n>/head`,
+  then `git revert <sha>` on the current release branch backs one out.
 - Deletions are `git mv` into `archive/wow/YYYY-MM/<path>`, never `git rm`.
 
 Outputs, on the release branch: `wow/.omp/audits/weekly/YYYY-MM-DD.json`,
