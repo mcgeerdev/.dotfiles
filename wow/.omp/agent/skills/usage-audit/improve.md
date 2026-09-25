@@ -19,6 +19,12 @@ Files under `wow/` only: skills, RULES.md, omp config, dynacat config,
 attentiond config, `.wow/bin` scripts, launchd plists. Nothing outside
 this repository, no remote infrastructure, no secrets.
 
+Never change a file that has uncommitted changes in the live checkout:
+list them with `git -C ~/.dotfiles status --porcelain`. Those edits are
+the user's work in progress, and a release that touches the same file
+makes `wow-sync`'s fast-forward refuse to apply. Put the idea in
+Suggestions instead.
+
 ## Rules per improvement
 
 - One focused change, one commit, directly on the current branch.

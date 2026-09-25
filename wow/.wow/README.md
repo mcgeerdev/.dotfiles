@@ -570,10 +570,13 @@ automatic.
 Every job also has `RunAtLoad`, so it fires at login. launchd runs a job
 missed during sleep at the next wake but drops one missed while the machine
 was off; the login firing covers that. Each script checks first whether its
-work is already done (digest younger than 6 days, month already reported,
-improvements already committed, `main` current) and exits without posting
-anything. Real runs go through `attn-run`, so they show on the dashboard and
-as a notification.
+work is already done (a digest dated this calendar week, month already
+reported, improvements committed since the digest, `main` current) and
+exits without posting anything. Real runs go through `attn-run`, so they
+show on the dashboard and as a notification, but only while attentiond is
+up. It is started by hand (see Still manual), so a catch-up run at login
+usually finishes before it exists and its event is dropped. The launchd
+log is the record that always exists.
 
 The release flow copies `didx.projects/mono`'s, inverted: the release branch
 carries the real changes.
@@ -587,6 +590,10 @@ carries the real changes.
 - Merging runs `.github/workflows/release.yaml`: tag `YYYY.MM.N`, GitHub
   release with the PR body as notes, then the next `release/*` branch from
   `.github/workflows/scripts/calver.sh`.
+- The `master` ruleset on `main` allows squash merges only, so each release
+  lands as one commit. The per-change commits stay reachable from the PR
+  ref after the branch is deleted: `git fetch origin refs/pull/<n>/head`,
+  then `git revert <sha>` on the current release branch backs one out.
 - Deletions are `git mv` into `archive/wow/YYYY-MM/<path>`, never `git rm`.
 
 Outputs, on the release branch: `wow/.omp/audits/weekly/YYYY-MM-DD.json`,
@@ -612,7 +619,7 @@ because booting out its own label would kill it mid-run. It fails loudly if
   with `go run ./cmd/attentiond` and no flags; it reads `~/.attn/config.toml`.
   Add `--herdr-fixture testdata/session-snapshot.json` to see the dashboard
   with data while Herdr is empty. It has no launchd job; the WOW agents above
-  still run while it is down, their events are just lost.
+  still run while it is down, and `attn-run` drops their events.
 - GitHub needs a credential. attentiond resolves one from `GITHUB_TOKEN`,
   `GH_TOKEN` or `gh auth token`. Without one the source turns itself off and
   the widget shows no pull requests.

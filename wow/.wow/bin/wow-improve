@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # wow-improve — weekly improvement commits on the release branch, PR body
-# refresh. Mondays 09:45 + RunAtLoad; guard: only runs when a digest from
-# the last 7 days exists and this run has not already happened since it.
+# refresh. Mondays 09:45 + RunAtLoad; guard: only runs when this calendar
+# week has a committed digest that no improve pass has handled yet.
 set -uo pipefail
 
 # mise shims last: gitleaks (pre-commit hook) lives only there, and an
@@ -11,24 +11,40 @@ export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$HO
 # One WOW job at a time. RunAtLoad fires all four at login; they share the
 # release worktree, and wow-sync's reinstall would kill a job mid-run.
 # lockf re-runs this script holding the lock, so guards see finished work.
-[[ -n ${WOW_LOCKED:-} ]] || WOW_LOCKED=1 exec lockf -t 7200 "$HOME/Library/Caches/wow-jobs.lock" "$0" "$@"
+[[ -n ${WOW_LOCKED:-} ]] || WOW_LOCKED=1 exec lockf -k -t 7200 "$HOME/Library/Caches/wow-jobs.lock" "$0" "$@"
 
 wt=$("$HOME/.wow/bin/wow-worktree") || { echo "wow-improve: no worktree, skipping"; exit 0; }
 
-newest=$(find "$wt/wow/.omp/audits/weekly" -name '*.json' -mtime -6 2>/dev/null | sort | tail -1)
+# Guards go by file name and commit time, not mtime: checkout rewrites
+# mtimes, and the week starts on Monday whatever day the digest ran.
+monday=$(date -v-"$(( $(date +%u) - 1 ))"d +%F)
+newest=$(ls "$wt/wow/.omp/audits/weekly" 2>/dev/null \
+  | awk -v m="$monday.json" '/^[0-9-]+\.json$/ && $0 >= m' | sort | tail -1)
 if [[ -z "$newest" ]]; then
-  echo "wow-improve: no digest in the last 7 days, skipping"
+  echo "wow-improve: no digest since $monday, skipping"
   exit 0
 fi
-# One improve pass per digest: skip if the branch already has a commit
-# newer than the digest file that is not the digest commit itself.
-if [[ -n $(git -C "$wt" log --since="$(date -r "$newest" '+%Y-%m-%d %H:%M:%S')" \
-    --invert-grep --grep='^chore(audits)' --oneline 2>/dev/null) ]]; then
-  echo "wow-improve: improvements already committed for this digest, skipping"
+digest_sha=$(git -C "$wt" log -1 --format=%H -- "wow/.omp/audits/weekly/$newest")
+if [[ -z "$digest_sha" ]]; then
+  echo "wow-improve: $newest is not committed yet, skipping"
+  exit 0
+fi
+# One improve pass per digest. A pass that only files suggestions leaves
+# no commit, so a successful run records the digest name in $marker; the
+# commit check covers a lost marker. Ancestry, not commit time, decides
+# what came after the digest.
+marker="$HOME/Library/Caches/wow-improve.done"
+if [[ "$(cat "$marker" 2>/dev/null)" == "$newest" ]] \
+  || [[ -n $(git -C "$wt" log "$digest_sha..HEAD" \
+    --grep='^\(feat\|fix\)(wow):' --oneline 2>/dev/null) ]]; then
+  echo "wow-improve: improvements already done for $newest, skipping"
   exit 0
 fi
 
-exec "$HOME/.wow/bin/attn-run" \
+"$HOME/.wow/bin/attn-run" \
   --id wow:improve --title "wow · weekly improvements" -- \
   omp -p --cwd "$HOME/.dotfiles-release" --max-time 45m --approval-mode yolo \
   "Read skill://usage-audit/improve.md and follow it exactly."
+status=$?
+[[ $status -eq 0 ]] && echo "$newest" >"$marker"
+exit $status

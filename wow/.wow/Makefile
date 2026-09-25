@@ -101,5 +101,5 @@ digest-status:
 	@for l in $(WOW_LABELS); do \
 	  echo "$$l"; \
 	  launchctl print gui/$$(id -u)/$$l 2>/dev/null \
-	    | grep -E 'state|last exit' || echo "  not installed"; \
+	    | awk '/^\t(state|last exit code) =/' | grep . || echo "  not installed"; \
 	done

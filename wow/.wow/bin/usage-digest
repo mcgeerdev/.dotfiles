@@ -2,9 +2,10 @@
 # usage-digest — headless weekly omp usage digest, committed to the
 # release branch. Mondays 09:00 + RunAtLoad catch-up (launchd runs a
 # sleep-missed job at wake but skips powered-off ones; the guard makes
-# the login/boot firing a no-op unless overdue). This is also what keeps
-# the release PR alive: even a week with no improvements gets its digest
-# commit, so the PR exists and has the 7-day cadence.
+# the login/boot firing a no-op once this calendar week has a digest).
+# This is also what keeps the release PR alive: even a week with no
+# improvements gets its digest commit, so the PR exists and has the
+# 7-day cadence. `usage-digest --force` reruns this week's digest.
 set -uo pipefail
 
 # mise shims last: gitleaks (pre-commit hook) lives only there, and an
@@ -14,12 +15,16 @@ export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$HO
 # One WOW job at a time. RunAtLoad fires all four at login; they share the
 # release worktree, and wow-sync's reinstall would kill a job mid-run.
 # lockf re-runs this script holding the lock, so guards see finished work.
-[[ -n ${WOW_LOCKED:-} ]] || WOW_LOCKED=1 exec lockf -t 7200 "$HOME/Library/Caches/wow-jobs.lock" "$0" "$@"
+[[ -n ${WOW_LOCKED:-} ]] || WOW_LOCKED=1 exec lockf -k -t 7200 "$HOME/Library/Caches/wow-jobs.lock" "$0" "$@"
 
 wt=$("$HOME/.wow/bin/wow-worktree") || { echo "usage-digest: no worktree, skipping"; exit 0; }
 
-if find "$wt/wow/.omp/audits/weekly" -name '*.json' -mtime -6 2>/dev/null | grep -q .; then
-  echo "usage-digest: digest newer than 6 days exists, skipping"
+# Guard by file name, not mtime: checkout rewrites mtimes, and a Tuesday
+# catch-up must not suppress next Monday's run.
+monday=$(date -v-"$(( $(date +%u) - 1 ))"d +%F)
+if [[ "${1:-}" != "--force" ]] && ls "$wt/wow/.omp/audits/weekly" 2>/dev/null \
+    | awk -v m="$monday.json" '/^[0-9-]+\.json$/ && $0 >= m' | grep -q .; then
+  echo "usage-digest: digest for the week of $monday exists, skipping"
   exit 0
 fi
 
