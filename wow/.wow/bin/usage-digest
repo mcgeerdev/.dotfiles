@@ -30,11 +30,12 @@ fi
 
 exec "$HOME/.wow/bin/attn-run" \
   --id wow:usage-digest --title "wow · weekly usage digest" -- \
+  env WOW_OMP_CONF="$(cd "$(dirname "$0")/.." && pwd)/omp-headless.yml" \
   bash -c '
     set -euo pipefail
     wt="$HOME/.dotfiles-release"
     omp -p --cwd "$wt" --model anthropic/claude-sonnet-5 --max-time 30m \
-      --approval-mode yolo \
+      --approval-mode yolo --config "$WOW_OMP_CONF" \
       "Read skill://usage-audit/digest.md and follow it exactly."
     cd "$wt"
     branch=$(git branch --show-current)

@@ -599,7 +599,9 @@ carries the real changes.
 Outputs, on the release branch: `wow/.omp/audits/weekly/YYYY-MM-DD.json`,
 `wow/.omp/audits/patterns/YYYY-MM.json` and `patterns/summary.json`. The
 instructions are `skill://usage-audit/{digest,patterns,improve}.md`. Logs go
-to `~/Library/Logs/wow.<job>.log`.
+to `~/Library/Logs/wow.<job>.log`. The jobs run omp with
+`--config omp-headless.yml`, which turns the advisor off: it reviews
+interactive turns, and here the PR review does that job.
 
 ```bash
 make digest-install    # copy the plists into ~/Library/LaunchAgents and load them
@@ -637,8 +639,9 @@ Nine files here are new: `Makefile`, `README.md`, `dynacat/.gitignore`,
 `~/.dotfiles/wow/.attn/config.toml` with the `~/.attn` link stow made for it.
 
 The WOW automation adds `launchd/`, `dynacat/config/wow.yml`,
-`bin/wow-worktree`, `bin/usage-digest`, `bin/usage-patterns`,
-`bin/wow-improve` and `bin/wow-sync`. Run `make digest-uninstall` first, then
+`omp-headless.yml`, `bin/wow-worktree`, `bin/usage-digest`,
+`bin/usage-patterns`, `bin/wow-improve` and `bin/wow-sync`. Run
+`make digest-uninstall` first, then
 delete them and `git worktree remove ~/.dotfiles-release`.
 
 Four already existed and were rewritten in place, so they are restored, not

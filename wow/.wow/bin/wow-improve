@@ -44,6 +44,7 @@ fi
 "$HOME/.wow/bin/attn-run" \
   --id wow:improve --title "wow · weekly improvements" -- \
   omp -p --cwd "$HOME/.dotfiles-release" --max-time 45m --approval-mode yolo \
+  --config "$(cd "$(dirname "$0")/.." && pwd)/omp-headless.yml" \
   "Read skill://usage-audit/improve.md and follow it exactly."
 status=$?
 [[ $status -eq 0 ]] && echo "$newest" >"$marker"
