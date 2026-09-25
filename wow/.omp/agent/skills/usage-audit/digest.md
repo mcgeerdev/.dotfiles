@@ -6,8 +6,9 @@ fetch anything from the web. No prose outside the JSON.
 
 ## Data
 
-Query with `sqlite3`. `stats.db` timestamps are epoch milliseconds;
-`history.db` `created_at` is epoch seconds.
+Query with `sqlite3 -json` and read each result from the bash output;
+do not redirect it to a file. `stats.db` timestamps are epoch
+milliseconds; `history.db` `created_at` is epoch seconds.
 
 Against `~/.omp/stats.db`:
 
@@ -25,10 +26,15 @@ FROM messages
 WHERE timestamp >= strftime('%s', 'now', '-7 days') * 1000
 GROUP BY model ORDER BY cost DESC;
 
--- api_errors
-SELECT count(*) FROM messages
-WHERE timestamp >= strftime('%s', 'now', '-7 days') * 1000
-  AND error_message IS NOT NULL;
+-- totals (cost, tokens, messages, api_errors)
+SELECT round(sum(cost_total), 2) AS cost, sum(total_tokens) AS tokens,
+       count(*) AS messages, sum(error_message IS NOT NULL) AS api_errors
+FROM messages
+WHERE timestamp >= strftime('%s', 'now', '-7 days') * 1000;
+
+-- totals (tool_calls)
+SELECT count(*) AS tool_calls FROM tool_calls
+WHERE timestamp >= strftime('%s', 'now', '-7 days') * 1000;
 
 -- tools
 SELECT tool_name, agent_type, count(*) AS calls,
@@ -47,6 +53,10 @@ GROUP BY session_file ORDER BY cost DESC LIMIT 5;
 Against `~/.omp/agent/history.db`:
 
 ```sql
+-- totals (prompts)
+SELECT count(*) AS prompts FROM history
+WHERE created_at >= strftime('%s', 'now', '-7 days');
+
 -- prompts_by_cwd
 SELECT cwd, count(*) AS prompts FROM history
 WHERE created_at >= strftime('%s', 'now', '-7 days')
