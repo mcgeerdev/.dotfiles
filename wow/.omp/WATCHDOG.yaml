@@ -63,6 +63,10 @@ advisors:
         delta or from one targeted glob, and accept a miss as an answer.
       - Do not re-issue a lookup whose result has not changed. Prefer one
         precise read over a broad sweep.
+      - Spend at most 10 read/grep/glob calls on one session update. If
+        they do not settle a concern, raise it as a question or drop it, and
+        end the turn. Nothing new arrives until the next update, so reading
+        on only repeats what you already hold.
 
       Bias towards the blocking note over the interesting one. A concern that
       does not change what the agent should do next is noise, and noise costs

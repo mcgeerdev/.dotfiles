@@ -1,0 +1,371 @@
+{
+  "date": "2026-08-14",
+  "window_days": 7,
+  "totals": {
+    "cost": 452.65,
+    "tokens": 618746375,
+    "messages": 5385,
+    "tool_calls": 4317,
+    "prompts": 173,
+    "api_errors": 34
+  },
+  "by_project": [
+    {
+      "folder": "-sc.projects-SecureCitizen",
+      "agent_type": "main",
+      "msgs": 588,
+      "cost": 103.65,
+      "tokens": 143283236
+    },
+    {
+      "folder": "-sc.projects-SecureCitizen.Portal",
+      "agent_type": "advisor",
+      "msgs": 1098,
+      "cost": 85.16,
+      "tokens": 149454618
+    },
+    {
+      "folder": "-sc.projects-SecureCitizen.Portal",
+      "agent_type": "main",
+      "msgs": 365,
+      "cost": 62.71,
+      "tokens": 90973316
+    },
+    {
+      "folder": "-sc.projects-SecureCitizen",
+      "agent_type": "advisor",
+      "msgs": 1236,
+      "cost": 56.16,
+      "tokens": 90881058
+    },
+    {
+      "folder": "-didx.projects-tofu-wt-dd-slack-cspm",
+      "agent_type": "main",
+      "msgs": 196,
+      "cost": 38.67,
+      "tokens": 40716197
+    },
+    {
+      "folder": "-sc.projects",
+      "agent_type": "main",
+      "msgs": 266,
+      "cost": 35.68,
+      "tokens": 40834253
+    },
+    {
+      "folder": "-didx.projects-tofu-sites-cloudapi-prod",
+      "agent_type": "main",
+      "msgs": 182,
+      "cost": 16.61,
+      "tokens": 14631549
+    },
+    {
+      "folder": "-devan.projects-dobra-robota-hino-hilux",
+      "agent_type": "main",
+      "msgs": 201,
+      "cost": 15.97,
+      "tokens": 16454445
+    },
+    {
+      "folder": "-sc.projects",
+      "agent_type": "advisor",
+      "msgs": 351,
+      "cost": 9.47,
+      "tokens": 8534921
+    },
+    {
+      "folder": "-didx.projects-tofu-wt-dd-slack-cspm",
+      "agent_type": "advisor",
+      "msgs": 234,
+      "cost": 5.49,
+      "tokens": 5275749
+    },
+    {
+      "folder": "-didx.projects-tofu-sites-cloudapi-prod",
+      "agent_type": "advisor",
+      "msgs": 218,
+      "cost": 4.43,
+      "tokens": 2991234
+    },
+    {
+      "folder": "-didx.projects-tofu-wt-dd-slack-cspm-sites-didx-org",
+      "agent_type": "main",
+      "msgs": 45,
+      "cost": 3.42,
+      "tokens": 3151532
+    },
+    {
+      "folder": "-didx.projects-tofu",
+      "agent_type": "main",
+      "msgs": 43,
+      "cost": 3.36,
+      "tokens": 2692516
+    },
+    {
+      "folder": "-sc.projects",
+      "agent_type": "subagent",
+      "msgs": 61,
+      "cost": 3.04,
+      "tokens": 2975070
+    },
+    {
+      "folder": "-sc.projects-SecureCitizen",
+      "agent_type": "subagent",
+      "msgs": 65,
+      "cost": 2.42,
+      "tokens": 2147785
+    },
+    {
+      "folder": "-explore.repos-obdium",
+      "agent_type": "main",
+      "msgs": 9,
+      "cost": 2.25,
+      "tokens": 1335794
+    },
+    {
+      "folder": "-devan.projects-dobra-robota-hino-hilux",
+      "agent_type": "advisor",
+      "msgs": 91,
+      "cost": 1.57,
+      "tokens": 861755
+    },
+    {
+      "folder": "-didx.projects-tofu",
+      "agent_type": "advisor",
+      "msgs": 66,
+      "cost": 1.09,
+      "tokens": 599716
+    },
+    {
+      "folder": "-didx.projects-tofu",
+      "agent_type": "subagent",
+      "msgs": 14,
+      "cost": 0.66,
+      "tokens": 511521
+    },
+    {
+      "folder": "-didx.projects-tofu-wt-dd-slack-cspm-sites-didx-org",
+      "agent_type": "advisor",
+      "msgs": 46,
+      "cost": 0.54,
+      "tokens": 265753
+    },
+    {
+      "folder": "-explore.repos-obdium",
+      "agent_type": "advisor",
+      "msgs": 10,
+      "cost": 0.31,
+      "tokens": 174357
+    }
+  ],
+  "by_model": [
+    {
+      "model": "claude-opus-5",
+      "msgs": 1876,
+      "cost": 280.84
+    },
+    {
+      "model": "gpt-5.6-sol",
+      "msgs": 3369,
+      "cost": 165.69
+    },
+    {
+      "model": "claude-sonnet-4-6",
+      "msgs": 140,
+      "cost": 6.12
+    }
+  ],
+  "tools": [
+    {
+      "tool": "advise",
+      "agent_type": "advisor",
+      "calls": 1000,
+      "errors": 0
+    },
+    {
+      "tool": "bash",
+      "agent_type": "main",
+      "calls": 873,
+      "errors": 99
+    },
+    {
+      "tool": "grep",
+      "agent_type": "advisor",
+      "calls": 629,
+      "errors": 5
+    },
+    {
+      "tool": "read",
+      "agent_type": "main",
+      "calls": 418,
+      "errors": 20
+    },
+    {
+      "tool": "read",
+      "agent_type": "advisor",
+      "calls": 333,
+      "errors": 5
+    },
+    {
+      "tool": "grep",
+      "agent_type": "main",
+      "calls": 282,
+      "errors": 12
+    },
+    {
+      "tool": "edit",
+      "agent_type": "main",
+      "calls": 208,
+      "errors": 12
+    },
+    {
+      "tool": "read",
+      "agent_type": "subagent",
+      "calls": 116,
+      "errors": 1
+    },
+    {
+      "tool": "write",
+      "agent_type": "main",
+      "calls": 111,
+      "errors": 9
+    },
+    {
+      "tool": "eval",
+      "agent_type": "main",
+      "calls": 72,
+      "errors": 8
+    },
+    {
+      "tool": "grep",
+      "agent_type": "subagent",
+      "calls": 53,
+      "errors": 1
+    },
+    {
+      "tool": "glob",
+      "agent_type": "main",
+      "calls": 44,
+      "errors": 3
+    },
+    {
+      "tool": "hub",
+      "agent_type": "main",
+      "calls": 41,
+      "errors": 1
+    },
+    {
+      "tool": "glob",
+      "agent_type": "subagent",
+      "calls": 40,
+      "errors": 6
+    },
+    {
+      "tool": "glob",
+      "agent_type": "advisor",
+      "calls": 31,
+      "errors": 5
+    },
+    {
+      "tool": "mcp__node_repl_js",
+      "agent_type": "subagent",
+      "calls": 16,
+      "errors": 3
+    },
+    {
+      "tool": "yield",
+      "agent_type": "subagent",
+      "calls": 13,
+      "errors": 1
+    },
+    {
+      "tool": "todo",
+      "agent_type": "main",
+      "calls": 11,
+      "errors": 0
+    },
+    {
+      "tool": "ask",
+      "agent_type": "main",
+      "calls": 10,
+      "errors": 2
+    },
+    {
+      "tool": "task",
+      "agent_type": "main",
+      "calls": 5,
+      "errors": 0
+    }
+  ],
+  "top_sessions": [
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-sc.projects-SecureCitizen.Portal/2026-08-12T12-57-00-121Z_019ff60c-29d9-7000-ac5c-0f7fc3338f02/__advisor.doctrine.jsonl",
+      "cost": 82.09
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-sc.projects-SecureCitizen/2026-08-12T15-16-41-072Z_019ff68c-0bf0-7000-8c76-9586d124f3b8.jsonl",
+      "cost": 75.05
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-sc.projects-SecureCitizen.Portal/2026-08-12T12-57-00-121Z_019ff60c-29d9-7000-ac5c-0f7fc3338f02.jsonl",
+      "cost": 54.41
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu-wt-dd-slack-cspm/2026-08-07T08-18-39-093Z_019fdb4d-8775-7000-812e-dfdace0e570c.jsonl",
+      "cost": 38.67
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-sc.projects-SecureCitizen/2026-08-12T10-02-52-567Z_019ff56c-bf17-7000-ae50-9ba3588611ff/__advisor.doctrine.jsonl",
+      "cost": 31.43
+    }
+  ],
+  "prompts_by_cwd": [
+    {
+      "cwd": "/Users/devanmcgeer/sc.projects",
+      "prompts": 38
+    },
+    {
+      "cwd": "/Users/devanmcgeer/didx.projects/tofu/sites/cloudapi-prod",
+      "prompts": 30
+    },
+    {
+      "cwd": "/Users/devanmcgeer/sc.projects/SecureCitizen",
+      "prompts": 29
+    },
+    {
+      "cwd": "/Users/devanmcgeer/didx.projects/tofu-wt/dd-slack-cspm",
+      "prompts": 24
+    },
+    {
+      "cwd": "/Users/devanmcgeer/devan.projects/dobra-robota/hino-hilux",
+      "prompts": 24
+    },
+    {
+      "cwd": "/Users/devanmcgeer/sc.projects/SecureCitizen.Portal",
+      "prompts": 13
+    },
+    {
+      "cwd": "/Users/devanmcgeer/didx.projects/tofu",
+      "prompts": 8
+    },
+    {
+      "cwd": "/Users/devanmcgeer/didx.projects/tofu-wt/dd-slack-cspm/sites/didx-org",
+      "prompts": 6
+    },
+    {
+      "cwd": "/Users/devanmcgeer/explore.repos/obdium",
+      "prompts": 1
+    }
+  ],
+  "delta": {
+    "vs": "2026-08-07",
+    "cost_pct": -32.2,
+    "tokens_pct": -28.4,
+    "tool_calls_pct": -13.8
+  },
+  "watch": [
+    "cost down 32.2% vs prior week ($452.65 vs $667.48) while tool_calls fell 13.8% (4317 vs 5007)",
+    "claude-opus-5 at 62.0% of total cost ($280.84 of $452.65)",
+    "bash error rate 11.3% for main (99/873), highest error count of any tool"
+  ]
+}

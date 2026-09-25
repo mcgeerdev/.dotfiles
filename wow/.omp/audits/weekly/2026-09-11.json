@@ -1,0 +1,66 @@
+{
+  "date": "2026-09-11",
+  "window_days": 7,
+  "totals": {"cost": 702.05, "tokens": 881085606, "messages": 6336, "tool_calls": 4369,
+             "prompts": 357, "api_errors": 17},
+  "by_project": [
+    {"folder": "-didx.projects-tofu", "agent_type": "main", "msgs": 1828, "cost": 275.7, "tokens": 379471793},
+    {"folder": "-didx.projects-tofu", "agent_type": "advisor", "msgs": 1986, "cost": 142.9, "tokens": 145513368},
+    {"folder": "-sc.projects-SecureCitizen.Portal", "agent_type": "main", "msgs": 404, "cost": 94.58, "tokens": 139785138},
+    {"folder": "-didx.projects-mono", "agent_type": "main", "msgs": 422, "cost": 67.29, "tokens": 85257994},
+    {"folder": "-didx.projects-mono", "agent_type": "advisor", "msgs": 443, "cost": 35.39, "tokens": 28834502},
+    {"folder": "-sc.projects-SecureCitizen.Portal", "agent_type": "advisor", "msgs": 373, "cost": 27.94, "tokens": 37063726},
+    {"folder": "-didx.projects-tofu-sites-cloudapi-dev", "agent_type": "main", "msgs": 271, "cost": 27.69, "tokens": 35864306},
+    {"folder": "-didx.projects-tofu-sites-cloudapi-dev", "agent_type": "advisor", "msgs": 280, "cost": 13.52, "tokens": 10123947},
+    {"folder": "-sc.projects-SecureCitizen.Portal", "agent_type": "subagent", "msgs": 113, "cost": 6.24, "tokens": 8025056},
+    {"folder": "-didx.projects-tofu", "agent_type": "subagent", "msgs": 120, "cost": 5.89, "tokens": 5655535},
+    {"folder": "-didx.projects-mono", "agent_type": "subagent", "msgs": 96, "cost": 4.92, "tokens": 5490241}
+  ],
+  "by_model": [
+    {"model": "claude-opus-5", "msgs": 2925, "cost": 465.26},
+    {"model": "gpt-6-astra", "msgs": 2487, "cost": 177.0},
+    {"model": "gpt-5.6-sol", "msgs": 595, "cost": 42.75},
+    {"model": "claude-sonnet-4-6", "msgs": 329, "cost": 17.04}
+  ],
+  "tools": [
+    {"tool": "bash", "agent_type": "main", "calls": 1203, "errors": 116},
+    {"tool": "read", "agent_type": "main", "calls": 557, "errors": 4},
+    {"tool": "read", "agent_type": "subagent", "calls": 413, "errors": 1},
+    {"tool": "read", "agent_type": "advisor", "calls": 339, "errors": 3},
+    {"tool": "eval", "agent_type": "main", "calls": 279, "errors": 22},
+    {"tool": "edit", "agent_type": "main", "calls": 241, "errors": 3},
+    {"tool": "write", "agent_type": "main", "calls": 233, "errors": 2},
+    {"tool": "grep", "agent_type": "main", "calls": 211, "errors": 1},
+    {"tool": "advise", "agent_type": "advisor", "calls": 165, "errors": 0},
+    {"tool": "grep", "agent_type": "subagent", "calls": 139, "errors": 0},
+    {"tool": "hub", "agent_type": "main", "calls": 126, "errors": 2},
+    {"tool": "grep", "agent_type": "advisor", "calls": 109, "errors": 1},
+    {"tool": "glob", "agent_type": "subagent", "calls": 66, "errors": 2},
+    {"tool": "hub", "agent_type": "subagent", "calls": 61, "errors": 0},
+    {"tool": "glob", "agent_type": "main", "calls": 41, "errors": 1},
+    {"tool": "glob", "agent_type": "advisor", "calls": 37, "errors": 6},
+    {"tool": "write", "agent_type": "subagent", "calls": 34, "errors": 1},
+    {"tool": "bash", "agent_type": "subagent", "calls": 26, "errors": 4},
+    {"tool": "yield", "agent_type": "subagent", "calls": 24, "errors": 0},
+    {"tool": "web_search", "agent_type": "subagent", "calls": 23, "errors": 0}
+  ],
+  "top_sessions": [
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-sc.projects-SecureCitizen.Portal/2026-09-04T18-06-09-459Z_01a06d99-7833-71b1-84c8-f424a7a4c1b6.jsonl", "cost": 76.66},
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu/2026-09-10T13-53-54-436Z_01a08b98-af04-7206-a4e5-cf022612de11.jsonl", "cost": 63.69},
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu/2026-09-10T08-30-58-840Z_01a08a71-0918-761b-814f-2878b6383ae4.jsonl", "cost": 53.03},
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-mono/2026-09-07T07-33-18-900Z_01a07ac9-29b4-7349-ae16-47c0f161e2ec.jsonl", "cost": 48.0},
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu/2026-09-07T10-41-43-704Z_01a07b75-a918-70d8-a850-e14c3685a965.jsonl", "cost": 42.23}
+  ],
+  "prompts_by_cwd": [
+    {"cwd": "/Users/devanmcgeer/didx.projects/tofu", "prompts": 226},
+    {"cwd": "/Users/devanmcgeer/sc.projects/SecureCitizen.Portal", "prompts": 59},
+    {"cwd": "/Users/devanmcgeer/didx.projects/mono", "prompts": 56},
+    {"cwd": "/Users/devanmcgeer/didx.projects/tofu/sites/cloudapi-dev", "prompts": 16}
+  ],
+  "delta": {"vs": "2026-09-04", "cost_pct": -53.97, "tokens_pct": -57.6, "tool_calls_pct": -56.09},
+  "watch": [
+    "cost down 53.97% vs prior week ($702.05 vs $1525.34)",
+    "bash (main) tool error rate 9.64% (116/1203 calls), highest among major tools",
+    "-didx.projects-tofu main agent cost $275.70, 39.3% of total cost"
+  ]
+}
