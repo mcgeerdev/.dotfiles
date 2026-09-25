@@ -563,7 +563,7 @@ automatic.
 | Label | Script | When | Does |
 | --- | --- | --- | --- |
 | `wow.usage-digest` | `bin/usage-digest` | Mon 09:00 | weekly JSON digest from `stats.db` and `history.db` (sonnet), commit, push, open the release PR if none is open |
-| `wow.wow-improve` | `bin/wow-improve` | Mon 09:45 | up to 3 improvement commits citing the digest, rewrites the PR body (default model) |
+| `wow.wow-improve` | `bin/wow-improve` | Mon 09:45 | changes anywhere in the repo the audits justify (omp, skills, nvim, terminal, shell, attentiond, Dynacat, automation), one commit each; rewrites the PR body as a changelog plus third-party tool suggestions (default model) |
 | `wow.usage-patterns` | `bin/usage-patterns` | 1st, 09:30 | monthly patterns JSON plus the dashboard `summary.json` (sonnet) |
 | `wow.wow-sync` | `bin/wow-sync` | daily 10:00 | after a merge: fast-forward `~/.dotfiles` to `origin/main`, re-stow `wow`, reinstall the other three agents |
 

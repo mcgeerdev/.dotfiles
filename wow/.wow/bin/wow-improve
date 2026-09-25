@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# wow-improve — weekly improvement commits on the release branch, PR body
+# wow-improve — weekly way-of-work changes on the release branch, PR body
 # refresh. Mondays 09:45 + RunAtLoad; guard: only runs when this calendar
 # week has a committed digest that no improve pass has handled yet.
 # `wow-improve --force` runs again on the same digest.
@@ -37,14 +37,14 @@ fi
 marker="$HOME/Library/Caches/wow-improve.done"
 if [[ "${1:-}" != "--force" ]] && { [[ "$(cat "$marker" 2>/dev/null)" == "$newest" ]] \
   || [[ -n $(git -C "$wt" log "$digest_sha..HEAD" \
-    --grep='^\(feat\|fix\)(wow):' --oneline 2>/dev/null) ]]; }; then
+    --grep='^\(feat\|fix\)(' --oneline 2>/dev/null) ]]; }; then
   echo "wow-improve: improvements already done for $newest, skipping"
   exit 0
 fi
 
 "$HOME/.wow/bin/attn-run" \
   --id wow:improve --title "wow · weekly improvements" -- \
-  omp -p --cwd "$HOME/.dotfiles-release" --max-time 45m --approval-mode yolo \
+  omp -p --cwd "$HOME/.dotfiles-release" --max-time 90m --approval-mode yolo \
   --config "$(cd "$(dirname "$0")/.." && pwd)/omp-headless.yml" \
   "Read skill://usage-audit/improve.md and follow it exactly."
 status=$?
