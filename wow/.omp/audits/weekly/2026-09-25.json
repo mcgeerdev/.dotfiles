@@ -2,7 +2,7 @@
   "date": "2026-09-25",
   "window_days": 7,
   "totals": {"cost": 506.69, "tokens": 1017736595, "messages": 8134, "tool_calls": 6956,
-             "prompts": 211, "api_errors": 36},
+             "prompts": 212, "api_errors": 36},
   "by_project": [
     {"folder": "-.dotfiles-wow-.wow", "agent_type": "main", "msgs": 481, "cost": 55.46, "tokens": 83966403},
     {"folder": "-didx.projects-tofu-sites-cloudapi-dev", "agent_type": "main", "msgs": 383, "cost": 42.8, "tokens": 54842123},
@@ -48,21 +48,26 @@
     {"model": "claude-sonnet-5", "msgs": 69, "cost": 3.17}
   ],
   "tools": [
-    {"tool": "read", "calls": 3329, "errors": 34},
-    {"tool": "bash", "calls": 1149, "errors": 134},
-    {"tool": "grep", "calls": 604, "errors": 7},
-    {"tool": "glob", "calls": 453, "errors": 12},
-    {"tool": "edit", "calls": 355, "errors": 21},
-    {"tool": "advise", "calls": 322, "errors": 0},
-    {"tool": "eval", "calls": 265, "errors": 34},
-    {"tool": "hub", "calls": 188, "errors": 4},
-    {"tool": "write", "calls": 156, "errors": 0},
-    {"tool": "web_search", "calls": 54, "errors": 1},
-    {"tool": "todo", "calls": 46, "errors": 1},
-    {"tool": "yield", "calls": 13, "errors": 0},
-    {"tool": "ask", "calls": 7, "errors": 0},
-    {"tool": "task", "calls": 6, "errors": 0},
-    {"tool": "recall", "calls": 6, "errors": 0}
+    {"tool": "read", "agent_type": "advisor", "calls": 2451, "errors": 23},
+    {"tool": "bash", "agent_type": "main", "calls": 1149, "errors": 134},
+    {"tool": "read", "agent_type": "main", "calls": 746, "errors": 11},
+    {"tool": "glob", "agent_type": "advisor", "calls": 376, "errors": 4},
+    {"tool": "edit", "agent_type": "main", "calls": 355, "errors": 21},
+    {"tool": "grep", "agent_type": "main", "calls": 340, "errors": 4},
+    {"tool": "advise", "agent_type": "advisor", "calls": 322, "errors": 0},
+    {"tool": "eval", "agent_type": "main", "calls": 265, "errors": 34},
+    {"tool": "grep", "agent_type": "advisor", "calls": 197, "errors": 2},
+    {"tool": "hub", "agent_type": "main", "calls": 188, "errors": 4},
+    {"tool": "write", "agent_type": "main", "calls": 156, "errors": 0},
+    {"tool": "read", "agent_type": "subagent", "calls": 132, "errors": 0},
+    {"tool": "grep", "agent_type": "subagent", "calls": 67, "errors": 1},
+    {"tool": "glob", "agent_type": "main", "calls": 54, "errors": 4},
+    {"tool": "todo", "agent_type": "main", "calls": 46, "errors": 1},
+    {"tool": "web_search", "agent_type": "subagent", "calls": 37, "errors": 0},
+    {"tool": "glob", "agent_type": "subagent", "calls": 23, "errors": 4},
+    {"tool": "web_search", "agent_type": "main", "calls": 17, "errors": 1},
+    {"tool": "yield", "agent_type": "subagent", "calls": 13, "errors": 0},
+    {"tool": "ask", "agent_type": "main", "calls": 7, "errors": 0}
   ],
   "top_sessions": [
     {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-.dotfiles-wow-.wow/2026-09-17T07-20-13-423Z_01a0ae3c-c56f-71fc-8f61-3fe1f1f3749a.jsonl", "cost": 46.51},
@@ -73,7 +78,7 @@
   ],
   "prompts_by_cwd": [
     {"cwd": "/Users/devanmcgeer/didx.projects/tofu/sites/cloudapi-dev", "prompts": 37},
-    {"cwd": "/Users/devanmcgeer/.dotfiles/wow/.omp/agent", "prompts": 36},
+    {"cwd": "/Users/devanmcgeer/.dotfiles/wow/.omp/agent", "prompts": 37},
     {"cwd": "/Users/devanmcgeer/didx.projects/mono", "prompts": 32},
     {"cwd": "/Users/devanmcgeer/.herdr/worktrees/tofu/worktree-green-harbor-2ca3/sites/cloudapi-dev", "prompts": 17},
     {"cwd": "/Users/devanmcgeer/.herdr/worktrees/tofu/worktree-rapid-cloud-b6ce", "prompts": 16},
@@ -83,10 +88,10 @@
     {"cwd": "/Users/devanmcgeer/.dotfiles/wow/.wow", "prompts": 11},
     {"cwd": "/Users/devanmcgeer/.dotfiles/wow/.omp/audits", "prompts": 10}
   ],
-  "delta": {"vs": "2026-09-18", "cost_pct": -47.98, "tokens_pct": -11.64, "tool_calls_pct": 63.79},
+  "delta": {"vs": "2026-09-18", "cost_pct": -47.97, "tokens_pct": -11.64, "tool_calls_pct": 63.79},
   "watch": [
-    "tool_calls up 63.79% vs prior week (6956 vs 4247) while cost fell 47.98%",
-    "new project -.herdr-worktrees-infra-worktree-silver-stone-bb37 appeared, advisor session cost $34.47 on 2026-09-23, absent from prior week's by_project list",
-    "read tool error rate rose to 1.02% (34/3329) from 0.32% (3/925) prior week"
+    "tool_calls up 63.79% to 6956 (vs 4247) while cost fell 47.97% to $506.69",
+    "advisor read calls spiked to 2451 (23 errors), up from 108 last week, driven by new -.herdr-worktrees-infra-worktree-silver-stone-bb37 and -.dotfiles-wow-.omp-agent folders",
+    "bash (main) tool error rate 11.66% (134/1149 calls), highest among major tools"
   ]
 }
