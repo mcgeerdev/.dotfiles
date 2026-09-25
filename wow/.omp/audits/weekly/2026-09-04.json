@@ -1,0 +1,80 @@
+{
+  "date": "2026-09-04",
+  "window_days": 7,
+  "totals": {"cost": 1525.34, "tokens": 2078078516, "messages": 11367, "tool_calls": 9950,
+             "prompts": 355, "api_errors": 58},
+  "by_project": [
+    {"folder": "-didx.projects-tofu-sites-didx-org", "agent_type": "advisor", "msgs": 2853, "cost": 683.1, "tokens": 790694359},
+    {"folder": "-didx.projects-tofu", "agent_type": "main", "msgs": 1568, "cost": 252.28, "tokens": 321154345},
+    {"folder": "-didx.projects-tofu", "agent_type": "advisor", "msgs": 2628, "cost": 153.65, "tokens": 304011515},
+    {"folder": "-devan.projects-incubator-hum", "agent_type": "main", "msgs": 996, "cost": 151.53, "tokens": 248138366},
+    {"folder": "-didx.projects-tofu-sites-didx-org", "agent_type": "main", "msgs": 242, "cost": 67.37, "tokens": 88376180},
+    {"folder": "-didx.projects-tofu-sites-cloudapi-dev", "agent_type": "main", "msgs": 199, "cost": 41.39, "tokens": 37524464},
+    {"folder": "-devan.projects-incubator-hum", "agent_type": "advisor", "msgs": 750, "cost": 37.09, "tokens": 62502642},
+    {"folder": "-sc.projects", "agent_type": "main", "msgs": 280, "cost": 32.68, "tokens": 53476971},
+    {"folder": "-devan.projects-incubator-hum", "agent_type": "subagent", "msgs": 356, "cost": 21.26, "tokens": 43805423},
+    {"folder": "-sc.projects-SecureCitizen.Portal", "agent_type": "main", "msgs": 166, "cost": 18.25, "tokens": 25135181},
+    {"folder": "-didx.projects-tofu-sites-cloudapi-prod", "agent_type": "main", "msgs": 98, "cost": 12.23, "tokens": 17760709},
+    {"folder": "-sc.projects-SecureCitizen.Portal", "agent_type": "advisor", "msgs": 245, "cost": 11.89, "tokens": 24699324},
+    {"folder": "-sc.projects", "agent_type": "advisor", "msgs": 229, "cost": 10.25, "tokens": 19815592},
+    {"folder": "-didx.projects-tofu-sites-cloudapi-prod", "agent_type": "advisor", "msgs": 113, "cost": 5.86, "tokens": 9930313},
+    {"folder": "-didx.projects-tofu-sites-didx-org", "agent_type": "subagent", "msgs": 86, "cost": 3.61, "tokens": 4867748},
+    {"folder": "-didx.projects-tofu-sites-cloudapi-dev", "agent_type": "advisor", "msgs": 135, "cost": 3.51, "tokens": 5002607},
+    {"folder": "-didx.projects-mono", "agent_type": "main", "msgs": 40, "cost": 3.24, "tokens": 3593778},
+    {"folder": "-didx.projects-tofu", "agent_type": "subagent", "msgs": 54, "cost": 3.23, "tokens": 3213457},
+    {"folder": "-didx.projects-tofu-sites-cloudapi-prod", "agent_type": "subagent", "msgs": 57, "cost": 3.21, "tokens": 3247170},
+    {"folder": "-didx.projects-tofu-sites-yoma-prod", "agent_type": "main", "msgs": 41, "cost": 2.64, "tokens": 2871775},
+    {"folder": "-didx.projects-mono", "agent_type": "subagent", "msgs": 53, "cost": 2.05, "tokens": 2562950},
+    {"folder": "-didx.projects-mono", "agent_type": "advisor", "msgs": 58, "cost": 1.31, "tokens": 1675471},
+    {"folder": "-sc.projects", "agent_type": "subagent", "msgs": 23, "cost": 1.09, "tokens": 1042231},
+    {"folder": "-didx.projects-tofu-sites-cloudapi-dev", "agent_type": "subagent", "msgs": 24, "cost": 1.06, "tokens": 1077067},
+    {"folder": "-sc.projects-SecureCitizen.Portal", "agent_type": "subagent", "msgs": 24, "cost": 0.84, "tokens": 867305},
+    {"folder": "-didx.projects-tofu-sites-yoma-prod", "agent_type": "advisor", "msgs": 49, "cost": 0.72, "tokens": 1031573}
+  ],
+  "by_model": [
+    {"model": "gpt-5.6-sol", "msgs": 7060, "cost": 907.38},
+    {"model": "claude-opus-5", "msgs": 3630, "cost": 581.61},
+    {"model": "claude-sonnet-4-6", "msgs": 677, "cost": 36.36}
+  ],
+  "tools": [
+    {"tool": "read", "calls": 3443, "errors": 71},
+    {"tool": "grep", "calls": 1872, "errors": 14},
+    {"tool": "glob", "calls": 1490, "errors": 10},
+    {"tool": "bash", "calls": 1298, "errors": 138},
+    {"tool": "edit", "calls": 475, "errors": 7},
+    {"tool": "advise", "calls": 459, "errors": 0},
+    {"tool": "eval", "calls": 318, "errors": 28},
+    {"tool": "write", "calls": 314, "errors": 11},
+    {"tool": "hub", "calls": 156, "errors": 11},
+    {"tool": "web_search", "calls": 36, "errors": 0},
+    {"tool": "yield", "calls": 34, "errors": 1},
+    {"tool": "todo", "calls": 23, "errors": 0},
+    {"tool": "task", "calls": 15, "errors": 0},
+    {"tool": "ask", "calls": 13, "errors": 0},
+    {"tool": "recall", "calls": 4, "errors": 0}
+  ],
+  "top_sessions": [
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu-sites-didx-org/2026-08-31T13-39-25-836Z_01a0580b-d60c-75b8-b4f6-1005f885997f/__advisor.doctrine.jsonl", "cost": 683.1},
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-devan.projects-incubator-hum/2026-08-31T13-47-19-003Z_01a05813-0e5b-736c-b126-642a2e149a55.jsonl", "cost": 142.24},
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu/2026-08-28T10-51-27-954Z_01a047fe-fb52-764e-a660-bd2febde37f4.jsonl", "cost": 67.73},
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu-sites-didx-org/2026-08-31T13-39-25-836Z_01a0580b-d60c-75b8-b4f6-1005f885997f.jsonl", "cost": 67.37},
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu/2026-09-02T12-33-00-652Z_01a0621b-beec-77de-9b00-89111d4198a6/__advisor.doctrine.jsonl", "cost": 61.92}
+  ],
+  "prompts_by_cwd": [
+    {"cwd": "/Users/devanmcgeer/didx.projects/tofu", "prompts": 240},
+    {"cwd": "/Users/devanmcgeer/didx.projects/tofu/sites/cloudapi-dev", "prompts": 43},
+    {"cwd": "/Users/devanmcgeer/sc.projects/SecureCitizen.Portal", "prompts": 18},
+    {"cwd": "/Users/devanmcgeer/devan.projects/incubator/hum", "prompts": 15},
+    {"cwd": "/Users/devanmcgeer/sc.projects", "prompts": 13},
+    {"cwd": "/Users/devanmcgeer/didx.projects/mono", "prompts": 12},
+    {"cwd": "/Users/devanmcgeer/didx.projects/tofu/sites/didx-org", "prompts": 7},
+    {"cwd": "/Users/devanmcgeer/didx.projects/tofu/sites/yoma-prod", "prompts": 4},
+    {"cwd": "/Users/devanmcgeer/didx.projects/tofu/sites/cloudapi-prod", "prompts": 3}
+  ],
+  "delta": {"vs": "2026-08-28", "cost_pct": 365.06, "tokens_pct": 387.31, "tool_calls_pct": 213.88},
+  "watch": [
+    "cost up 365% vs prior week ($1525.34 vs $327.99)",
+    "single session cost $683.10 in -didx.projects-tofu-sites-didx-org advisor, 44.8% of total",
+    "gpt-5.6-sol overtook claude-opus-5 as top-cost model ($907.38 vs $581.61)"
+  ]
+}
