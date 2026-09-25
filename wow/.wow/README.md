@@ -603,6 +603,19 @@ to `~/Library/Logs/wow.<job>.log`. The jobs run omp with
 `--config omp-headless.yml`, which turns the advisor off: it reviews
 interactive turns, and here the PR review does that job.
 
+Run the scripts by hand to redo or backfill work. Each takes the job lock
+and skips its guard:
+
+```bash
+bin/usage-digest --force              # rerun this week's digest
+bin/usage-digest --as-of 2026-08-07   # backfill the 7 days ending that date (UTC)
+bin/usage-patterns 2026-08            # report that month again
+bin/wow-improve --force               # another improve pass on the newest digest
+```
+
+Backfill oldest first, so each digest's `delta` compares against the week
+before it.
+
 ```bash
 make digest-install    # copy the plists into ~/Library/LaunchAgents and load them
 make digest-status     # state and last exit code per job
