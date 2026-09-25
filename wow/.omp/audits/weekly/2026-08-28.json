@@ -1,0 +1,62 @@
+{
+  "date": "2026-08-28",
+  "window_days": 7,
+  "totals": {"cost": 327.99, "tokens": 426437887, "messages": 3862, "tool_calls": 3170,
+             "prompts": 154, "api_errors": 24},
+  "by_project": [
+    {"folder": "-didx.projects-tofu", "agent_type": "main", "msgs": 1137, "cost": 189.76, "tokens": 242018158},
+    {"folder": "-didx.projects-tofu", "agent_type": "advisor", "msgs": 1743, "cost": 75.1, "tokens": 110229412},
+    {"folder": "-didx.projects-tofu", "agent_type": "subagent", "msgs": 398, "cost": 22.1, "tokens": 30512674},
+    {"folder": "-.dotfiles-nvim-.omp-agent", "agent_type": "main", "msgs": 117, "cost": 16.99, "tokens": 17802830},
+    {"folder": "-didx.projects-mono", "agent_type": "main", "msgs": 59, "cost": 8.68, "tokens": 8582338},
+    {"folder": "-didx.projects-mono", "agent_type": "subagent", "msgs": 115, "cost": 6.39, "tokens": 8867068},
+    {"folder": "-.dotfiles-nvim-.omp-agent", "agent_type": "advisor", "msgs": 115, "cost": 2.97, "tokens": 2430137},
+    {"folder": "-Downloads-usage-side-notch", "agent_type": "main", "msgs": 46, "cost": 2.96, "tokens": 3622237},
+    {"folder": "-didx.projects-mono", "agent_type": "advisor", "msgs": 59, "cost": 1.33, "tokens": 1018726},
+    {"folder": "-Downloads-usage-side-notch", "agent_type": "advisor", "msgs": 52, "cost": 0.93, "tokens": 781057},
+    {"folder": "-didx.projects-tofu-sites-sarb", "agent_type": "main", "msgs": 11, "cost": 0.62, "tokens": 505442},
+    {"folder": "-didx.projects-tofu-sites-sarb", "agent_type": "advisor", "msgs": 10, "cost": 0.15, "tokens": 67808}
+  ],
+  "by_model": [
+    {"model": "claude-opus-5", "msgs": 1370, "cost": 219.01},
+    {"model": "gpt-5.6-sol", "msgs": 1979, "cost": 80.48},
+    {"model": "claude-sonnet-4-6", "msgs": 513, "cost": 28.5}
+  ],
+  "tools": [
+    {"tool": "read", "calls": 975, "errors": 13},
+    {"tool": "bash", "calls": 445, "errors": 69},
+    {"tool": "grep", "calls": 431, "errors": 5},
+    {"tool": "advise", "calls": 383, "errors": 0},
+    {"tool": "glob", "calls": 204, "errors": 6},
+    {"tool": "write", "calls": 190, "errors": 40},
+    {"tool": "eval", "calls": 156, "errors": 7},
+    {"tool": "edit", "calls": 115, "errors": 5},
+    {"tool": "web_search", "calls": 87, "errors": 0},
+    {"tool": "hub", "calls": 60, "errors": 0},
+    {"tool": "mcp__node_repl_js", "calls": 57, "errors": 7},
+    {"tool": "yield", "calls": 33, "errors": 1},
+    {"tool": "task", "calls": 16, "errors": 1},
+    {"tool": "todo", "calls": 13, "errors": 0},
+    {"tool": "mcp__linear_linear_get_issue", "calls": 5, "errors": 0}
+  ],
+  "top_sessions": [
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu/2026-08-24T12-55-24-614Z_01a033d7-04c6-7664-9452-fdb4b5d881b9.jsonl", "cost": 120.92},
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu/2026-08-24T12-55-24-614Z_01a033d7-04c6-7664-9452-fdb4b5d881b9/__advisor.doctrine.jsonl", "cost": 53.3},
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu/2026-08-19T13-57-14-439Z_01a01a4f-d447-7000-8f08-de76fdb64d3c.jsonl", "cost": 39.87},
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu/2026-08-28T10-51-27-954Z_01a047fe-fb52-764e-a660-bd2febde37f4.jsonl", "cost": 20.63},
+    {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-.dotfiles-nvim-.omp-agent/2026-08-24T09-26-43-696Z_01a03317-f6f0-753f-a3a9-f41e773d70ef.jsonl", "cost": 14.81}
+  ],
+  "prompts_by_cwd": [
+    {"cwd": "/Users/devanmcgeer/didx.projects/tofu", "prompts": 140},
+    {"cwd": "/Users/devanmcgeer/.dotfiles/nvim/.omp/agent", "prompts": 8},
+    {"cwd": "/Users/devanmcgeer/didx.projects/mono", "prompts": 3},
+    {"cwd": "/Users/devanmcgeer/Downloads/usage-side-notch", "prompts": 2},
+    {"cwd": "/Users/devanmcgeer/didx.projects/tofu/sites/sarb", "prompts": 1}
+  ],
+  "delta": {"vs": "2026-08-21", "cost_pct": -19.34, "tokens_pct": -16.38, "tool_calls_pct": -0.16},
+  "watch": [
+    "bash tool error rate 15.5% (69/445)",
+    "claude-opus-5 at 66.8% of total cost ($219.01 of $327.99)",
+    "top session $120.92 in -didx.projects-tofu"
+  ]
+}
