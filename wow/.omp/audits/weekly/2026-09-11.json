@@ -23,21 +23,26 @@
     {"model": "claude-sonnet-4-6", "msgs": 329, "cost": 17.04}
   ],
   "tools": [
-    {"tool": "read", "calls": 1309, "errors": 8},
-    {"tool": "bash", "calls": 1229, "errors": 120},
-    {"tool": "grep", "calls": 459, "errors": 2},
-    {"tool": "eval", "calls": 279, "errors": 22},
-    {"tool": "write", "calls": 267, "errors": 3},
-    {"tool": "edit", "calls": 246, "errors": 3},
-    {"tool": "hub", "calls": 187, "errors": 2},
-    {"tool": "advise", "calls": 165, "errors": 0},
-    {"tool": "glob", "calls": 144, "errors": 9},
-    {"tool": "web_search", "calls": 37, "errors": 0},
-    {"tool": "yield", "calls": 24, "errors": 0},
-    {"tool": "task", "calls": 10, "errors": 0},
-    {"tool": "recall", "calls": 6, "errors": 0},
-    {"tool": "todo", "calls": 4, "errors": 0},
-    {"tool": "ask", "calls": 3, "errors": 0}
+    {"tool": "bash", "agent_type": "main", "calls": 1203, "errors": 116},
+    {"tool": "read", "agent_type": "main", "calls": 557, "errors": 4},
+    {"tool": "read", "agent_type": "subagent", "calls": 413, "errors": 1},
+    {"tool": "read", "agent_type": "advisor", "calls": 339, "errors": 3},
+    {"tool": "eval", "agent_type": "main", "calls": 279, "errors": 22},
+    {"tool": "edit", "agent_type": "main", "calls": 241, "errors": 3},
+    {"tool": "write", "agent_type": "main", "calls": 233, "errors": 2},
+    {"tool": "grep", "agent_type": "main", "calls": 211, "errors": 1},
+    {"tool": "advise", "agent_type": "advisor", "calls": 165, "errors": 0},
+    {"tool": "grep", "agent_type": "subagent", "calls": 139, "errors": 0},
+    {"tool": "hub", "agent_type": "main", "calls": 126, "errors": 2},
+    {"tool": "grep", "agent_type": "advisor", "calls": 109, "errors": 1},
+    {"tool": "glob", "agent_type": "subagent", "calls": 66, "errors": 2},
+    {"tool": "hub", "agent_type": "subagent", "calls": 61, "errors": 0},
+    {"tool": "glob", "agent_type": "main", "calls": 41, "errors": 1},
+    {"tool": "glob", "agent_type": "advisor", "calls": 37, "errors": 6},
+    {"tool": "write", "agent_type": "subagent", "calls": 34, "errors": 1},
+    {"tool": "bash", "agent_type": "subagent", "calls": 26, "errors": 4},
+    {"tool": "yield", "agent_type": "subagent", "calls": 24, "errors": 0},
+    {"tool": "web_search", "agent_type": "subagent", "calls": 23, "errors": 0}
   ],
   "top_sessions": [
     {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-sc.projects-SecureCitizen.Portal/2026-09-04T18-06-09-459Z_01a06d99-7833-71b1-84c8-f424a7a4c1b6.jsonl", "cost": 76.66},
@@ -55,7 +60,7 @@
   "delta": {"vs": "2026-09-04", "cost_pct": -53.97, "tokens_pct": -57.6, "tool_calls_pct": -56.09},
   "watch": [
     "cost down 53.97% vs prior week ($702.05 vs $1525.34)",
-    "bash tool error rate 9.76% (120/1229 calls), highest among major tools",
+    "bash (main) tool error rate 9.64% (116/1203 calls), highest among major tools",
     "-didx.projects-tofu main agent cost $275.70, 39.3% of total cost"
   ]
 }
