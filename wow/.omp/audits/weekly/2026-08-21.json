@@ -55,10 +55,10 @@
     {"cwd": "/Users/devanmcgeer/didx.projects", "prompts": 1},
     {"cwd": "/Users/devanmcgeer/devan.projects/incubator/hum", "prompts": 1}
   ],
-  "delta": {"vs": "2026-08-14", "cost_pct": -10.2, "tokens_pct": -17.6, "tool_calls_pct": -26.4},
+  "delta": {"vs": "2026-08-14", "cost_pct": -10.2, "tokens_pct": -17.6, "tool_calls_pct": -26.5},
   "watch": [
-    "bash tool error rate 12.7% (77/604)",
+    "cost down 10.2% vs prior week ($406.64 vs $452.64) while tool_calls fell 26.5% (3175 vs 4317)",
     "claude-opus-5 at 71.3% of total cost ($290.04 of $406.64)",
-    "top session $87.16 in -didx.projects-didx-xyz.github.io"
+    "bash tool error rate 12.75% (77/604), up from 11.4% prior week"
   ]
 }
