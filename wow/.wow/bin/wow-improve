@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # wow-improve — weekly improvement commits on the release branch, PR body
 # refresh. Mondays 09:45 + RunAtLoad; guard: only runs when this calendar
-# week has a committed digest and no improvement commits since it.
+# week has a committed digest that no improve pass has handled yet.
 set -uo pipefail
 
 # mise shims last: gitleaks (pre-commit hook) lives only there, and an
@@ -24,20 +24,27 @@ if [[ -z "$newest" ]]; then
   echo "wow-improve: no digest since $monday, skipping"
   exit 0
 fi
-since=$(git -C "$wt" log -1 --format=%ct -- "wow/.omp/audits/weekly/$newest")
-if [[ -z "$since" ]]; then
+digest_sha=$(git -C "$wt" log -1 --format=%H -- "wow/.omp/audits/weekly/$newest")
+if [[ -z "$digest_sha" ]]; then
   echo "wow-improve: $newest is not committed yet, skipping"
   exit 0
 fi
-# One improve pass per digest: skip if the branch already has a commit
-# after the digest commit that is not an audit commit.
-if [[ -n $(git -C "$wt" log --since="@$since" \
-    --invert-grep --grep='^chore(audits)' --oneline 2>/dev/null) ]]; then
-  echo "wow-improve: improvements already committed for this digest, skipping"
+# One improve pass per digest. A pass that only files suggestions leaves
+# no commit, so a successful run records the digest name in $marker; the
+# commit check covers a lost marker. Ancestry, not commit time, decides
+# what came after the digest.
+marker="$HOME/Library/Caches/wow-improve.done"
+if [[ "$(cat "$marker" 2>/dev/null)" == "$newest" ]] \
+  || [[ -n $(git -C "$wt" log "$digest_sha..HEAD" \
+    --grep='^\(feat\|fix\)(wow):' --oneline 2>/dev/null) ]]; then
+  echo "wow-improve: improvements already done for $newest, skipping"
   exit 0
 fi
 
-exec "$HOME/.wow/bin/attn-run" \
+"$HOME/.wow/bin/attn-run" \
   --id wow:improve --title "wow · weekly improvements" -- \
   omp -p --cwd "$HOME/.dotfiles-release" --max-time 45m --approval-mode yolo \
   "Read skill://usage-audit/improve.md and follow it exactly."
+status=$?
+[[ $status -eq 0 ]] && echo "$newest" >"$marker"
+exit $status
