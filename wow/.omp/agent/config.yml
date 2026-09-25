@@ -84,7 +84,7 @@ bashInterceptor:
       tool: bash
       flags: m
       message: "`tofu/terraform apply` and `destroy` are blocked. Generate and inspect a plan; central environments are applied through CI."
-    - pattern: "\\brm\\s+(?:\\S+\\s+)*(?:-[a-zA-Z]*[rR][a-zA-Z]*|--recursive)\\b"
+    - pattern: "(?<!-)\\brm\\s+(?:[^\\s;&|]+\\s+)*(?:-[a-zA-Z]*[rR][a-zA-Z]*|--recursive)\\b"
       tool: bash
       flags: m
       message: "Recursive `rm` is blocked by policy — ask the User to remove trees manually."
