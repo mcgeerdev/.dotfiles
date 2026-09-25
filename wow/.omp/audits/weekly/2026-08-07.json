@@ -40,21 +40,26 @@
     {"model": "deepseek-v4-pro", "msgs": 33, "cost": 0.06}
   ],
   "tools": [
-    {"tool": "read", "calls": 1606, "errors": 35},
-    {"tool": "bash", "calls": 1155, "errors": 191},
-    {"tool": "grep", "calls": 812, "errors": 15},
-    {"tool": "edit", "calls": 317, "errors": 7},
-    {"tool": "advise", "calls": 267, "errors": 0},
-    {"tool": "write", "calls": 221, "errors": 20},
-    {"tool": "glob", "calls": 174, "errors": 15},
-    {"tool": "eval", "calls": 146, "errors": 9},
-    {"tool": "todo", "calls": 124, "errors": 3},
-    {"tool": "ask", "calls": 66, "errors": 9},
-    {"tool": "hub", "calls": 42, "errors": 1},
-    {"tool": "yield", "calls": 31, "errors": 1},
-    {"tool": "task", "calls": 16, "errors": 0},
-    {"tool": "mcp__node_repl_js", "calls": 13, "errors": 5},
-    {"tool": "web_search", "calls": 12, "errors": 0}
+    {"tool": "bash", "agent_type": "main", "calls": 917, "errors": 126},
+    {"tool": "read", "agent_type": "main", "calls": 723, "errors": 17},
+    {"tool": "read", "agent_type": "advisor", "calls": 563, "errors": 11},
+    {"tool": "grep", "agent_type": "advisor", "calls": 357, "errors": 4},
+    {"tool": "grep", "agent_type": "main", "calls": 349, "errors": 8},
+    {"tool": "read", "agent_type": "subagent", "calls": 320, "errors": 7},
+    {"tool": "edit", "agent_type": "main", "calls": 298, "errors": 7},
+    {"tool": "advise", "agent_type": "advisor", "calls": 267, "errors": 0},
+    {"tool": "bash", "agent_type": "subagent", "calls": 238, "errors": 65},
+    {"tool": "write", "agent_type": "main", "calls": 210, "errors": 20},
+    {"tool": "eval", "agent_type": "main", "calls": 144, "errors": 8},
+    {"tool": "todo", "agent_type": "main", "calls": 124, "errors": 3},
+    {"tool": "grep", "agent_type": "subagent", "calls": 106, "errors": 3},
+    {"tool": "glob", "agent_type": "advisor", "calls": 71, "errors": 7},
+    {"tool": "ask", "agent_type": "main", "calls": 66, "errors": 9},
+    {"tool": "glob", "agent_type": "main", "calls": 53, "errors": 1},
+    {"tool": "glob", "agent_type": "subagent", "calls": 50, "errors": 7},
+    {"tool": "hub", "agent_type": "main", "calls": 35, "errors": 1},
+    {"tool": "yield", "agent_type": "subagent", "calls": 31, "errors": 1},
+    {"tool": "edit", "agent_type": "subagent", "calls": 19, "errors": 0}
   ],
   "top_sessions": [
     {"session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu-wt-dd-slack-cspm/2026-08-07T08-18-39-093Z_019fdb4d-8775-7000-812e-dfdace0e570c.jsonl", "cost": 84.89},
@@ -77,7 +82,7 @@
   ],
   "delta": {"vs": null, "cost_pct": null, "tokens_pct": null, "tool_calls_pct": null},
   "watch": [
-    "bash tool error rate 16.5% (191/1155), highest of any tool",
+    "bash error rate 27.3% for subagent (65/238) vs 13.7% for main (126/917), highest of any tool",
     "claude-opus-5 at 67.1% of total cost ($448.09 of $667.48)",
     "top session $84.89 in -didx.projects-tofu-wt-dd-slack-cspm (2026-08-07T08-18-39)"
   ]
