@@ -13,10 +13,18 @@ main.
 Every change and every suggestion names the data behind it. Sources:
 
 - `wow/.omp/audits/weekly/*.json` (newest first) and
-  `wow/.omp/audits/patterns/*.json`.
+  `wow/.omp/audits/patterns/*.json`. Each weekly file's `signals` key
+  covers use outside omp: `signals.attention` counts attentiond items,
+  notifications, unseen expiries and snoozes; `signals.shell` counts the
+  commands and subcommands typed in zsh, per week once history carries
+  timestamps and over the whole history file (`lifetime`) always.
 - The interactive audits in `wow/.omp/audits/` (`*.html`, `*.md`).
 - `~/.omp/stats.db`, `~/.omp/agent/history.db`, and session transcripts
   under `~/.omp/agent/sessions/` for the detail behind a number.
+- `~/.zsh_history` and `~/.local/state/attentiond/attentiond.log`, to
+  see the full form of something the counts point at. This repository
+  is public: never quote history lines, arguments, paths or item titles
+  from either in a commit or the PR body; cite counts.
 - The current state of the files you change.
 
 No evidence, no change.
@@ -32,8 +40,11 @@ the `claude` and `pkms` submodules:
 - New skills go straight into `wow/.omp/agent/skills/<name>/SKILL.md`,
   complete and usable, when the transcripts show the same procedure
   repeated by hand.
-- Editor and terminal: `wow/.config/nvim`, `wow/.config/ghostty`,
-  `wow/.config/wezterm`, `wow/.config/starship.toml`, `wow/.zshrc`.
+- Terminal and shell: `wow/.config/ghostty`, `wow/.config/wezterm`,
+  `wow/.config/starship.toml`, `wow/.zshrc` (aliases, functions and
+  completions for what the shell counts show typed by hand).
+- Editor: `wow/.config/nvim`. The owner uses Neovim less and less; change
+  it only to fix something broken, not to add features.
 - Dashboard and attention: `wow/.attn/config.toml`, `wow/.wow/dynacat`,
   `wow/.wow/herdr`.
 - Automation: `wow/.wow/bin`, `wow/.wow/launchd`, `wow/.wow/Makefile`,

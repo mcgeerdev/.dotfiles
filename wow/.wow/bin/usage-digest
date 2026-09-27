@@ -59,12 +59,17 @@ esac
 exec "$HOME/.wow/bin/attn-run" \
   --id wow:usage-digest --title "wow · weekly usage digest $date" -- \
   env WOW_PROMPT="$prompt" WOW_DATE="$date" WOW_BACKFILL="$backfill" \
-    WOW_OMP_CONF="$(cd "$(dirname "$0")/.." && pwd)/omp-headless.yml" \
+    WOW_BIN="$(cd "$(dirname "$0")" && pwd)" \
   bash -c '
     set -euo pipefail
     wt="$HOME/.dotfiles-release"
     omp -p --cwd "$wt" --model anthropic/claude-sonnet-5 --max-time 30m \
-      --approval-mode yolo --config "$WOW_OMP_CONF" "$WOW_PROMPT"
+      --approval-mode yolo --config "$WOW_BIN/../omp-headless.yml" "$WOW_PROMPT"
+    # Signals outside omp come from a script, not the model: counts only,
+    # the same every run.
+    f="$wt/wow/.omp/audits/weekly/$WOW_DATE.json"
+    signals=$("$WOW_BIN/wow-signals" ${WOW_BACKFILL:+--as-of "$WOW_DATE"})
+    jq --argjson s "$signals" ".signals = \$s" "$f" >"$f.tmp" && mv "$f.tmp" "$f"
     cd "$wt"
     branch=$(git branch --show-current)
     git add wow/.omp/audits/weekly
