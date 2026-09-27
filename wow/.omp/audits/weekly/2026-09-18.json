@@ -431,14 +431,14 @@
   ],
   "delta": {
     "vs": "2026-09-11",
-    "cost_pct": 38.71,
-    "tokens_pct": 30.72,
-    "tool_calls_pct": -2.79
+    "cost_pct": 38.7,
+    "tokens_pct": 30.7,
+    "tool_calls_pct": -2.8
   },
   "watch": [
-    "cost up 38.71% vs prior week ($973.82 vs $702.05)",
-    "bash (main) tool error rate 11.15% (158/1417 calls), highest among major tools",
-    "-devan.projects-incubator-attentiond main agent cost $170.42, 17.5% of total cost"
+    "Cost up 38.7% vs prior week ($973.82 vs $702.05)",
+    "bash tool (main) errored 158 of 1417 calls (11.1%), highest error count of any tool",
+    "Top session -devan.projects-incubator-attentiond 2026-09-12 cost $152.97, highest of the week"
   ],
   "signals": {
     "window": {
@@ -492,17 +492,17 @@
       },
       "lifetime": {
         "note": "whole history file, untimed",
-        "total": 13428,
+        "total": 13437,
         "commands": {
-          "git": 2442,
+          "git": 2445,
           "jj": 1979,
           "tofu": 1459,
-          "cd": 864,
+          "cd": 867,
           "mise": 811,
           "k": 706,
           "kubectl": 533,
           "vim": 511,
-          "la": 491,
+          "la": 493,
           "omp": 443,
           "brew": 332,
           "aws": 330,
@@ -523,8 +523,8 @@
         "subcommands": {
           "tofu plan": 762,
           "mise run": 549,
-          "git status": 491,
-          "git pull": 443,
+          "git status": 492,
+          "git pull": 445,
           "jj git": 429,
           "k get": 389,
           "git checkout": 384,
