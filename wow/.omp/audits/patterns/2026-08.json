@@ -1,7 +1,64 @@
 {
   "month": "2026-08",
-  "weeks": [],
-  "patterns": [],
+  "weeks": ["2026-08-07.json", "2026-08-14.json", "2026-08-21.json", "2026-08-28.json"],
+  "patterns": [
+    {
+      "text": "Bash is the noisiest tool every week, with error rates far above read, grep, or edit.",
+      "evidence": [
+        "2026-08-07: bash 16.5% vs read 2.2%",
+        "2026-08-14: bash 11.4% vs read 3.0%",
+        "2026-08-21: bash 12.7% vs read 1.4%",
+        "2026-08-28: bash 15.5% vs read 1.3%"
+      ]
+    },
+    {
+      "text": "claude-opus-5 eats 62-71% of weekly spend even when it logs fewer messages than gpt-5.6-sol.",
+      "evidence": [
+        "2026-08-07: opus $448.09 of $667.48 (67.1%), 2491 msgs vs gpt 3629 msgs",
+        "2026-08-14: opus $280.84 of $452.66 (62.0%), 1876 msgs vs gpt 3369 msgs",
+        "2026-08-21: opus $290.04 of $406.64 (71.3%), 1648 msgs vs gpt 2272 msgs",
+        "2026-08-28: opus $219.01 of $327.99 (66.8%), 1370 msgs vs gpt 1979 msgs"
+      ]
+    },
+    {
+      "text": "gpt-5.6-sol carries more message volume than claude-opus-5 every week, at a fraction of the cost per message.",
+      "evidence": [
+        "2026-08-07: gpt 3629 msgs/$153.22 vs opus 2491 msgs/$448.09",
+        "2026-08-14: gpt 3369 msgs/$165.69 vs opus 1876 msgs/$280.84",
+        "2026-08-21: gpt 2272 msgs/$105.43 vs opus 1648 msgs/$290.04",
+        "2026-08-28: gpt 1979 msgs/$80.48 vs opus 1370 msgs/$219.01"
+      ]
+    },
+    {
+      "text": "Advisor-doctrine sessions land in the top-5 costliest sessions of the week, every week.",
+      "evidence": [
+        "2026-08-07: incubator-hum advisor.doctrine $66.35 (3rd)",
+        "2026-08-14: SecureCitizen.Portal advisor.doctrine $82.09 (1st)",
+        "2026-08-21: tofu advisor.doctrine $46.70 (4th)",
+        "2026-08-28: tofu advisor.doctrine $53.30 (2nd)"
+      ]
+    },
+    {
+      "text": "Weekly cost fell every week in August, down 51% from the first week to the last.",
+      "evidence": [
+        "2026-08-14: -32.2% vs prior week ($667.48 to $452.66)",
+        "2026-08-21: -10.2% vs prior week ($452.66 to $406.64)",
+        "2026-08-28: -19.34% vs prior week ($406.64 to $327.99)"
+      ]
+    },
+    {
+      "text": "The tofu project family holds top spend most weeks and swallows 74-91% of prompts by month's end.",
+      "evidence": [
+        "2026-08-07: tofu family 180 of 242 prompts (74%)",
+        "2026-08-21: tofu 147 of 177 prompts (83%)",
+        "2026-08-28: tofu 140 of 154 prompts (91%)"
+      ]
+    }
+  ],
   "month_over_month": [],
-  "questions": []
+  "questions": [
+    "Is August's 51% cost drop a real usage decline or a shift to cheaper models/workflows?",
+    "Does the gpt-5.6-sol/opus split reflect a fixed main-vs-advisor routing rule across all projects?",
+    "What specific bash commands drive the recurring 11-17% weekly error rate?"
+  ]
 }

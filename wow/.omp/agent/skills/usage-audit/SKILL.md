@@ -66,6 +66,6 @@ Base the suggestions on the current omp version and recent research. Check the o
 The scheduled LaunchAgents run file-based variants of this skill:
 `skill://usage-audit/digest.md` (weekly JSON digest),
 `skill://usage-audit/patterns.md` (monthly patterns + dashboard summary),
-`skill://usage-audit/improve.md` (weekly improvement commits on the
-release branch). This SKILL.md itself stays the interactive, human-report
-mode.
+`skill://usage-audit/improve.md` (weekly way-of-work changes on the
+release branch, with a changelog PR body). This SKILL.md itself stays the
+interactive, human-report mode.

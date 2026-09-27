@@ -563,7 +563,7 @@ automatic.
 | Label | Script | When | Does |
 | --- | --- | --- | --- |
 | `wow.usage-digest` | `bin/usage-digest` | Mon 09:00 | weekly JSON digest from `stats.db` and `history.db` (sonnet), commit, push, open the release PR if none is open |
-| `wow.wow-improve` | `bin/wow-improve` | Mon 09:45 | up to 3 improvement commits citing the digest, rewrites the PR body (default model) |
+| `wow.wow-improve` | `bin/wow-improve` | Mon 09:45 | changes anywhere in the repo the audits justify (omp, skills, nvim, terminal, shell, attentiond, Dynacat, automation), one commit each; rewrites the PR body as a changelog plus third-party tool suggestions (default model) |
 | `wow.usage-patterns` | `bin/usage-patterns` | 1st, 09:30 | monthly patterns JSON plus the dashboard `summary.json` (sonnet) |
 | `wow.wow-sync` | `bin/wow-sync` | daily 10:00 | after a merge: fast-forward `~/.dotfiles` to `origin/main`, re-stow `wow`, reinstall the other three agents |
 
@@ -599,7 +599,22 @@ carries the real changes.
 Outputs, on the release branch: `wow/.omp/audits/weekly/YYYY-MM-DD.json`,
 `wow/.omp/audits/patterns/YYYY-MM.json` and `patterns/summary.json`. The
 instructions are `skill://usage-audit/{digest,patterns,improve}.md`. Logs go
-to `~/Library/Logs/wow.<job>.log`.
+to `~/Library/Logs/wow.<job>.log`. The jobs run omp with
+`--config omp-headless.yml`, which turns the advisor off: it reviews
+interactive turns, and here the PR review does that job.
+
+Run the scripts by hand to redo or backfill work. Each takes the job lock
+and skips its guard:
+
+```bash
+bin/usage-digest --force              # rerun this week's digest
+bin/usage-digest --as-of 2026-08-07   # backfill the 7 days ending that date (UTC)
+bin/usage-patterns 2026-08            # report that month again
+bin/wow-improve --force               # another improve pass on the newest digest
+```
+
+Backfill oldest first, so each digest's `delta` compares against the week
+before it.
 
 ```bash
 make digest-install    # copy the plists into ~/Library/LaunchAgents and load them
@@ -637,8 +652,9 @@ Nine files here are new: `Makefile`, `README.md`, `dynacat/.gitignore`,
 `~/.dotfiles/wow/.attn/config.toml` with the `~/.attn` link stow made for it.
 
 The WOW automation adds `launchd/`, `dynacat/config/wow.yml`,
-`bin/wow-worktree`, `bin/usage-digest`, `bin/usage-patterns`,
-`bin/wow-improve` and `bin/wow-sync`. Run `make digest-uninstall` first, then
+`omp-headless.yml`, `bin/wow-worktree`, `bin/usage-digest`,
+`bin/usage-patterns`, `bin/wow-improve` and `bin/wow-sync`. Run
+`make digest-uninstall` first, then
 delete them and `git worktree remove ~/.dotfiles-release`.
 
 Four already existed and were rewritten in place, so they are restored, not

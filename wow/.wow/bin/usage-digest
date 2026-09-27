@@ -5,7 +5,12 @@
 # the login/boot firing a no-op once this calendar week has a digest).
 # This is also what keeps the release PR alive: even a week with no
 # improvements gets its digest commit, so the PR exists and has the
-# 7-day cadence. `usage-digest --force` reruns this week's digest.
+# 7-day cadence.
+#
+#   usage-digest                    this week's digest, unless one exists
+#   usage-digest --force            rerun this week's digest
+#   usage-digest --as-of 2026-08-07 backfill the 7 days ending that date
+#                                   (UTC); does not queue the improve job
 set -uo pipefail
 
 # mise shims last: gitleaks (pre-commit hook) lives only there, and an
@@ -19,27 +24,51 @@ export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$HO
 
 wt=$("$HOME/.wow/bin/wow-worktree") || { echo "usage-digest: no worktree, skipping"; exit 0; }
 
-# Guard by file name, not mtime: checkout rewrites mtimes, and a Tuesday
-# catch-up must not suppress next Monday's run.
-monday=$(date -v-"$(( $(date +%u) - 1 ))"d +%F)
-if [[ "${1:-}" != "--force" ]] && ls "$wt/wow/.omp/audits/weekly" 2>/dev/null \
-    | awk -v m="$monday.json" '/^[0-9-]+\.json$/ && $0 >= m' | grep -q .; then
-  echo "usage-digest: digest for the week of $monday exists, skipping"
-  exit 0
-fi
+date=$(date +%F)
+prompt="Read skill://usage-audit/digest.md and follow it exactly."
+backfill=""
+case "${1:-}" in
+  "")
+    # Guard by file name, not mtime: checkout rewrites mtimes, and a
+    # Tuesday catch-up must not suppress next Monday's run.
+    monday=$(date -v-"$(( $(date +%u) - 1 ))"d +%F)
+    if ls "$wt/wow/.omp/audits/weekly" 2>/dev/null \
+        | awk -v m="$monday.json" '/^[0-9-]+\.json$/ && $0 >= m' | grep -q .; then
+      echo "usage-digest: digest for the week of $monday exists, skipping"
+      exit 0
+    fi
+    ;;
+  --force) ;;
+  --as-of)
+    date="${2:-}"
+    [[ $date =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || {
+      echo "usage-digest: --as-of needs YYYY-MM-DD" >&2; exit 2; }
+    backfill=1
+    prompt+=" One change: this is a backfill for the 7 days ending $date (UTC)."
+    prompt+=" In every stats.db query, the clause"
+    prompt+=" \`timestamp >= strftime('%s', 'now', '-7 days') * 1000\` becomes"
+    prompt+=" \`timestamp >= strftime('%s', '$date', '+1 day', '-7 days') * 1000"
+    prompt+=" AND timestamp < strftime('%s', '$date', '+1 day') * 1000\`."
+    prompt+=" The history.db clause on \`created_at\` changes the same way,"
+    prompt+=" without \`* 1000\`. The file name and \`date\` are $date, and"
+    prompt+=" \`delta.vs\` is the newest file dated before $date."
+    ;;
+  *) echo "usage: usage-digest [--force | --as-of YYYY-MM-DD]" >&2; exit 2 ;;
+esac
 
 exec "$HOME/.wow/bin/attn-run" \
-  --id wow:usage-digest --title "wow · weekly usage digest" -- \
+  --id wow:usage-digest --title "wow · weekly usage digest $date" -- \
+  env WOW_PROMPT="$prompt" WOW_DATE="$date" WOW_BACKFILL="$backfill" \
+    WOW_OMP_CONF="$(cd "$(dirname "$0")/.." && pwd)/omp-headless.yml" \
   bash -c '
     set -euo pipefail
     wt="$HOME/.dotfiles-release"
     omp -p --cwd "$wt" --model anthropic/claude-sonnet-5 --max-time 30m \
-      --approval-mode yolo \
-      "Read skill://usage-audit/digest.md and follow it exactly."
+      --approval-mode yolo --config "$WOW_OMP_CONF" "$WOW_PROMPT"
     cd "$wt"
     branch=$(git branch --show-current)
     git add wow/.omp/audits/weekly
-    git diff --staged --quiet || git commit -m "chore(audits): weekly digest $(date +%F)"
+    git diff --staged --quiet || git commit -m "chore(audits): weekly digest $WOW_DATE"
     git push origin "$branch"
     if [[ -z $(gh pr list --head "$branch" --json number --jq ".[0].number // empty") ]]; then
       gh pr create --base main --head "$branch" \
@@ -48,5 +77,6 @@ exec "$HOME/.wow/bin/attn-run" \
     fi
     # A login catch-up fires improve alongside this job; its guard ran
     # before this digest existed. Queue it again behind the lock.
-    launchctl kickstart "gui/$(id -u)/wow.wow-improve" 2>/dev/null || true
+    [[ -n $WOW_BACKFILL ]] \
+      || launchctl kickstart "gui/$(id -u)/wow.wow-improve" 2>/dev/null || true
   '

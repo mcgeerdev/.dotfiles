@@ -1,4 +1,11 @@
 {
   "month": "2026-08",
-  "patterns": ["No weekly digests found for 2026-08"]
+  "patterns": [
+    "Bash logs the highest tool error rate every week, well above read, grep, and edit.",
+    "claude-opus-5 takes 62-71% of weekly spend despite fewer messages than gpt-5.6-sol.",
+    "gpt-5.6-sol handles far more messages than opus each week, at much lower cost per message.",
+    "Advisor-doctrine sessions rank among the week's five costliest sessions every week.",
+    "Weekly cost dropped every week in August, down 51% from week one to week four.",
+    "The tofu project line takes top spend most weeks and hits 91% of prompts by month end."
+  ]
 }

@@ -1,0 +1,5 @@
+# Overlay for the headless WOW jobs (omp -p --config). The advisor reviews
+# interactive turns; these runs answer to one fixed skill file and the PR
+# review, so it only adds cost.
+advisor:
+  enabled: false
