@@ -2,7 +2,7 @@
   "date": "2026-08-14",
   "window_days": 7,
   "totals": {
-    "cost": 452.65,
+    "cost": 452.64,
     "tokens": 618746375,
     "messages": 5385,
     "tool_calls": 4317,
@@ -364,9 +364,9 @@
     "tool_calls_pct": -13.8
   },
   "watch": [
-    "cost down 32.2% vs prior week ($452.65 vs $667.48) while tool_calls fell 13.8% (4317 vs 5007)",
-    "claude-opus-5 at 62.0% of total cost ($280.84 of $452.65)",
-    "bash error rate 11.3% for main (99/873), highest error count of any tool"
+    "bash tool (main) error rate 11.3% (99/873 calls), highest volume tool by far",
+    "Top session: advisor doctrine run in SecureCitizen.Portal cost $82.09, single most expensive session",
+    "Total cost down 32.2% vs prior week ($452.64 vs $667.48)"
   ],
   "signals": {
     "window": {
@@ -385,17 +385,17 @@
       },
       "lifetime": {
         "note": "whole history file, untimed",
-        "total": 13428,
+        "total": 13437,
         "commands": {
-          "git": 2442,
+          "git": 2445,
           "jj": 1979,
           "tofu": 1459,
-          "cd": 864,
+          "cd": 867,
           "mise": 811,
           "k": 706,
           "kubectl": 533,
           "vim": 511,
-          "la": 491,
+          "la": 493,
           "omp": 443,
           "brew": 332,
           "aws": 330,
@@ -416,8 +416,8 @@
         "subcommands": {
           "tofu plan": 762,
           "mise run": 549,
-          "git status": 491,
-          "git pull": 443,
+          "git status": 492,
+          "git pull": 445,
           "jj git": 429,
           "k get": 389,
           "git checkout": 384,
