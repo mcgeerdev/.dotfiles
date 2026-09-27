@@ -424,11 +424,11 @@
   "prompts_by_cwd": [
     {
       "cwd": "/Users/devanmcgeer/didx.projects/tofu/sites/cloudapi-dev",
-      "prompts": 37
+      "prompts": 38
     },
     {
       "cwd": "/Users/devanmcgeer/.dotfiles/wow/.omp/agent",
-      "prompts": 37
+      "prompts": 38
     },
     {
       "cwd": "/Users/devanmcgeer/didx.projects/mono",
@@ -440,7 +440,7 @@
     },
     {
       "cwd": "/Users/devanmcgeer/.herdr/worktrees/tofu/worktree-rapid-cloud-b6ce",
-      "prompts": 16
+      "prompts": 15
     },
     {
       "cwd": "/Users/devanmcgeer/.herdr/worktrees/tofu/worktree-rapid-field-4f96",
@@ -470,9 +470,9 @@
     "tool_calls_pct": 63.79
   },
   "watch": [
-    "tool_calls up 63.79% to 6956 (vs 4247) while cost fell 47.97% to $506.69",
-    "advisor read calls spiked to 2451 (23 errors), up from 108 last week, driven by new -.herdr-worktrees-infra-worktree-silver-stone-bb37 and -.dotfiles-wow-.omp-agent folders",
-    "bash (main) tool error rate 11.66% (134/1149 calls), highest among major tools"
+    "cost -47.97% ($506.69 vs $973.82 prior week) while tool_calls +63.79% (6956 vs 4247)",
+    "edit/main error rate 5.92% (21/355) vs 0.88% (4/457) prior week",
+    "prompts -36.14% (212 vs 332 prior week)"
   ],
   "signals": {
     "window": {
@@ -522,17 +522,17 @@
       },
       "lifetime": {
         "note": "whole history file, untimed",
-        "total": 13428,
+        "total": 13437,
         "commands": {
-          "git": 2442,
+          "git": 2445,
           "jj": 1979,
           "tofu": 1459,
-          "cd": 864,
+          "cd": 867,
           "mise": 811,
           "k": 706,
           "kubectl": 533,
           "vim": 511,
-          "la": 491,
+          "la": 493,
           "omp": 443,
           "brew": 332,
           "aws": 330,
@@ -553,8 +553,8 @@
         "subcommands": {
           "tofu plan": 762,
           "mise run": 549,
-          "git status": 491,
-          "git pull": 443,
+          "git status": 492,
+          "git pull": 445,
           "jj git": 429,
           "k get": 389,
           "git checkout": 384,
