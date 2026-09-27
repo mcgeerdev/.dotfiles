@@ -394,14 +394,14 @@
   ],
   "delta": {
     "vs": "2026-08-28",
-    "cost_pct": 365.06,
-    "tokens_pct": 387.31,
-    "tool_calls_pct": 213.09
+    "cost_pct": 365.1,
+    "tokens_pct": 387.3,
+    "tool_calls_pct": 213.1
   },
   "watch": [
-    "New folder -didx.projects-tofu-sites-didx-org (advisor) appeared with $683.10 cost across 2853 msgs, driving total cost up 365.06% vs last week ($327.99 -> $1525.34)",
-    "Top session -didx.projects-tofu-sites-didx-org 2026-08-31T13-39-25 (advisor doctrine) cost $683.10 ($750.47 with its main thread), 5.6x last week's top of $120.92",
-    "api_errors rose to 58, up 141.7% from 24 last week"
+    "cost up 365% w/w ($1525.34 vs $327.99)",
+    "advisor session in tofu-sites-didx-org cost $683.10, 45% of week's spend",
+    "bash tool error rate 9.2% (112/1211) for agent_type main"
   ],
   "signals": {
     "window": {
@@ -420,17 +420,17 @@
       },
       "lifetime": {
         "note": "whole history file, untimed",
-        "total": 13428,
+        "total": 13437,
         "commands": {
-          "git": 2442,
+          "git": 2445,
           "jj": 1979,
           "tofu": 1459,
-          "cd": 864,
+          "cd": 867,
           "mise": 811,
           "k": 706,
           "kubectl": 533,
           "vim": 511,
-          "la": 491,
+          "la": 493,
           "omp": 443,
           "brew": 332,
           "aws": 330,
@@ -451,8 +451,8 @@
         "subcommands": {
           "tofu plan": 762,
           "mise run": 549,
-          "git status": 491,
-          "git pull": 443,
+          "git status": 492,
+          "git pull": 445,
           "jj git": 429,
           "k get": 389,
           "git checkout": 384,
