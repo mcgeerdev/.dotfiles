@@ -17,6 +17,10 @@ alias ..="cd .."
 alias vim="nvim"
 
 alias k="kubectl"
+# The two most typed tofu subcommands. They expand to `tofu`, so the
+# attentiond wrapper below still runs. No alias for apply on purpose.
+alias tp="tofu plan"
+alias ti="tofu init"
 
 # Load version control information
 autoload -Uz vcs_info
