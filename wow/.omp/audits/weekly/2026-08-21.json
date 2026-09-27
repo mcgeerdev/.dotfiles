@@ -299,9 +299,9 @@
     "tool_calls_pct": -26.45
   },
   "watch": [
-    "mcp__node_repl_js (subagent) calls jumped 16 -> 79 with 18 errors (22.8% error rate)",
-    "Top session moved to didx-xyz.github.io main at $87.16, a project absent from last week's top 5",
-    "api_errors rose 34 -> 39 (+14.7%) despite total messages falling 5385 -> 4171"
+    "bash/main tool errors: 69 of 585 calls (11.8%), the highest error count of any tool this week",
+    "mcp__node_repl_js/subagent calls jumped 16 to 79 vs prior week, with 18 errors (22.8%)",
+    "top session cost $87.16 in -didx.projects-didx-xyz.github.io (2026-08-20), displacing prior week's SecureCitizen sessions as the top spender"
   ],
   "signals": {
     "window": {
@@ -320,17 +320,17 @@
       },
       "lifetime": {
         "note": "whole history file, untimed",
-        "total": 13428,
+        "total": 13437,
         "commands": {
-          "git": 2442,
+          "git": 2445,
           "jj": 1979,
           "tofu": 1459,
-          "cd": 864,
+          "cd": 867,
           "mise": 811,
           "k": 706,
           "kubectl": 533,
           "vim": 511,
-          "la": 491,
+          "la": 493,
           "omp": 443,
           "brew": 332,
           "aws": 330,
@@ -351,8 +351,8 @@
         "subcommands": {
           "tofu plan": 762,
           "mise run": 549,
-          "git status": 491,
-          "git pull": 443,
+          "git status": 492,
+          "git pull": 445,
           "jj git": 429,
           "k get": 389,
           "git checkout": 384,
