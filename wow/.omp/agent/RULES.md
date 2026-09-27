@@ -46,3 +46,7 @@ Reach for the tool first.
 - Edit in place with `edit`, never `sed -i`/`perl -i`.
 - Watch CI with the `github` tool's `run_watch`, never `gh run watch`,
   `gh pr checks --watch` or `sleep N; gh pr checks`, and only when asked.
+
+The bash `env` and `ready` fields only work with a service `name`; without
+one the call fails before running. For a one-off command, put the variables
+in front of it (`FOO=1 cmd`) or use `eval`.
