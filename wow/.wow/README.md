@@ -562,7 +562,7 @@ automatic.
 
 | Label | Script | When | Does |
 | --- | --- | --- | --- |
-| `wow.usage-digest` | `bin/usage-digest` | Mon 09:00 | weekly JSON digest from `stats.db` and `history.db` (sonnet), commit, push, open the release PR if none is open |
+| `wow.usage-digest` | `bin/usage-digest` | Mon 09:00 | weekly JSON digest from `stats.db` and `history.db` (sonnet), plus a `signals` key from `bin/wow-signals` (attentiond log and zsh history, counts only); commit, push, open the release PR if none is open |
 | `wow.wow-improve` | `bin/wow-improve` | Mon 09:45 | changes anywhere in the repo the audits justify (omp, skills, nvim, terminal, shell, attentiond, Dynacat, automation), one commit each; rewrites the PR body as a changelog plus third-party tool suggestions (default model) |
 | `wow.usage-patterns` | `bin/usage-patterns` | 1st, 09:30 | monthly patterns JSON plus the dashboard `summary.json` (sonnet) |
 | `wow.wow-sync` | `bin/wow-sync` | daily 10:00 | after a merge: fast-forward `~/.dotfiles` to `origin/main`, re-stow `wow`, reinstall the other three agents |
@@ -602,6 +602,15 @@ instructions are `skill://usage-audit/{digest,patterns,improve}.md`. Logs go
 to `~/Library/Logs/wow.<job>.log`. The jobs run omp with
 `--config omp-headless.yml`, which turns the advisor off: it reviews
 interactive turns, and here the PR review does that job.
+
+`bin/wow-signals` adds what happens outside omp to each digest's `signals`
+key: counts per source, state, label and repository from
+`~/.local/state/attentiond/attentiond.log`, and command names and two-word
+subcommands from `~/.zsh_history`. The repository is public, so it emits
+counts only, never titles, arguments or paths. The attentiond log starts
+on 2026-09-14 (`log_since`). zsh history needs `setopt EXTENDED_HISTORY`
+for per-week counts; without timestamps only the whole-file `lifetime`
+counts exist.
 
 Run the scripts by hand to redo or backfill work. Each takes the job lock
 and skips its guard:
@@ -653,7 +662,8 @@ Nine files here are new: `Makefile`, `README.md`, `dynacat/.gitignore`,
 
 The WOW automation adds `launchd/`, `dynacat/config/wow.yml`,
 `omp-headless.yml`, `bin/wow-worktree`, `bin/usage-digest`,
-`bin/usage-patterns`, `bin/wow-improve` and `bin/wow-sync`. Run
+`bin/usage-patterns`, `bin/wow-improve`, `bin/wow-signals` and
+`bin/wow-sync`. Run
 `make digest-uninstall` first, then
 delete them and `git worktree remove ~/.dotfiles-release`.
 

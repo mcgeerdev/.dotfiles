@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+# wow-signals — print usage signals outside omp as JSON, for the weekly
+# digest: attentiond's log and zsh history. Same window as the digest's
+# SQL: the 7 days before now, or the 7 days ending --as-of (UTC).
+#
+#   wow-signals                     last 7 days
+#   wow-signals --as-of 2026-08-07  7 days ending that date (UTC)
+#
+# Counts only. The digest is committed to a public repository, so no
+# item titles, arguments or paths leave this machine: attentiond yields
+# counts per source, state, label and repository; zsh yields command
+# names and two-word subcommands that match a plain-word pattern and
+# appear at least 3 times.
+set -euo pipefail
+export LC_ALL=C
+
+attn_log="$HOME/.local/state/attentiond/attentiond.log"
+zsh_hist="$HOME/.zsh_history"
+
+case "${1:-}" in
+  "") end=$(date +%s) ;;
+  --as-of)
+    [[ ${2:-} =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || {
+      echo "wow-signals: --as-of needs YYYY-MM-DD" >&2; exit 2; }
+    end=$(( $(date -j -u -f '%F %T' "$2 00:00:00" +%s) + 86400 )) ;;
+  *) echo "usage: wow-signals [--as-of YYYY-MM-DD]" >&2; exit 2 ;;
+esac
+start=$(( end - 7 * 86400 ))
+
+# attentiond logs local time with an offset; compare in local time.
+attention() {
+  [[ -r $attn_log ]] || { jq -n '{available: false, reason: "no log"}'; return; }
+  awk -v s="$(date -r "$start" +%Y-%m-%dT%H:%M:%S)" \
+      -v e="$(date -r "$end" +%Y-%m-%dT%H:%M:%S)" '
+    function kv(k,   m) {
+      if (match($0, " " k "=(\"[^\"]*\"|[^ ]+)")) {
+        m = substr($0, RSTART + length(k) + 2, RLENGTH - length(k) - 2)
+        gsub(/"/, "", m); return m
+      }
+      return ""
+    }
+    # Only fixed vocabularies reach the output; anything else is "other".
+    function only(v, re) { return v ~ re ? v : "other" }
+    NR == 1 { print "first\t" substr($0, 6, 10) }
+    { t = substr($0, 6, 19) }
+    t < s || t >= e { next }
+    { msg = kv("msg"); src = only(kv("source"), "^(github|herdr|shell|calendar)$") }
+    msg == "item appeared" {
+      print "appeared\t" src
+      id = kv("item_id")
+      if (src == "github" && match(id, /^github:[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+#/))
+        print "github_repos\t" substr(id, 8, RLENGTH - 8)
+    }
+    msg == "state transition" && kv("to") ~ /^(done|failed|needs_attention|waiting)$/ {
+      print "transitions\t" src ":" kv("to")
+    }
+    msg == "item expired"      { print "expired_unseen\t" src }
+    msg == "notification sent" {
+      print "notifications\t" only(tolower(kv("title")), \
+        "^(done|blocked|ready to merge|checks running|waiting for approval)$")
+    }
+    msg == "decision recorded" { print "decisions\t" only(kv("decision"), "^(snooze|dismiss|bump|pin|clear)$") }
+    msg == "action executed"   { print "actions\t" src ":" only(kv("action"), "^(focus|open|dismiss|snooze)$") }
+    msg == "attentiond started" { print "count\tdaemon_starts" }
+    msg == "github adapter failed, keeping the last result" { print "count\tgithub_failures" }
+  ' "$attn_log" | jq -R -s '
+    split("\n") | map(select(length > 0) | split("\t")) as $rows
+    | ($rows | map(select(.[0] == "first")) | .[0][1] // null) as $first
+    | ($rows | map(select(.[0] != "first"))
+       | group_by(.[0])
+       | map({key: .[0][0],
+              value: (group_by(.[1]) | map({key: .[0][1], value: length})
+                      | sort_by(-.value) | from_entries)})
+       | from_entries) as $m
+    | {available: true, log_since: $first} + $m
+  '
+}
+
+# Extended-history lines are ": <epoch>:<duration>;<command>". Plain lines
+# carry no time, so they only count toward the untimed lifetime totals.
+shell() {
+  [[ -r $zsh_hist ]] || { jq -n '{available: false, reason: "no history"}'; return; }
+  awk -v s="$start" -v e="$end" '
+    BEGIN {
+      split("sudo command noglob builtin exec time nohup env", w)
+      for (i in w) skip[w[i]] = 1
+      split("git jj gh tofu terraform kubectl k docker make mise brew go bun npm omp herdr aws", w)
+      for (i in w) sub2[w[i]] = 1
+      split("nvim vim vi code cursor zed", w)
+      for (i in w) editor[w[i]] = 1
+    }
+    function emit(scope, cmd,   n, tok, i, name) {
+      n = split(cmd, tok, /[ \t]+/)
+      for (i = 1; i <= n && (tok[i] == "" || tok[i] ~ /^[A-Za-z_][A-Za-z0-9_]*=/ || skip[tok[i]]); i++) ;
+      if (i > n) return
+      name = tok[i]; sub(/.*\//, "", name)
+      print scope "\tcommands\t" name
+      if (editor[name]) print scope "\teditors\t" name
+      if (sub2[name] && i < n && tok[i + 1] ~ /^[a-z][a-z0-9-]{0,20}$/)
+        print scope "\tsubcommands\t" name " " tok[i + 1]
+      print scope "\tcount\ttotal"
+    }
+    cont { cont = /\\$/; next }
+    /^: [0-9]+:[0-9]+;/ {
+      ts = substr($0, 3) + 0
+      cmd = substr($0, index($0, ";") + 1)
+      cont = /\\$/
+      emit("lifetime", cmd)
+      if (ts >= s && ts < e) emit("window", cmd)
+      next
+    }
+    { cont = /\\$/; emit("lifetime", $0) }
+  ' "$zsh_hist" | jq -R -s '
+    def pick(scope; kind; min; top):
+      map(select(.[0] == scope and .[1] == kind))
+      | group_by(.[2]) | map({key: .[0][2], value: length})
+      | map(select(.value >= min and (.key | test("^[a-z][a-z0-9._+-]{0,24}( [a-z][a-z0-9-]{0,20})?$"))))
+      | sort_by(-.value) | .[:top] | from_entries;
+    def total(scope): map(select(.[0] == scope and .[1] == "count")) | length;
+    split("\n") | map(select(length > 0) | split("\t"))
+    | {available: true,
+       window: (if total("window") == 0
+                then {available: false, reason: "no timestamped history in window; needs setopt EXTENDED_HISTORY"}
+                else {total: total("window"),
+                      commands: pick("window"; "commands"; 3; 25),
+                      subcommands: pick("window"; "subcommands"; 3; 25),
+                      editors: pick("window"; "editors"; 1; 10)} end),
+       lifetime: {note: "whole history file, untimed",
+                  total: total("lifetime"),
+                  commands: pick("lifetime"; "commands"; 3; 25),
+                  subcommands: pick("lifetime"; "subcommands"; 3; 25),
+                  editors: pick("lifetime"; "editors"; 1; 10)}}
+  '
+}
+
+jq -n --argjson a "$(attention)" --argjson z "$(shell)" \
+  --arg s "$(date -u -r "$start" +%FT%TZ)" --arg e "$(date -u -r "$end" +%FT%TZ)" \
+  '{window: {start: $s, end: $e}, attention: $a, shell: $z}'
