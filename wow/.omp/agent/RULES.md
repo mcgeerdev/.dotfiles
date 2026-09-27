@@ -44,3 +44,5 @@ Reach for the tool first.
 - Search with `grep`/`glob`, never `grep`/`rg`/`find -name`/`fd`, not even
   after `;`, `&&` or `|`. Filter output in `eval` when a pipeline needs it.
 - Edit in place with `edit`, never `sed -i`/`perl -i`.
+- Watch CI with the `github` tool's `run_watch`, never `gh run watch`,
+  `gh pr checks --watch` or `sleep N; gh pr checks`, and only when asked.
