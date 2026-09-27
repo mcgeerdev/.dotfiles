@@ -5,7 +5,7 @@
     "cost": 506.69,
     "tokens": 1017736595,
     "messages": 8134,
-    "tool_calls": 6953,
+    "tool_calls": 6956,
     "prompts": 212,
     "api_errors": 36
   },
@@ -280,77 +280,122 @@
   "tools": [
     {
       "tool": "read",
-      "calls": 3329,
-      "errors": 34
+      "agent_type": "advisor",
+      "calls": 2451,
+      "errors": 23
     },
     {
       "tool": "bash",
+      "agent_type": "main",
       "calls": 1149,
       "errors": 134
     },
     {
-      "tool": "grep",
-      "calls": 604,
-      "errors": 7
+      "tool": "read",
+      "agent_type": "main",
+      "calls": 746,
+      "errors": 11
     },
     {
       "tool": "glob",
-      "calls": 453,
-      "errors": 12
+      "agent_type": "advisor",
+      "calls": 376,
+      "errors": 4
     },
     {
       "tool": "edit",
+      "agent_type": "main",
       "calls": 355,
       "errors": 21
     },
     {
+      "tool": "grep",
+      "agent_type": "main",
+      "calls": 340,
+      "errors": 4
+    },
+    {
       "tool": "advise",
+      "agent_type": "advisor",
       "calls": 322,
       "errors": 0
     },
     {
       "tool": "eval",
+      "agent_type": "main",
       "calls": 265,
       "errors": 34
     },
     {
+      "tool": "grep",
+      "agent_type": "advisor",
+      "calls": 197,
+      "errors": 2
+    },
+    {
       "tool": "hub",
+      "agent_type": "main",
       "calls": 188,
       "errors": 4
     },
     {
       "tool": "write",
+      "agent_type": "main",
       "calls": 156,
       "errors": 0
     },
     {
-      "tool": "web_search",
-      "calls": 54,
+      "tool": "read",
+      "agent_type": "subagent",
+      "calls": 132,
+      "errors": 0
+    },
+    {
+      "tool": "grep",
+      "agent_type": "subagent",
+      "calls": 67,
       "errors": 1
     },
     {
+      "tool": "glob",
+      "agent_type": "main",
+      "calls": 54,
+      "errors": 4
+    },
+    {
       "tool": "todo",
+      "agent_type": "main",
       "calls": 46,
       "errors": 1
     },
     {
+      "tool": "web_search",
+      "agent_type": "subagent",
+      "calls": 37,
+      "errors": 0
+    },
+    {
+      "tool": "glob",
+      "agent_type": "subagent",
+      "calls": 23,
+      "errors": 4
+    },
+    {
+      "tool": "web_search",
+      "agent_type": "main",
+      "calls": 17,
+      "errors": 1
+    },
+    {
       "tool": "yield",
+      "agent_type": "subagent",
       "calls": 13,
       "errors": 0
     },
     {
       "tool": "ask",
+      "agent_type": "main",
       "calls": 7,
-      "errors": 0
-    },
-    {
-      "tool": "task",
-      "calls": 6,
-      "errors": 0
-    },
-    {
-      "tool": "recall",
-      "calls": 6,
       "errors": 0
     }
   ],
@@ -379,11 +424,11 @@
   "prompts_by_cwd": [
     {
       "cwd": "/Users/devanmcgeer/didx.projects/tofu/sites/cloudapi-dev",
-      "prompts": 38
+      "prompts": 37
     },
     {
       "cwd": "/Users/devanmcgeer/.dotfiles/wow/.omp/agent",
-      "prompts": 38
+      "prompts": 37
     },
     {
       "cwd": "/Users/devanmcgeer/didx.projects/mono",
@@ -395,7 +440,7 @@
     },
     {
       "cwd": "/Users/devanmcgeer/.herdr/worktrees/tofu/worktree-rapid-cloud-b6ce",
-      "prompts": 15
+      "prompts": 16
     },
     {
       "cwd": "/Users/devanmcgeer/.herdr/worktrees/tofu/worktree-rapid-field-4f96",
@@ -422,12 +467,12 @@
     "vs": "2026-09-18",
     "cost_pct": -47.97,
     "tokens_pct": -11.64,
-    "tool_calls_pct": 63.72
+    "tool_calls_pct": 63.79
   },
   "watch": [
-    "tool_calls +63.72% (6953 vs 4247) while messages rose only +10.15% (8134 vs 7384)",
-    "cost -47.97% (506.69 vs 973.82) fell much faster than tokens -11.64% (1017736595 vs 1151781757)",
-    "bash tool_calls errors 134/1149 (11.66% error rate), the highest-volume error source this week"
+    "tool_calls up 63.79% to 6956 (vs 4247) while cost fell 47.97% to $506.69",
+    "advisor read calls spiked to 2451 (23 errors), up from 108 last week, driven by new -.herdr-worktrees-infra-worktree-silver-stone-bb37 and -.dotfiles-wow-.omp-agent folders",
+    "bash (main) tool error rate 11.66% (134/1149 calls), highest among major tools"
   ],
   "signals": {
     "window": {
