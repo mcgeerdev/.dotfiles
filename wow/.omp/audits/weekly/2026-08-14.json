@@ -367,5 +367,84 @@
     "cost down 32.2% vs prior week ($452.65 vs $667.48) while tool_calls fell 13.8% (4317 vs 5007)",
     "claude-opus-5 at 62.0% of total cost ($280.84 of $452.65)",
     "bash error rate 11.3% for main (99/873), highest error count of any tool"
-  ]
+  ],
+  "signals": {
+    "window": {
+      "start": "2026-08-08T00:00:00Z",
+      "end": "2026-08-15T00:00:00Z"
+    },
+    "attention": {
+      "available": true,
+      "log_since": "2026-09-14"
+    },
+    "shell": {
+      "available": true,
+      "window": {
+        "available": false,
+        "reason": "no timestamped history in window; needs setopt EXTENDED_HISTORY"
+      },
+      "lifetime": {
+        "note": "whole history file, untimed",
+        "total": 13428,
+        "commands": {
+          "git": 2442,
+          "jj": 1979,
+          "tofu": 1459,
+          "cd": 864,
+          "mise": 811,
+          "k": 706,
+          "kubectl": 533,
+          "vim": 511,
+          "la": 491,
+          "omp": 443,
+          "brew": 332,
+          "aws": 330,
+          "claude": 264,
+          "docker": 154,
+          "hum": 128,
+          "helmfile": 93,
+          "curl": 66,
+          "export": 66,
+          "rm": 55,
+          "helm": 54,
+          "pup": 52,
+          "pnpm": 49,
+          "code": 41,
+          "coderabbit": 37,
+          "ls": 34
+        },
+        "subcommands": {
+          "tofu plan": 762,
+          "mise run": 549,
+          "git status": 491,
+          "git pull": 443,
+          "jj git": 429,
+          "k get": 389,
+          "git checkout": 384,
+          "jj st": 302,
+          "git fetch": 288,
+          "tofu apply": 277,
+          "jj bookmark": 276,
+          "git push": 252,
+          "tofu init": 251,
+          "kubectl get": 209,
+          "jj new": 160,
+          "git rebase": 155,
+          "k config": 140,
+          "omp update": 114,
+          "brew upgrade": 109,
+          "mise tasks": 105,
+          "git diff": 67,
+          "kubectl logs": 67,
+          "git branch": 65,
+          "kubectl exec": 63,
+          "brew search": 61
+        },
+        "editors": {
+          "vim": 511,
+          "code": 41
+        }
+      }
+    }
+  }
 }
