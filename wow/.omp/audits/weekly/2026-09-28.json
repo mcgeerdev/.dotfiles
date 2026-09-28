@@ -1,0 +1,531 @@
+{
+  "date": "2026-09-28",
+  "window_days": 7,
+  "totals": {
+    "cost": 322.83,
+    "tokens": 760976677,
+    "messages": 5971,
+    "tool_calls": 5613,
+    "prompts": 202,
+    "api_errors": 26
+  },
+  "by_project": [
+    {
+      "folder": "-devan.projects-incubator-attentiond",
+      "agent_type": "main",
+      "msgs": 301,
+      "cost": 41.99,
+      "tokens": 66803814
+    },
+    {
+      "folder": "-.herdr-worktrees-infra-worktree-silver-stone-bb37",
+      "agent_type": "advisor",
+      "msgs": 1184,
+      "cost": 41.01,
+      "tokens": 192245108
+    },
+    {
+      "folder": "-.dotfiles-wow-.omp-agent",
+      "agent_type": "main",
+      "msgs": 314,
+      "cost": 35.65,
+      "tokens": 55103281
+    },
+    {
+      "folder": "-.dotfiles-wow-.omp-agent",
+      "agent_type": "advisor",
+      "msgs": 1057,
+      "cost": 33.45,
+      "tokens": 152279879
+    },
+    {
+      "folder": "-.herdr-worktrees-tofu-worktree-rapid-cloud-b6ce",
+      "agent_type": "main",
+      "msgs": 279,
+      "cost": 29.89,
+      "tokens": 42330398
+    },
+    {
+      "folder": "-didx.projects-mono",
+      "agent_type": "main",
+      "msgs": 365,
+      "cost": 26.88,
+      "tokens": 35927424
+    },
+    {
+      "folder": "-didx.projects-tofu-sites-cloudapi-dev",
+      "agent_type": "main",
+      "msgs": 201,
+      "cost": 20.55,
+      "tokens": 22698929
+    },
+    {
+      "folder": "-.herdr-worktrees-tofu-worktree-rapid-cloud-b6ce",
+      "agent_type": "advisor",
+      "msgs": 682,
+      "cost": 19.64,
+      "tokens": 73982437
+    },
+    {
+      "folder": "-.herdr-worktrees-infra-worktree-silver-stone-bb37",
+      "agent_type": "main",
+      "msgs": 218,
+      "cost": 14.42,
+      "tokens": 34165675
+    },
+    {
+      "folder": "-devan.projects-incubator-attentiond",
+      "agent_type": "advisor",
+      "msgs": 152,
+      "cost": 11.62,
+      "tokens": 22461063
+    },
+    {
+      "folder": "-.dotfiles-wow-.wow",
+      "agent_type": "main",
+      "msgs": 109,
+      "cost": 8.95,
+      "tokens": 10334468
+    },
+    {
+      "folder": "-devan.projects-infra",
+      "agent_type": "main",
+      "msgs": 68,
+      "cost": 8.26,
+      "tokens": 8249925
+    },
+    {
+      "folder": "-didx.projects-mono",
+      "agent_type": "advisor",
+      "msgs": 365,
+      "cost": 7.86,
+      "tokens": 14060699
+    },
+    {
+      "folder": "-didx.projects-tofu-sites-cloudapi-dev",
+      "agent_type": "advisor",
+      "msgs": 195,
+      "cost": 5.47,
+      "tokens": 8296933
+    },
+    {
+      "folder": "-.dotfiles-wow-.wow",
+      "agent_type": "advisor",
+      "msgs": 132,
+      "cost": 4.32,
+      "tokens": 7419317
+    },
+    {
+      "folder": "-.herdr-worktrees-tofu-worktree-lucky-cloud-bd4c",
+      "agent_type": "main",
+      "msgs": 42,
+      "cost": 3.03,
+      "tokens": 2838759
+    },
+    {
+      "folder": "-devan.projects-infra",
+      "agent_type": "subagent",
+      "msgs": 29,
+      "cost": 2.31,
+      "tokens": 1168443
+    },
+    {
+      "folder": "-.herdr-worktrees-tofu-worktree-rapid-cloud-b6ce",
+      "agent_type": "subagent",
+      "msgs": 55,
+      "cost": 2.2,
+      "tokens": 2771426
+    },
+    {
+      "folder": "-devan.projects-infra",
+      "agent_type": "advisor",
+      "msgs": 93,
+      "cost": 2.16,
+      "tokens": 3714257
+    },
+    {
+      "folder": "-.dotfiles-wow-.omp-agent",
+      "agent_type": "subagent",
+      "msgs": 28,
+      "cost": 1.41,
+      "tokens": 2068381
+    },
+    {
+      "folder": "-.dotfiles-wow-.omp-audits",
+      "agent_type": "main",
+      "msgs": 26,
+      "cost": 0.72,
+      "tokens": 992225
+    },
+    {
+      "folder": "-.herdr-worktrees-tofu-worktree-lucky-cloud-bd4c",
+      "agent_type": "advisor",
+      "msgs": 43,
+      "cost": 0.61,
+      "tokens": 660213
+    },
+    {
+      "folder": "/private-tmp-omp-smoke/",
+      "agent_type": "main",
+      "msgs": 3,
+      "cost": 0.25,
+      "tokens": 75067
+    },
+    {
+      "folder": "-.dotfiles-wow-.omp-audits",
+      "agent_type": "advisor",
+      "msgs": 27,
+      "cost": 0.12,
+      "tokens": 310586
+    },
+    {
+      "folder": "/private-tmp-omp-smoke/",
+      "agent_type": "advisor",
+      "msgs": 3,
+      "cost": 0.04,
+      "tokens": 17970
+    }
+  ],
+  "by_model": [
+    {
+      "model": "claude-opus-5",
+      "msgs": 1122,
+      "cost": 124.86
+    },
+    {
+      "model": "gpt-6-sol",
+      "msgs": 2922,
+      "cost": 89.94
+    },
+    {
+      "model": "claude-opus-5-5",
+      "msgs": 754,
+      "cost": 52.11
+    },
+    {
+      "model": "gpt-5.6-sol",
+      "msgs": 1011,
+      "cost": 36.36
+    },
+    {
+      "model": "claude-fable-5",
+      "msgs": 47,
+      "cost": 13.37
+    },
+    {
+      "model": "claude-sonnet-5",
+      "msgs": 69,
+      "cost": 3.17
+    },
+    {
+      "model": "claude-sonnet-4-6",
+      "msgs": 46,
+      "cost": 3.01
+    }
+  ],
+  "tools": [
+    {
+      "tool": "read",
+      "agent_type": "advisor",
+      "calls": 2363,
+      "errors": 22
+    },
+    {
+      "tool": "bash",
+      "agent_type": "main",
+      "calls": 837,
+      "errors": 91
+    },
+    {
+      "tool": "read",
+      "agent_type": "main",
+      "calls": 509,
+      "errors": 10
+    },
+    {
+      "tool": "glob",
+      "agent_type": "advisor",
+      "calls": 365,
+      "errors": 4
+    },
+    {
+      "tool": "grep",
+      "agent_type": "main",
+      "calls": 251,
+      "errors": 4
+    },
+    {
+      "tool": "advise",
+      "agent_type": "advisor",
+      "calls": 210,
+      "errors": 0
+    },
+    {
+      "tool": "edit",
+      "agent_type": "main",
+      "calls": 205,
+      "errors": 16
+    },
+    {
+      "tool": "eval",
+      "agent_type": "main",
+      "calls": 166,
+      "errors": 26
+    },
+    {
+      "tool": "grep",
+      "agent_type": "advisor",
+      "calls": 145,
+      "errors": 0
+    },
+    {
+      "tool": "hub",
+      "agent_type": "main",
+      "calls": 123,
+      "errors": 4
+    },
+    {
+      "tool": "read",
+      "agent_type": "subagent",
+      "calls": 110,
+      "errors": 0
+    },
+    {
+      "tool": "write",
+      "agent_type": "main",
+      "calls": 108,
+      "errors": 0
+    },
+    {
+      "tool": "grep",
+      "agent_type": "subagent",
+      "calls": 51,
+      "errors": 1
+    },
+    {
+      "tool": "glob",
+      "agent_type": "main",
+      "calls": 39,
+      "errors": 3
+    },
+    {
+      "tool": "todo",
+      "agent_type": "main",
+      "calls": 37,
+      "errors": 1
+    },
+    {
+      "tool": "web_search",
+      "agent_type": "subagent",
+      "calls": 37,
+      "errors": 0
+    },
+    {
+      "tool": "glob",
+      "agent_type": "subagent",
+      "calls": 15,
+      "errors": 4
+    },
+    {
+      "tool": "web_search",
+      "agent_type": "main",
+      "calls": 15,
+      "errors": 1
+    },
+    {
+      "tool": "yield",
+      "agent_type": "subagent",
+      "calls": 11,
+      "errors": 0
+    },
+    {
+      "tool": "ask",
+      "agent_type": "main",
+      "calls": 5,
+      "errors": 0
+    }
+  ],
+  "top_sessions": [
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-devan.projects-incubator-attentiond/2026-09-22T07-10-55-775Z_01a0c7f4-0f1f-76e3-b7c4-e7948b4a19cc.jsonl",
+      "cost": 41.99
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-.herdr-worktrees-infra-worktree-silver-stone-bb37/2026-09-23T12-06-28-190Z_01a0ce28-fe5e-72a2-a45e-ff97c7d58ddc/__advisor.doctrine.jsonl",
+      "cost": 34.47
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-.dotfiles-wow-.omp-agent/2026-09-24T13-37-32-699Z_01a0d3a2-bc1b-7542-a2aa-dfa8b7c9bacd/__advisor.doctrine.jsonl",
+      "cost": 24.53
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-.herdr-worktrees-tofu-worktree-rapid-cloud-b6ce/2026-09-21T08-08-22-533Z_01a0c302-4b05-7182-be3b-15ccde15d93d.jsonl",
+      "cost": 15.92
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-.dotfiles-wow-.omp-agent/2026-09-24T13-37-32-699Z_01a0d3a2-bc1b-7542-a2aa-dfa8b7c9bacd.jsonl",
+      "cost": 15.48
+    }
+  ],
+  "prompts_by_cwd": [
+    {
+      "cwd": "/Users/devanmcgeer/.dotfiles/wow/.omp/agent",
+      "prompts": 41
+    },
+    {
+      "cwd": "/Users/devanmcgeer/devan.projects/bunkervault",
+      "prompts": 34
+    },
+    {
+      "cwd": "/Users/devanmcgeer/didx.projects/mono",
+      "prompts": 31
+    },
+    {
+      "cwd": "/Users/devanmcgeer/didx.projects/tofu/sites/cloudapi-dev",
+      "prompts": 23
+    },
+    {
+      "cwd": "/Users/devanmcgeer/.herdr/worktrees/tofu/worktree-rapid-cloud-b6ce",
+      "prompts": 15
+    },
+    {
+      "cwd": "/Users/devanmcgeer/.herdr/worktrees/bunkervault/worktree-quiet-harbor-c5a5",
+      "prompts": 13
+    },
+    {
+      "cwd": "/Users/devanmcgeer/.herdr/worktrees/infra/worktree-silver-stone-bb37",
+      "prompts": 11
+    },
+    {
+      "cwd": "/Users/devanmcgeer/.dotfiles/wow/.omp/audits",
+      "prompts": 10
+    },
+    {
+      "cwd": "/Users/devanmcgeer/devan.projects/infra",
+      "prompts": 8
+    },
+    {
+      "cwd": "/Users/devanmcgeer/.herdr/worktrees/tofu/worktree-lucky-cloud-bd4c",
+      "prompts": 6
+    }
+  ],
+  "delta": {
+    "vs": "2026-09-25",
+    "cost_pct": -36.29,
+    "tokens_pct": -25.23,
+    "tool_calls_pct": -19.31
+  },
+  "watch": [
+    "cost -36.29% ($322.83 vs $506.69 prior week), driven by claude-opus-5 msgs 1122 vs 2143 ($124.86 vs $255.14)",
+    "-.dotfiles-wow-.wow project down to $13.27 combined (main+advisor) vs $85.55 prior week",
+    "bash/main error rate 10.87% (91/837), highest tool error count this week"
+  ],
+  "signals": {
+    "window": {
+      "start": "2026-09-21T07:02:29Z",
+      "end": "2026-09-28T07:02:29Z"
+    },
+    "attention": {
+      "available": true,
+      "log_since": "2026-09-14",
+      "appeared": {
+        "herdr": 40,
+        "github": 29,
+        "shell": 15
+      },
+      "count": {
+        "github_failures": 32
+      },
+      "decisions": {
+        "snooze": 4
+      },
+      "expired_unseen": {
+        "shell": 14
+      },
+      "github_repos": {
+        "didx-xyz/mono": 23,
+        "didx-xyz/tofu": 6
+      },
+      "notifications": {
+        "done": 166,
+        "blocked": 23,
+        "ready to merge": 15,
+        "checks running": 11
+      },
+      "transitions": {
+        "herdr:done": 125,
+        "shell:done": 41,
+        "shell:failed": 4
+      }
+    },
+    "shell": {
+      "available": true,
+      "window": {
+        "available": false,
+        "reason": "no timestamped history in window; needs setopt EXTENDED_HISTORY"
+      },
+      "lifetime": {
+        "note": "whole history file, untimed",
+        "total": 13441,
+        "commands": {
+          "git": 2446,
+          "jj": 1979,
+          "tofu": 1459,
+          "cd": 867,
+          "mise": 811,
+          "k": 706,
+          "kubectl": 533,
+          "vim": 513,
+          "la": 493,
+          "omp": 444,
+          "brew": 332,
+          "aws": 330,
+          "claude": 264,
+          "docker": 154,
+          "hum": 128,
+          "helmfile": 93,
+          "curl": 66,
+          "export": 66,
+          "rm": 55,
+          "helm": 54,
+          "pup": 52,
+          "pnpm": 49,
+          "code": 41,
+          "coderabbit": 37,
+          "ls": 34
+        },
+        "subcommands": {
+          "tofu plan": 762,
+          "mise run": 549,
+          "git status": 493,
+          "git pull": 445,
+          "jj git": 429,
+          "k get": 389,
+          "git checkout": 384,
+          "jj st": 302,
+          "git fetch": 288,
+          "tofu apply": 277,
+          "jj bookmark": 276,
+          "git push": 252,
+          "tofu init": 251,
+          "kubectl get": 209,
+          "jj new": 160,
+          "git rebase": 155,
+          "k config": 140,
+          "omp update": 114,
+          "brew upgrade": 109,
+          "mise tasks": 105,
+          "git diff": 67,
+          "kubectl logs": 67,
+          "git branch": 65,
+          "kubectl exec": 63,
+          "brew search": 61
+        },
+        "editors": {
+          "vim": 513,
+          "code": 41
+        }
+      }
+    }
+  }
+}
