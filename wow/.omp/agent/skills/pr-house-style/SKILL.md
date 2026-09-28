@@ -22,9 +22,10 @@ The user has stated these rules in dozens of prompts. Apply them without being a
    - Other repos: match the last five merged titles (`gh pr list --state merged -L 5`).
 3. Assign to self with `--assignee @me`. In `tofu`, the labeler workflow adds labels, so don't add them by hand.
 4. Body:
-   - If `.github/pull_request_template.md` exists (it does in `mono`), keep its headings and fill them.
-   - Otherwise write two short sections. **What** is the value added and the final state, as bullets. **Why** is one sentence naming the trigger: a Datadog rule, a Linear ticket, an incident, or the user's request.
-   - Leave out rollback steps, alternatives considered, the iteration history, how the agent worked, and a test plan section.
+   - Look for a template before writing anything. GitHub reads `pull_request_template.md` in any letter case from `.github/`, the repo root, or `docs/`, and multiple templates from `.github/PULL_REQUEST_TEMPLATE/`. Search case-insensitively. `mono` has `.github/PULL_REQUEST_TEMPLATE.md`.
+   - If a template exists, it sets the format. Keep every heading in its order and fill each one. Write "None" or "N/A" under a section that doesn't apply instead of deleting it. Keep the checklist and footer lines such as `Closes <ticket>`, and tick only what was actually done. Drop the HTML guidance comments after following them.
+   - Only when there is no template, write two short sections. **What** is the value added and the final state, as bullets. **Why** is one sentence naming the trigger: a Datadog rule, a Linear ticket, an incident, or the user's request. Add no test plan section.
+   - In either format, leave out rollback steps, alternatives considered, the iteration history, and how the agent worked. When a template has a test plan, tick the checks that ran and list the ones the reviewer still has to run, unticked.
    - Run `unslop` over the body before `gh pr create` or `gh pr edit`.
 5. Azure DevOps repos under `sc.projects/sc-remote-enroll` target `main`, whatever the harness reports as the base branch. Pass `--target-branch main`.
 
