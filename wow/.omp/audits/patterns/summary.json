@@ -1,11 +1,11 @@
 {
-  "month": "2026-08",
+  "month": "2026-09",
   "patterns": [
-    "Bash logs the highest tool error rate every week, well above read, grep, and edit.",
-    "claude-opus-5 takes 62-71% of weekly spend despite fewer messages than gpt-5.6-sol.",
-    "gpt-5.6-sol handles far more messages than opus each week, at much lower cost per message.",
-    "Advisor-doctrine sessions rank among the week's five costliest sessions every week.",
-    "Weekly cost dropped every week in August, down 51% from week one to week four.",
-    "The tofu project line takes top spend most weeks and hits 91% of prompts by month end."
+    "Bash stays the noisiest tool all month, erroring 9-12% of main calls versus under 2% for read.",
+    "Advisor-doctrine runs landed in the week's top 5 costliest sessions four weeks out of five.",
+    "Edit errors jumped from under 1% to 6-8% in the last two weeks of September.",
+    "Eval error rate climbed all month, from 8.8% to 15.7%.",
+    "Tofu's share of weekly prompts fell every week, from 84% to 22%.",
+    "Weekly cost swung wildly instead of trending: down 54%, up 39%, down 48%, down 36%."
   ]
 }
