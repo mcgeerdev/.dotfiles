@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent usage audit, 2026-09-24</title>
+<style>
+  :root { --fg:#1d2327; --muted:#5b6770; --bg:#fbfbf9; --card:#ffffff; --line:#e3e5e1; --accent:#1f6f50; --warn:#9a5b00; --bad:#a3262a; --code:#f3f4f1; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 32px 24px 80px; }
+  h1 { font-size: 1.9rem; margin: 0 0 4px; }
+  h2 { font-size: 1.4rem; margin: 48px 0 12px; padding-top: 12px; border-top: 2px solid var(--line); }
+  h3 { font-size: 1.1rem; margin: 28px 0 8px; }
+  p, li { max-width: 78ch; }
+  .meta { color: var(--muted); margin: 0 0 24px; }
+  .summary { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 6px; }
+  .summary ul { margin: 8px 0 0; padding-left: 20px; }
+  nav.toc { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 12px 20px; margin: 24px 0; }
+  nav.toc ol { margin: 6px 0; padding-left: 22px; }
+  nav.toc a { color: var(--accent); text-decoration: none; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0 18px; background: var(--card); font-size: 0.92rem; }
+  th, td { border: 1px solid var(--line); padding: 6px 9px; text-align: left; vertical-align: top; }
+  th { background: #eef1ec; font-weight: 600; }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  code { background: var(--code); padding: 1px 5px; border-radius: 4px; font-size: 0.88em; }
+  pre { background: var(--code); padding: 12px 14px; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; line-height: 1.45; }
+  blockquote.excerpt { margin: 10px 0; padding: 8px 14px; border-left: 3px solid #b9c2bb; background: #f5f6f3; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; white-space: pre-wrap; }
+  .verse { margin: 12px 0 4px; padding: 10px 14px; border-radius: 6px; background: #f3f0e6; border: 1px solid #e6dfc8; font-size: 0.95rem; }
+  .verse cite { display:block; font-style: normal; color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+  .item { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 4px 20px 14px; margin: 16px 0; }
+  .tag { display:inline-block; font-size: 0.75rem; padding: 1px 7px; border-radius: 10px; background:#e7efe9; color: var(--accent); margin-left: 6px; vertical-align: middle; }
+  .tag.warn { background:#f6ecd9; color: var(--warn); }
+  .tag.bad { background:#f5e1e1; color: var(--bad); }
+  .small { font-size: 0.87rem; color: var(--muted); }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Agent usage audit</h1>
+<p class="meta">2026-09-24 · omp 18.3.0 · covers omp (2026-06-01 to 2026-09-24), Claude Code (2025-12-09 to 2026-08-19) and Codex (2026-06 to 2026-09) · previous audit: <code>agent-usage-audit-2026-07-29.html</code></p>
+
+<div class="summary">
+<strong>Summary</strong>
+<ul>
+  <li>omp is now almost all of your agent work. It has 351 top-level sessions, 69,035 tool calls and $8,868 in list-price cost since June. Claude Code fell to 7 prompts after June. Codex is a general question desk.</li>
+  <li>The advisor is the biggest cost lever. It took 33.5% of all omp spend, 43.2% in the last 30 days, up from the 26.3% the July audit measured. A single advisor transcript on 2026-08-31 cost $683.10 for 16 notes. The main agent in that session cost $67.37.</li>
+  <li>You typed some form of "don't make changes, just answer" in 169 prompts, and the rate tripled from July (2.6%) to September (8.1%). Plan mode does this for you and you used it 12 times.</li>
+  <li>You repeat the same PR instructions by hand: "draft PR" 71 times, "against master" 105, "concise PR body" 33, "no explanatory comments" 26, "unslop" 38. Write them down once.</li>
+  <li>Two July fixes didn't move their numbers. Interceptor blocks are still about 2.6 per 100 tool calls, and 46% of September's <code>grep</code> blocks hit commands that RULES.md says are allowed. The Python eval backend still fails, 98 times in total. It failed for me during this audit too.</li>
+  <li>The agent rarely loads your production skills on its own. Four of them, <code>blast-radius</code> and <code>code-review</code> among them, have zero reads. It keeps asking for <code>pr-diagram</code>, which no longer exists.</li>
+</ul>
+</div>
+
+<nav class="toc">
+<strong>Contents</strong>
+<ol>
+  <li><a href="#sources">Data sources and limits</a></li>
+  <li><a href="#facts">Session facts</a></li>
+  <li><a href="#followup">What happened to the July recommendations</a></li>
+  <li><a href="#omp-better">Where you can use omp better</a></li>
+  <li><a href="#patterns">Recurring patterns in how you work</a></li>
+  <li><a href="#skills">Skills</a></li>
+  <li><a href="#config">Config changes</a></li>
+  <li><a href="#ideas">Ideas for ~/.dotfiles/wow</a></li>
+  <li><a href="#refs">Sources</a></li>
+  <li><a href="#method">Method</a></li>
+  <li><a href="#applied">Changes applied</a></li>
+</ol>
+</nav>
+
+<h2 id="sources">1. Data sources and limits</h2>
+<table>
+<tr><th>Source</th><th>What it holds</th><th>How I read it</th></tr>
+<tr><td><code>~/.omp/stats.db</code></td><td>89,091 assistant messages, 69,035 tool calls, 3,370 user messages</td><td>sqlite aggregates only</td></tr>
+<tr><td><code>~/.omp/agent/sessions/</code></td><td>971 transcripts, 1.2 GB: 351 top-level sessions, 297 subagent and 323 advisor transcripts</td><td>Streamed each file for pattern counts. Read excerpts from 6 sessions.</td></tr>
+<tr><td><code>~/.omp/agent/history.db</code></td><td>3,189 unique prompts, 2026-06-29 to 2026-09-24, and 137 session titles</td><td>Regex classification of every prompt</td></tr>
+<tr><td><code>~/.omp/logs/</code></td><td>127 daily logs, 1 native panic, 1 HTTP 400 capture</td><td>jq over warn and error lines</td></tr>
+<tr><td><code>~/.omp/autoqa.db</code></td><td>2 tool issue reports</td><td>Full read</td></tr>
+<tr><td><code>~/.claude/history.jsonl</code>, <code>stats-cache.json</code>, <code>projects/</code></td><td>5,265 prompts. The stats cache was last computed 2026-05-10. Only 6 transcripts remain on disk, plus memory files.</td><td>jq aggregates, memory files read</td></tr>
+<tr><td><code>~/.codex/sessions/</code>, <code>archived_sessions/</code></td><td>95 rollouts (71 live, 24 archived)</td><td>jq aggregates of token counts and first prompts</td></tr>
+<tr><td><code>~/.codex/logs_2.sqlite</code>, <code>~/.codex/log/</code></td><td>5,821 log rows from 2026-09-14 on, 2 small text logs</td><td>sqlite aggregates</td></tr>
+</table>
+<p><strong>Cost caveat.</strong> Every dollar figure is omp's list-price estimate. The <code>openai-codex</code> provider runs on a ChatGPT Plus plan; the error log says "You have hit your ChatGPT usage limit (plus plan)". So the advisor's real price is quota, and quota ran out 103 times. I could not tell from the data whether Anthropic traffic went through an API key or a subscription.</p>
+<p><strong>Coverage gaps.</strong> Claude Code keeps transcripts for about 30 days, so its per-session detail before August is gone. The omp logs start in mid-July. The stats cache for Claude Code stops at 2026-05-10.</p>
+
+<h2 id="facts">2. Session facts</h2>
+
+<h3>2.1 By tool</h3>
+<table>
+<tr><th>Tool</th><th class="n">Sessions</th><th class="n">Prompts</th><th>Active window</th><th class="n">Tokens</th><th class="n">Cost (list)</th></tr>
+<tr><td>omp</td><td class="n">351</td><td class="n">3,189 unique (3,370 in stats)</td><td>2026-06-01 to 2026-09-24</td><td class="n">11.85 B</td><td class="n">$8,868.08</td></tr>
+<tr><td>Claude Code</td><td class="n">237 (stats cache)</td><td class="n">5,265</td><td>2025-12-09 to 2026-08-19. 7 prompts after June.</td><td class="n">see 2.9</td><td class="n">not recorded</td></tr>
+<tr><td>Codex</td><td class="n">95</td><td class="n">n/a</td><td>2026-06 to 2026-09</td><td class="n">93.4 M</td><td class="n">not recorded</td></tr>
+</table>
+
+<h3>2.2 omp by month</h3>
+<table>
+<tr><th>Month</th><th class="n">Top-level sessions</th><th class="n">Assistant messages</th><th class="n">Cost</th><th class="n">Advisor share</th></tr>
+<tr><td>2026-06</td><td class="n">21</td><td class="n">2,850</td><td class="n">$192.62</td><td class="n">16.3%</td></tr>
+<tr><td>2026-07</td><td class="n">159</td><td class="n">34,325</td><td class="n">$3,188.92</td><td class="n">26.2%</td></tr>
+<tr><td>2026-08</td><td class="n">77</td><td class="n">26,132</td><td class="n">$2,908.31</td><td class="n">43.0%</td></tr>
+<tr><td>2026-09 (to 24th)</td><td class="n">94</td><td class="n">25,784</td><td class="n">$2,578.22</td><td class="n">33.2%</td></tr>
+</table>
+<p class="small">Cache reads are 11.54 B of the 11.85 B tokens (97.3%). Input 96.2 M, output 40.7 M, cache writes 179.9 M.</p>
+
+<h3>2.3 omp by project (top 12 by cost)</h3>
+<table>
+<tr><th>Project folder</th><th class="n">Main sessions</th><th class="n">Cost, all roles</th><th class="n">Advisor part</th></tr>
+<tr><td>didx.projects/mono</td><td class="n">100</td><td class="n">$1,782.22</td><td class="n">$446.90</td></tr>
+<tr><td>didx.projects/tofu</td><td class="n">44</td><td class="n">$1,676.00</td><td class="n">$526.33</td></tr>
+<tr><td>devan.projects/incubator/hum</td><td class="n">20</td><td class="n">$1,371.35</td><td class="n">$444.78</td></tr>
+<tr><td>didx.projects/tofu/sites/didx-org</td><td class="n">1</td><td class="n">$754.08</td><td class="n">$683.10</td></tr>
+<tr><td>sc.projects/SecureCitizen.Portal</td><td class="n">12</td><td class="n">$341.14</td><td class="n">$132.32</td></tr>
+<tr><td>didx.projects/tofu/sites/cloudapi-dev</td><td class="n">17</td><td class="n">$334.27</td><td class="n">$95.78</td></tr>
+<tr><td>devan.projects/incubator/attentiond</td><td class="n">4</td><td class="n">$300.85</td><td class="n">$88.45</td></tr>
+<tr><td>.dotfiles/wow/.wow</td><td class="n">5</td><td class="n">$269.39</td><td class="n">$96.72</td></tr>
+<tr><td>didx.projects/tofu-wt/dd-slack-cspm</td><td class="n">3</td><td class="n">$266.02</td><td class="n">$41.96</td></tr>
+<tr><td>sc.projects/SecureCitizen</td><td class="n">7</td><td class="n">$191.35</td><td class="n">$63.63</td></tr>
+<tr><td>sc.projects</td><td class="n">9</td><td class="n">$146.26</td><td class="n">$33.67</td></tr>
+<tr><td>devan.projects/infra</td><td class="n">9</td><td class="n">$130.27</td><td class="n">$33.48</td></tr>
+</table>
+<p class="small">By prompt count (history.db), tofu leads with 974 prompts in the repo root plus 289 in <code>sites/cloudapi-*</code> and 151 in <code>tofu-wt/</code> worktrees. mono has 834.</p>
+
+<h3>2.4 Models and providers (omp)</h3>
+<table>
+<tr><th>Provider</th><th>Model</th><th class="n">Messages</th><th class="n">Sessions</th><th class="n">Cost</th><th>Used as</th></tr>
+<tr><td>anthropic</td><td>claude-opus-5</td><td class="n">26,916</td><td class="n">226</td><td class="n">$4,267.03</td><td>main</td></tr>
+<tr><td>openai-codex</td><td>gpt-5.6-sol</td><td class="n">37,429</td><td class="n">233</td><td class="n">$2,281.58</td><td>advisor (37,410 of them)</td></tr>
+<tr><td>anthropic</td><td>claude-opus-4-8</td><td class="n">5,510</td><td class="n">96</td><td class="n">$924.70</td><td>main</td></tr>
+<tr><td>openai-codex</td><td>gpt-6-astra</td><td class="n">6,035</td><td class="n">42</td><td class="n">$513.44</td><td>advisor</td></tr>
+<tr><td>anthropic</td><td>claude-fable-5</td><td class="n">633</td><td class="n">8</td><td class="n">$243.08</td><td>plan</td></tr>
+<tr><td>anthropic</td><td>claude-sonnet-4-6</td><td class="n">4,622</td><td class="n">262</td><td class="n">$223.95</td><td>subagents</td></tr>
+<tr><td>openai-codex</td><td>gpt-5.5</td><td class="n">4,576</td><td class="n">66</td><td class="n">$199.22</td><td>advisor, some main</td></tr>
+<tr><td>anthropic</td><td>claude-opus-4-7</td><td class="n">873</td><td class="n">22</td><td class="n">$131.92</td><td>main</td></tr>
+<tr><td>openai-codex</td><td>gpt-6-sol</td><td class="n">1,727</td><td class="n">5</td><td class="n">$55.51</td><td>advisor (current role)</td></tr>
+<tr><td>anthropic</td><td>claude-opus-5-5</td><td class="n">365</td><td class="n">5</td><td class="n">$25.45</td><td>main (current default)</td></tr>
+<tr><td>anthropic</td><td>claude-sonnet-5</td><td class="n">38</td><td class="n">3</td><td class="n">$1.51</td><td>subagents (current task role)</td></tr>
+<tr><td>deepseek</td><td>deepseek-v4-pro</td><td class="n">366</td><td class="n">5</td><td class="n">$0.67</td><td>trial</td></tr>
+<tr><td>ollama</td><td>gemma3:1b</td><td class="n">1</td><td class="n">1</td><td class="n">$0.00</td><td>one test call</td></tr>
+</table>
+
+<h3>2.5 Roles</h3>
+<table>
+<tr><th>Role</th><th class="n">Messages</th><th class="n">Transcripts</th><th class="n">Cost</th><th class="n">Share</th><th class="n">Last 30 days</th></tr>
+<tr><td>main</td><td class="n">34,377</td><td class="n">345</td><td class="n">$5,558.94</td><td class="n">62.7%</td><td class="n">$2,090.19 (54.5%)</td></tr>
+<tr><td>advisor</td><td class="n">48,712</td><td class="n">320</td><td class="n">$2,974.74</td><td class="n">33.5%</td><td class="n">$1,657.35 (43.2%)</td></tr>
+<tr><td>subagent</td><td class="n">6,002</td><td class="n">299</td><td class="n">$334.40</td><td class="n">3.8%</td><td class="n">$90.52 (2.4%)</td></tr>
+</table>
+<p class="small">Advisor cost per accepted note is $0.61 on average (4,902 <code>advise</code> calls). The median session spends $0.30 on the advisor per $1 of main-agent spend. In 12 of 317 sessions the advisor cost more than the main agent.</p>
+
+<h3>2.6 Tool calls and error rates (omp, all roles)</h3>
+<table>
+<tr><th>Tool</th><th class="n">Calls</th><th class="n">Errors</th><th class="n">Error rate</th></tr>
+<tr><td>read</td><td class="n">23,352</td><td class="n">368</td><td class="n">1.6%</td></tr>
+<tr><td>bash</td><td class="n">13,903</td><td class="n">1,688</td><td class="n">12.1%</td></tr>
+<tr><td>grep</td><td class="n">9,500</td><td class="n">154</td><td class="n">1.6%</td></tr>
+<tr><td>advise</td><td class="n">4,902</td><td class="n">1</td><td class="n">0.0%</td></tr>
+<tr><td>glob</td><td class="n">4,310</td><td class="n">333</td><td class="n">7.7%</td></tr>
+<tr><td>edit</td><td class="n">4,300</td><td class="n">128</td><td class="n">3.0%</td></tr>
+<tr><td>write</td><td class="n">2,695</td><td class="n">163</td><td class="n">6.0%</td></tr>
+<tr><td>eval</td><td class="n">2,510</td><td class="n">237</td><td class="n">9.4%</td></tr>
+<tr><td>hub (deprecated in 18.3.0)</td><td class="n">1,184</td><td class="n">32</td><td class="n">2.7%</td></tr>
+<tr><td>todo</td><td class="n">852</td><td class="n">29</td><td class="n">3.4%</td></tr>
+<tr><td>web_search</td><td class="n">357</td><td class="n">7</td><td class="n">2.0%</td></tr>
+<tr><td>ask</td><td class="n">183</td><td class="n">15</td><td class="n">8.2%</td></tr>
+<tr><td>mcp__node_repl_js</td><td class="n">165</td><td class="n">33</td><td class="n">20.0%</td></tr>
+<tr><td>task</td><td class="n">133</td><td class="n">6</td><td class="n">4.5%</td></tr>
+<tr><td>github</td><td class="n">42</td><td class="n">7</td><td class="n">16.7%</td></tr>
+<tr><td><strong>All tools</strong></td><td class="n"><strong>69,035</strong></td><td class="n"><strong>3,211</strong></td><td class="n"><strong>4.65%</strong></td></tr>
+</table>
+<p class="small">Tools that barely appear: <code>lsp</code> 4 calls in 648 transcripts, <code>ast_edit</code> 14, <code>ast_grep</code> 5, <code>recall</code> 17, <code>retain</code> 2. The advisor made 23,600 of the calls: 10,463 reads, 5,051 greps, 3,169 globs (258 of the globs failed).</p>
+
+<h3>2.7 Errors and runtime health</h3>
+<table>
+<tr><th>Signal</th><th class="n">Count</th><th>Notes</th></tr>
+<tr><td>Assistant turns ending in <code>error</code></td><td class="n">393</td><td>Socket closed 161, Codex <code>usage_limit_reached</code> 93, Anthropic overloaded 49, connection error 25, ChatGPT Plus limit 10</td></tr>
+<tr><td>Assistant turns <code>aborted</code></td><td class="n">293</td><td>Your interrupts, mostly</td></tr>
+<tr><td>Interceptor blocks in transcripts</td><td class="n">987</td><td>grep 295, cd 192, read 173, write 164, policy 93</td></tr>
+<tr><td>"Python backend is unavailable"</td><td class="n">98</td><td>62 in July, 19 in August, 14 in September</td></tr>
+<tr><td>Tool results voided by a pending advisory</td><td class="n">413</td><td>217 July, 184 August, 12 September</td></tr>
+<tr><td>Local model discovery warnings</td><td class="n">161</td><td>lm-studio 53, ollama 53, llama.cpp 55, on every startup</td></tr>
+<tr><td><code>ui.loop-blocked</code> warnings</td><td class="n">104</td><td>Up to 5.4 s of blocked UI</td></tr>
+<tr><td><code>rules-guard</code> extension failed to load</td><td class="n">21</td><td>All in July, from the old <code>.dotfiles/nvim</code> path</td></tr>
+<tr><td>Async job delivery failed</td><td class="n">16</td><td>"Yield queue entry became stale"</td></tr>
+<tr><td>Native panic</td><td class="n">1</td><td><code>uu-xargs</code> index out of bounds (2026-07-27)</td></tr>
+<tr><td>autoqa reports</td><td class="n">2</td><td>A hunk header written into a file by <code>edit</code>. <code>%s</code> in a Python string rewritten to <code>__omp_magic("s", "")</code> by <code>eval</code>.</td></tr>
+</table>
+
+<h3>2.8 Most expensive and longest omp sessions</h3>
+<table>
+<tr><th>Started</th><th>Project</th><th>omp title</th><th class="n">Total</th><th class="n">Main</th><th class="n">Advisor</th><th class="n">Wall clock</th></tr>
+<tr><td>2026-08-31</td><td>tofu/sites/didx-org</td><td>Analyze cloudapi-dev cost migration to Cloudflare</td><td class="n">$754.08</td><td class="n">$67.37</td><td class="n">$683.10</td><td class="n">8.4 h</td></tr>
+<tr><td>2026-07-28</td><td>incubator/hum</td><td>(untitled)</td><td class="n">$225.33</td><td class="n">$99.08</td><td class="n">$98.08</td><td class="n">3.7 h</td></tr>
+<tr><td>2026-09-12</td><td>incubator/attentiond</td><td>Requirements for running this stack</td><td class="n">$223.68</td><td class="n">$152.97</td><td class="n">$70.72</td><td class="n">48.9 h</td></tr>
+<tr><td>2026-09-17</td><td>.dotfiles/wow/.wow</td><td>Snooze, bump priority, stale block feature</td><td class="n">$223.29</td><td class="n">$138.47</td><td class="n">$83.31</td><td class="n">77.7 h</td></tr>
+<tr><td>2026-09-10</td><td>tofu</td><td>Optimize slow Tofu CI pipeline</td><td class="n">$207.18</td><td class="n">$134.42</td><td class="n">$70.15</td><td class="n">89.0 h</td></tr>
+<tr><td>2026-08-31</td><td>incubator/hum</td><td>Update limiter gain measurement documentation</td><td class="n">$193.48</td><td class="n">$142.24</td><td class="n">$29.99</td><td class="n">8.5 h</td></tr>
+<tr><td>2026-08-24</td><td>tofu</td><td>Rank Istio sidecar namespaces by consequence in Cloud API pr…</td><td class="n">$188.93</td><td class="n">$120.92</td><td class="n">$53.30</td><td class="n">73.3 h</td></tr>
+<tr><td>2026-09-04</td><td>SecureCitizen.Portal</td><td>Find plaintext passwords in codebase</td><td class="n">$30.30</td><td class="n">$19.54</td><td class="n">$4.52</td><td class="n">157.9 h (longest)</td></tr>
+<tr><td>2026-08-19</td><td>tofu</td><td>Create scytale-aws-integration module from CloudFormation</td><td class="n">$131.49</td><td class="n">$101.41</td><td class="n">$30.08</td><td class="n">118.2 h</td></tr>
+</table>
+<p class="small">38 main sessions stayed open longer than 24 hours. The session with the most prompts is tofu, 2026-08-19, with 97 user turns and 454 tool calls.</p>
+
+<h3>2.9 Claude Code and Codex</h3>
+<table>
+<tr><th>Claude Code model</th><th class="n">Output tokens</th><th class="n">Cache read</th></tr>
+<tr><td>claude-opus-4-6</td><td class="n">1,816,395</td><td class="n">671.3 M</td></tr>
+<tr><td>claude-sonnet-4-6</td><td class="n">1,949,132</td><td class="n">154.3 M</td></tr>
+<tr><td>claude-opus-4-7</td><td class="n">1,426,125</td><td class="n">78.4 M</td></tr>
+<tr><td>claude-haiku-4-5</td><td class="n">753,755</td><td class="n">443.6 M</td></tr>
+<tr><td>claude-opus-4-5</td><td class="n">246,607</td><td class="n">288.8 M</td></tr>
+</table>
+<p>Claude Code prompts peaked in May (1,251) and June (1,140), then dropped to 5 in July and 2 in August. The top projects were tofu (1,722 prompts), mono (945) and SecureCitizen.Portal (614). Its project memory folders still hold 19 feedback and user files, including "no Helm in Tofu", jj usage, tofu PR conventions and production SG migration rules.</p>
+<table>
+<tr><th>Codex</th><th class="n">Sessions</th><th class="n">Tokens</th></tr>
+<tr><td>gpt-5.6-sol</td><td class="n">45</td><td class="n">82.5 M</td></tr>
+<tr><td>gpt-5.6-luna</td><td class="n">15</td><td class="n">7.8 M</td></tr>
+<tr><td>codex-auto-review (approval reviewer)</td><td class="n">13</td><td class="n">0.7 M</td></tr>
+<tr><td>gpt-6-astra</td><td class="n">3</td><td class="n">2.4 M</td></tr>
+<tr><td>no model recorded</td><td class="n">19</td><td class="n">0</td></tr>
+</table>
+<p>Codex clients: work desktop 50, Codex Desktop 32, TypeScript SDK 11, <code>codex exec</code> 2. 89.8% of Codex input was cached. 1,049 tool calls in total. Most first prompts are general questions, like networking homework, ISO 27001 device management, course credit and a household oil stain. One is about omp itself:</p>
+<blockquote class="excerpt">Okay, I'm using OMYPI to as a harness for Claude and the advisor is Chat GPT. But it feels like my agents are wasting tokens and resources.</blockquote>
+<p>Codex logs since 2026-09-14 show 9 errors, all model-list refresh timeouts, and 69 warnings. 30 of the warnings come from one plugin manifest whose <code>defaultPrompt</code> is longer than 128 characters.</p>
+
+<h2 id="followup">3. What happened to the July recommendations</h2>
+<table>
+<tr><th>July item</th><th>Status</th><th>Measured since</th></tr>
+<tr><td>R1 give the advisor a remit (<code>WATCHDOG.yaml</code>)</td><td>Done</td><td>Advisor lookups per note: 4.3 in July, 3.3 in August, 4.1 in September. July measured 3.7. Advisor share rose from 26.3% to 35.9% of spend after 2026-07-29.</td></tr>
+<tr><td>R2 advisor thinking high → medium</td><td>Not done. The role moved to <code>gpt-6-sol:high</code>.</td><td>n/a</td></tr>
+<tr><td>R3 raise <code>advisor.immuneTurns</code></td><td>Not set</td><td>Voided tool results fell from 184 in August to 12 in September anyway, probably from omp changes [INFERENCE]</td></tr>
+<tr><td>R4 shell rules in <code>RULES.md</code></td><td>Done</td><td>Blocks per 100 main tool calls: 2.8 July, 3.0 August, 2.6 September. No change.</td></tr>
+<tr><td>R5 fix the Python kernel</td><td>Open</td><td>14 failures in September. <code>omp setup python --check</code> prints "✘ Python interpreter reported failure" for the mise shim.</td></tr>
+</table>
+
+<h2 id="omp-better">4. Where you can use omp better</h2>
+
+<div class="item">
+<h3>4.1 Put a ceiling on the advisor <span class="tag bad">largest cost</span></h3>
+<p>The advisor catches real mistakes. In September it told the main agent that a Kubernetes check had hit the wrong cluster, and that a PR it wanted you to approve was already merged:</p>
+<blockquote class="excerpt">#956 is already MERGED, verified via read(pr://956), updated 14:58:45Z. Empty reviewDecision/UNKNOWN mergeState did not mean an outstanding approval blocker.</blockquote>
+<p>The cost comes from a few runaway transcripts. On 2026-08-31 you asked research questions about moving cloudapi-dev to Cloudflare. No code changed. The advisor still made 1,325 globs, 706 reads and 706 greps for 16 notes, which comes to $42.69 per note against the $0.61 average. It read 787 M cached tokens to do it.</p>
+<p>What to do:</p>
+<ul>
+  <li>Run <code>/advisor off</code> for research and Q&amp;A sessions. The Doctrine remit covers code changes, and a Cloudflare cost discussion has none to review.</li>
+  <li>Watch the <code>(adv)</code> figure in the status line. omp 18.2.1 added a primary plus advisor split to the <code>cost</code> segment, and your status line already shows <code>cost</code>. <code>/advisor status</code> gives per-advisor tokens and cost.</li>
+  <li>Pin the advisor to medium effort in <code>WATCHDOG.yaml</code> and cap notes (see <a href="#config">section 7</a>).</li>
+  <li>Take the next omp release. The Unreleased changelog fixes "the advisor replaying the whole main transcript after the main session's per-turn prune" (#13131) and an extra request after advise-only turns (#13132). Both would inflate cache reads like the ones above [INFERENCE: I did not reproduce the replay].</li>
+</ul>
+<div class="verse">"Suppose one of you wants to build a tower. Won't you first sit down and estimate the cost to see if you have enough money to complete it?<cite>Luke 14:28 (NIV)</cite></div>
+</div>
+
+<div class="item">
+<h3>4.2 Use plan mode instead of typing "don't make changes"</h3>
+<p>169 prompts carry a guard like "don't make any changes", "read-only" or "simply answer my question". The rate went from 29 of 1,115 prompts in July (2.6%) to 46 of 805 in August (5.7%) and 93 of 1,153 in September (8.1%). 110 of them are in tofu and its worktrees. You opened <code>/plan</code> 12 times, and omp injected plan-mode context 20 times.</p>
+<blockquote class="excerpt">What do you call it when the cache space runs out? what happesn to the images?
+
+Simply answer my question...... NO CHANGES,</blockquote>
+<blockquote class="excerpt">don't make any more code changes just keep answering my question</blockquote>
+<p>Plan mode enforces what you are typing. omp's plan-mode guard restricts <code>write</code>, and subagents spawned under plan mode get only <code>read</code>, <code>grep</code>, <code>glob</code> and <code>web_search</code>. Toggle it with <code>Alt+Shift+P</code> before a question, and again when you want the change made. For tofu, where most guards happen, consider <code>plan.defaultOnStartup: true</code> in <code>~/didx.projects/tofu/.omp/config.yml</code>. omp only reads project config from the launch directory, so worktrees and <code>sites/*</code> need their own copy.</p>
+<div class="verse">My dear brothers and sisters, take note of this: Everyone should be quick to listen, slow to speak and slow to become angry,<cite>James 1:19 (NIV)</cite></div>
+</div>
+
+<div class="item">
+<h3>4.3 One topic per session</h3>
+<p>38 main sessions stayed open more than a day, and several covered many unrelated topics. The <code>.dotfiles/wow/.wow</code> session from 2026-09-17 ran 77.7 hours and cost $223.29. In that time it covered a Dynacat migration, a calendar, a scratchpad, screen focus, PR attention, notification volume, removing <code>rules-guard</code>, herdr notifications and a feature brainstorm. Every later turn resends everything before it. Chroma's context rot report found that model performance "consistently degrades with increasing input length" across 18 models.</p>
+<p>The cost is more than tokens. On 2026-09-18 you wrote:</p>
+<blockquote class="excerpt">Remove the rules-guard addon from OMP</blockquote>
+<p>The agent read the extension, then your next message on 2026-09-20 was about herdr notifications, and the removal never happened. <code>~/.omp/agent/extensions/rules-guard/</code> is still there today.</p>
+<p>What to do: start a new session with <code>/new</code> when the topic changes. Use <code>/handoff</code> when the new topic needs the old context, since it writes a handoff document and compacts. Keep <code>/btw</code> for side questions. You already use it well, 46 times.</p>
+<div class="verse">There is a time for everything, and a season for every activity under the heavens:<cite>Ecclesiastes 3:1 (NIV)</cite></div>
+</div>
+
+<div class="item">
+<h3>4.4 Write the repeated instructions down once</h3>
+<p>These phrases recur across sessions because nothing holds them between sessions:</p>
+<table>
+<tr><th>Phrase in your prompts</th><th class="n">Prompts</th></tr>
+<tr><td>"against master" / "against main"</td><td class="n">105</td></tr>
+<tr><td>"new branch" / "a branch"</td><td class="n">89</td></tr>
+<tr><td>"PR body"</td><td class="n">78</td></tr>
+<tr><td>"draft PR"</td><td class="n">71</td></tr>
+<tr><td>"worktree"</td><td class="n">63</td></tr>
+<tr><td>unslop requested by name</td><td class="n">38</td></tr>
+<tr><td>PR body must be concise or "the value being added"</td><td class="n">33</td></tr>
+<tr><td>"don't add explanatory comments"</td><td class="n">26</td></tr>
+</table>
+<blockquote class="excerpt">The PR body is too verbose. Simplify it to only the value being added. Use the /skill:unslop skill on the PR body when you are done and keep to what why type st…</blockquote>
+<p>Unslop is imported into your CLAUDE.md, so the agent has the rules. It still doesn't apply them to PR bodies unless you ask. Put the PR house style in one skill (see <a href="#skills">section 6</a>) with a checklist step that runs unslop on the body before <code>gh pr create</code>.</p>
+<div class="verse">Then the Lord replied: "Write down the revelation and make it plain on tablets so that a herald may run with it.<cite>Habakkuk 2:2 (NIV)</cite></div>
+</div>
+
+<div class="item">
+<h3>4.5 Sharpen the tools the agent keeps tripping on</h3>
+<ul>
+  <li><strong>Python eval.</strong> The <code>eval</code> schema offers <code>py</code>, the call fails, and the agent retries in JS. That happened 98 times. <code>omp setup python --check</code> resolves <code>~/.local/share/mise/shims/python</code> and reports failure. Either point <code>python.interpreter</code> at a real interpreter or set <code>eval.py: false</code> so the schema stops offering it.</li>
+  <li><strong>Interceptor blocks.</strong> 987 blocks in total, 302 in September. omp checks every fragment split on <code>;</code>, <code>&amp;&amp;</code>, <code>|</code> and newlines, not only the start of the command. RULES.md tells the agent that grep inside a pipeline is fine. 54 of September's 118 grep blocks were exactly that. The rule text teaches the model something the interceptor punishes.</li>
+  <li><strong>LSP.</strong> 4 <code>lsp</code> calls in 648 transcripts, though mono is Go and you run <code>gofmt</code> 285 times. References and rename through <code>lsp</code> are safer than grep plus edit for Go refactors. Check that <code>gopls</code> is on PATH so omp can start it.</li>
+</ul>
+<div class="verse">If the ax is dull and its edge unsharpened, more strength is needed, but skill will bring success.<cite>Ecclesiastes 10:10 (NIV)</cite></div>
+</div>
+
+<h2 id="patterns">5. Recurring patterns in how you work</h2>
+
+<div class="item">
+<h3>5.1 Questions and instructions arrive in the same breath</h3>
+<p>612 prompts end with a question mark. Some also carry an instruction, and then the agent tends to act on it. You dictate by voice, which you said in a Codex prompt ("I am using voice dictation, never assume and ask if something is not clear"). That adds a second failure mode: mishears like "Mies" for mise, "OMYPI" for omp and "siteal services". 9 prompts open with "I meant", e.g. "I meant dynacat" after "I want attentiond to feed into glance".</p>
+<blockquote class="excerpt">Okay, a theoretical question. How does the minimum release age in renovate affect and work with the minimum release ages of the other package managers like Mies and whatever. I only want the minimum release age of renovate to affect renovate itself.</blockquote>
+<p>The first sentence says question. The last sentence reads like a requirement. The agent went off to research it, and your next prompt was the guard anyway. A one-word lead fixes this: start with "Question:" or "Change:", or flip plan mode first (4.2). For dictation, see the glossary idea in <a href="#ideas">section 8</a>.</p>
+<div class="verse">So it is with you. Unless you speak intelligible words with your tongue, how will anyone know what you are saying? You will just be speaking into the air.<cite>1 Corinthians 14:9 (NIV)</cite></div>
+</div>
+
+<div class="item">
+<h3>5.2 You learn by interrogating the agent</h3>
+<p>This is a strength, and it shows in the data: 105 prompts start with explain, why, how or what; 29 say "help me understand" or "I don't understand"; and you use <code>/btw</code> for side questions. You invoke <code>why</code>, <code>wait-what</code>, <code>research</code>, <code>grill-me</code> and <code>teach</code> by name.</p>
+<blockquote class="excerpt">/skill:wait-what I was getting lazy yesterday and the day was long. explain to me one idea at a time what we were doing</blockquote>
+<blockquote class="excerpt">No further changes, help me understand first: As I understand pr://1018 the eks token was generated by the eks module being invoked.</blockquote>
+<p>The gap is capture. The understanding leaves with the session. <code>foundational-learning-radar</code> exists for this and was loaded 14 times, and <code>~/devan.projects/meta/pkms</code> exists too. Ask for a one-paragraph note at the end of a "help me understand" thread and file it.</p>
+<div class="verse">The beginning of wisdom is this: Get wisdom. Though it cost all you have, get understanding.<cite>Proverbs 4:7 (NIV)</cite></div>
+</div>
+
+<div class="item">
+<h3>5.3 You want a second opinion on everything</h3>
+<p>You built a watchdog advisor and a six-point doctrine for it. You also run Codex's auto-reviewer, ask for code reviews, and mention research in 64 prompts. The advisor raised 1,004 notes in September: 281 blockers, 693 concerns and 30 nits, even though the remit says not to comment on style. Counsel is the right instinct. The adjustment is to choose it per task. Use the advisor on changes to infrastructure and code, and turn it off for conversations and research.</p>
+<div class="verse">Plans fail for lack of counsel, but with many advisers they succeed.<cite>Proverbs 15:22 (NIV)</cite></div>
+</div>
+
+<div class="item">
+<h3>5.4 Skills come and go faster than you track them</h3>
+<p>The agent read <code>skill://pr-diagram</code> 26 times, and you invoked <code>/skill:pr-diagram</code> 21 times, the last on 2026-08-19. On 2026-09-15 you asked "/btw do you have a /pr-diagram skill?" because it was gone from every skill root. <code>teach</code> was invoked twice, both in June, and is also gone. <code>grill-me</code> (12 reads) and <code>pattern-audit</code> sit in <code>~/.dotfiles/claude/skills/</code>, which neither skill root links. The agent rarely loads your 22 production skills on its own. <code>technical-writing</code> and <code>foundational-learning-radar</code> have 14 reads each, and I counted zero for <code>blast-radius</code>, <code>code-review</code>, <code>architect</code> and <code>principle-prove-it-works</code>. Anthropic's Agent Skills write-up describes progressive disclosure, where only the name and description sit in the prompt until the model decides to load the body. If the descriptions don't match how you phrase requests, the bodies never load.</p>
+<div class="verse">Be sure you know the condition of your flocks, give careful attention to your herds;<cite>Proverbs 27:23 (NIV)</cite></div>
+</div>
+
+<div class="item">
+<h3>5.5 Loose ends when you switch mid-task</h3>
+<p>You rarely abandon work outright. Only 16 prompts say "drop this", "never mind" or "scrap it", and you often come back with "let's get back to cloudapi-prod". The loose ends come from switching mid-task without closing the first one. The <code>rules-guard</code> removal is one. Another is the Claude Code memory rules (no Helm in tofu, SG migration defaults, PR conventions) that stayed behind when you moved to omp. I could not confirm that omp loads those memory files; a <code>recall</code> for them from this directory returned nothing. Before switching, ask the agent for one line of state and a TODO. <code>/handoff</code> does that for you.</p>
+<div class="verse">The end of a matter is better than its beginning, and patience is better than pride.<cite>Ecclesiastes 7:8 (NIV)</cite></div>
+</div>
+
+<h2 id="skills">6. Skills</h2>
+<p>Both skill roots (<code>~/.claude/skills/</code> and <code>~/.omp/agent/skills/</code>) link to the same 22 skills in <code>~/.agents/skills/</code>, plus <code>unslop</code> in Claude and <code>usage-audit</code> in both.</p>
+
+<h3>6.1 Start using</h3>
+<table>
+<tr><th>Skill</th><th>Where it fits in your sessions</th></tr>
+<tr><td><code>blast-radius</code></td><td>The tofu state split (32 prompts), module version moves and SG migrations. All are small diffs with distant effects. Zero loads so far.</td></tr>
+<tr><td><code>code-review</code></td><td>You asked for reviews after merging ("I ran the code review after … the branch was merged"). Run it before <code>gh pr create</code> on stacked PRs.</td></tr>
+<tr><td><code>how</code> / <code>why</code></td><td>Your "help me understand" threads. <code>why</code> was invoked once by name. Using the skill gives a structured answer and a record.</td></tr>
+<tr><td><code>to-tickets</code></td><td>You hand the agent <code>issue://100, issue://101, …</code> lists and Linear tickets (49 mentions). Cut the plan into tickets first.</td></tr>
+<tr><td><code>show-your-work</code></td><td>The 38 sessions that run past a day, where you lose track (you reached for <code>wait-what</code> for this).</td></tr>
+</table>
+
+<h3>6.2 Add</h3>
+<table>
+<tr><th>New skill</th><th>What it holds</th><th>Evidence</th></tr>
+<tr><td><code>pr-house-style</code></td><td>Worktree at <code>../&lt;repo&gt;-wt/&lt;branch&gt;</code>, branch off master, draft PR against master, <code>[Site Name]</code> title prefix in tofu, body limited to what and why, no new explanatory code comments, unslop pass on the body, stacked PRs when asked.</td><td>4.4 counts, the tofu PR conventions in Claude memory</td></tr>
+<tr><td>Restore or retire <code>pr-diagram</code> and <code>teach</code></td><td>Bring them back via <code>skill-stage</code>, or put a stub in <code>retired/</code> so the agent stops looking</td><td>26 reads of a missing skill</td></tr>
+<tr><td><code>answer-only</code></td><td>Contract for question turns: no edits, cite files and lines, end with "Want me to change anything?". A fallback for Claude Code and for sessions where plan mode is off.</td><td>169 guards</td></tr>
+<tr><td><code>tofu-state-split</code></td><td>The playbook behind <code>STATE-SPLIT.md</code>: the ordering, moved blocks, plan checks per site</td><td>32 prompts, sessions in cloudapi-dev and cloudapi-prod</td></tr>
+</table>
+
+<h3>6.3 Change</h3>
+<ul>
+  <li><strong>Descriptions of production skills.</strong> Add the phrases you actually use. For <code>how</code>/<code>why</code>, add "help me understand" and "I don't understand". For <code>blast-radius</code>, add "state move", "module upgrade" and "what else uses this".</li>
+  <li><strong><code>~/.claude/skills/README.md</code></strong> still points to <code>.dotfiles/nvim/.omp/agent/bin/skill-stage</code>. Commit <code>cc05c67</code> renamed the stow package to <code>wow</code>.</li>
+  <li><strong><code>foundational-learning-radar</code></strong> is 139 lines and its description starts "Use when working on any software engineering task". That matches everything, so it competes with every other skill. Narrow it to the end of explanation threads.</li>
+  <li><strong><code>technical-writing</code></strong> should say it covers PR bodies and must run unslop. Otherwise fold it into <code>pr-house-style</code>.</li>
+  <li><strong><code>usage-audit</code></strong>: add "Python eval is unavailable, use JS" and the stats.db queries from this report, and have it compare against the previous audit's table in section 3.</li>
+</ul>
+
+<h2 id="config">7. Config changes</h2>
+
+<h3>7.1 <code>~/.omp/agent/WATCHDOG.yaml</code></h3>
+<p>Pin effort and cap notes on the one advisor. The comment in the file already suggests the model line.</p>
+<pre>advisors:
+  - name: Doctrine
+    model: openai-codex/gpt-6-sol:medium
+    maxNotesPerUpdate: 2
+    instructions: |
+      …unchanged…</pre>
+<p>Check a week later: advisor share of spend (43.2% in the last 30 days), lookups per note (4.1 in September), and whether blockers still land.</p>
+
+<h3>7.2 <code>~/.omp/agent/config.yml</code></h3>
+<pre># Stop offering a Python backend that fails preflight (or set python.interpreter to a real path)
+eval:
+  py: false
+
+# Stop probing local model servers on every start (161 warnings; one gemma call ever)
+disabledProviders:
+  - ollama
+  - lm-studio
+  - llama.cpp
+
+# From today's battery audit: "system" adds -s -u, which does nothing on battery except wake the display
+power:
+  sleepPrevention: idle</pre>
+<ul>
+  <li><strong><code>rules-guard</code>.</strong> You asked to remove it on 2026-09-18 and it is still in <code>~/.omp/agent/extensions/</code>. Decide deliberately. It is the only thing that applies your Claude <code>permissions.deny</code> list (<code>.env*</code>, <code>.ssh</code>, <code>.aws</code>, <code>*.pem</code>) to omp's <code>read</code>/<code>write</code>/<code>eval</code> tools. Removing it leaves <code>secrets.enabled</code> redaction and the bash interceptor. <span class="tag warn">security decision</span></li>
+  <li><strong>Advisor quota.</strong> 103 advisor turns hit the ChatGPT Plus limit. Consider a <code>retry.fallbackChains</code> entry for the advisor role to an Anthropic model, so reviews continue when quota runs out. Don't turn on <code>retry.waitForUsageReset</code> for this. It would stall the session for hours.</li>
+  <li><strong>Plan mode for tofu.</strong> <code>plan.defaultOnStartup: true</code> in <code>~/didx.projects/tofu/.omp/config.yml</code> (see 4.2).</li>
+  <li><strong><code>hub</code></strong> is deprecated in 18.3.0 and the agent called it 1,184 times. No config change is needed, but custom skills or prompts that name <code>hub</code> should switch to <code>wait</code> and <code>proc://</code>.</li>
+</ul>
+
+<h3>7.3 <code>~/.omp/agent/RULES.md</code></h3>
+<p>Make the Shell section match how the interceptor actually matches. omp checks the whole command and then every fragment split on <code>;</code>, <code>&amp;&amp;</code>, <code>||</code>, <code>|</code> and newlines.</p>
+<pre>- Never put `grep`, `rg`, `cat`, `head`, `tail` or `find -name` anywhere in a
+  bash command, including after `;`, `&amp;&amp;` or `|`. The interceptor checks
+  every fragment. Use `grep`/`glob`/`read`, or do the filtering in `eval`.</pre>
+<p>The alternative is to loosen the interceptor patterns so they match only the leading command. That depends on how omp applies them to fragments, so I would change the rule text first and measure.</p>
+
+<h3>7.4 <code>~/.claude/settings.json</code></h3>
+<ul>
+  <li>Remove the stray allow entries <code>"Bash(2)"</code> and the two one-off <code>find /Users/devanmcgeer/didx.projects/tofu/sites …</code> rules. They are leftovers from single approvals.</li>
+  <li><code>skipDangerousModePermissionPrompt</code> and <code>skipAutoPermissionPrompt</code> are both true. With 7 Claude Code prompts since July the exposure is small. Now that <code>rules-guard</code> reads this file's deny list, the file matters more to omp than to Claude Code. Keep the deny list current even if you stop using Claude Code.</li>
+  <li>Copy the Claude memory rules that still hold into omp: <code>~/.claude/projects/*/memory/feedback_*.md</code> into each repo's <code>AGENTS.md</code>, or <code>retain</code> them from inside that project so the per-project Mnemopi scope keeps them.</li>
+</ul>
+
+<h2 id="ideas">8. Ideas for ~/.dotfiles/wow</h2>
+<table>
+<tr><th>Idea</th><th>Kind</th><th>Problem from your sessions it solves</th></tr>
+<tr><td><strong>Spend block in Dynacat.</strong> attentiond reads <code>stats.db</code> every few minutes and shows today's main, advisor and subagent cost per live session. It raises <code>needs_attention</code> when an advisor transcript passes a threshold or a lookups-per-note ratio.</td><td>workflow, new attentiond source</td><td>The $683 advisor transcript ran for 8.4 hours and nothing flagged it.</td></tr>
+<tr><td><strong>Quota block.</strong> Show ChatGPT Plus and Claude usage windows from <code>omp usage</code> next to the agents.</td><td>workflow</td><td>103 advisor turns failed on usage limits, and nothing warned you before the limit hit.</td></tr>
+<tr><td><strong>Ask-mode extension.</strong> An omp extension that turns on plan mode for a turn when the prompt starts with "Question:" or ends in "?" with no imperative verb, and shows a badge.</td><td>omp extension, doesn't exist yet</td><td>169 hand-typed guards, rising to 8.1% of prompts.</td></tr>
+<tr><td><strong><code>wt-pr</code> command.</strong> Creates <code>../&lt;repo&gt;-wt/&lt;branch&gt;</code> off master, opens a draft PR against master with the house template, and reports the URL to attentiond.</td><td>tool in <code>~/.wow/bin</code></td><td>105 "against master", 71 "draft PR" and 63 "worktree" prompts.</td></tr>
+<tr><td><strong>Loose-ends source.</strong> attentiond scans the last user turn of each idle omp session for an imperative with no tool call after it, and files it in the Stale block.</td><td>new attentiond source</td><td>"Remove the rules-guard addon from OMP" sat unfinished for 6 days.</td></tr>
+<tr><td><strong>Long-session nudge.</strong> The Herdr block marks sessions open more than 24 hours or with more than 3 topic changes and offers <code>/handoff</code>.</td><td>workflow in Dynacat/attentiond</td><td>38 sessions over a day, one of them 158 hours.</td></tr>
+<tr><td><strong><code>skill-stage stats</code>.</strong> A subcommand that counts <code>skill://</code> reads per skill from transcripts and lists skills that are requested but missing.</td><td>tool, extends <code>skill-stage</code></td><td>26 reads of a deleted <code>pr-diagram</code>, zero reads of four production skills.</td></tr>
+<tr><td><strong>Interceptor contract test.</strong> A test beside <code>rules-guard/index.test.ts</code> that runs the example commands in RULES.md through the interceptor patterns and fails when the text and the patterns disagree.</td><td>test harness</td><td>RULES.md says pipelines are fine, but 46% of September grep blocks were pipelines.</td></tr>
+<tr><td><strong>Dictation glossary.</strong> Feed project nouns (dynacat, attentiond, herdr, mise, omp, tofu, cloudapi) to the dictation model as a hint list, or run a text replacer after STT.</td><td>workflow, omp <code>dictation</code> role</td><td>"Mies", "OMYPI" and "siteal" mishears, and 9 "I meant" corrections.</td></tr>
+<tr><td><strong>Weekly usage digest.</strong> A scheduled headless <code>omp -p</code> run of <code>usage-audit</code> in short mode that writes a one-page Markdown file to <code>.omp/audits/</code> and diffs it against last week.</td><td>agent, scheduled</td><td>July's recommendations were never re-measured until today, and two of them didn't move their numbers.</td></tr>
+<tr><td><strong>Stacked PR tool.</strong> <a href="https://graphite.dev">Graphite</a> or another stacked-diff CLI in place of hand-built stacks.</td><td>existing SaaS/CLI, not evaluated</td><td>31 prompts about stacked PRs, including "stack merge was automatically disabled … which I don't understand".</td></tr>
+</table>
+
+<h2 id="refs">9. Sources</h2>
+<ul>
+  <li>omp repository: <a href="https://github.com/can1357/oh-my-pi">github.com/can1357/oh-my-pi</a>. Changelog: <a href="https://github.com/can1357/oh-my-pi/blob/main/packages/coding-agent/CHANGELOG.md">packages/coding-agent/CHANGELOG.md</a>. The entries I cite: 18.3.0 (<code>hub</code> deprecated, <code>/annotate</code>, <code>omp://</code> doc search), 18.2.1 (advisor cost in the status line), 18.1.15 (<code>advisor.maxNotesPerUpdate</code>, <code>retry.waitForUsageReset</code>, <code>browser.idleCloseSec</code>), Unreleased (#13129, #13130, #13131, #13132 advisor fixes).</li>
+  <li>omp docs: <a href="https://github.com/can1357/oh-my-pi/blob/main/docs/advisor-watchdog.md">advisor-watchdog.md</a>, <a href="https://github.com/can1357/oh-my-pi/blob/main/docs/settings.md">settings.md</a>, <a href="https://github.com/can1357/oh-my-pi/blob/main/docs/approval-mode.md">approval-mode.md</a>, <a href="https://github.com/can1357/oh-my-pi/blob/main/docs/python-repl.md">python-repl.md</a>, <a href="https://github.com/can1357/oh-my-pi/blob/main/docs/skills.md">skills.md</a>, <a href="https://github.com/can1357/oh-my-pi/blob/main/docs/lsp-config.md">lsp-config.md</a>, <a href="https://github.com/can1357/oh-my-pi/blob/main/docs/compaction.md">compaction.md</a>, <a href="https://github.com/can1357/oh-my-pi/blob/main/docs/magic-keywords.md">magic-keywords.md</a>. The interceptor fragment matching is described in the embedded <code>omp://bash-tool-runtime.md</code>.</li>
+  <li>Hong, Troynikov, Huber, <a href="https://www.trychroma.com/research/context-rot">Context Rot: How Increasing Input Tokens Impacts LLM Performance</a>, Chroma, 2025-07-14.</li>
+  <li>Anthropic, <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Effective context engineering for AI agents</a>, 2025-09-29. Compaction, structured notes and sub-agents for long tasks.</li>
+  <li>Anthropic, <a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills">Equipping agents for the real world with Agent Skills</a>, 2025-10-16. Progressive disclosure of skill bodies.</li>
+  <li>METR, <a href="https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/">Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity</a>, 2025-07-10. Developers were 19% slower with AI while believing they were 20% faster. METR has since published newer data. I cite this one for the perception gap, not the effect size.</li>
+  <li>GitHub, <a href="https://github.blog/ai-and-ml/generative-ai/agent-pull-requests-are-everywhere-heres-how-to-review-them/">Agent pull requests are everywhere. Here's how to review them.</a>, 2026-05-07.</li>
+  <li>Bible verses (NIV) checked on Bible Gateway: <a href="https://www.biblegateway.com/passage/?search=Luke%2014%3A28%3BHabakkuk%202%3A2%3BEcclesiastes%2010%3A10%3BProverbs%2027%3A23&amp;version=NIV">Luke 14:28, Habakkuk 2:2, Ecclesiastes 10:10, Proverbs 27:23</a>; <a href="https://www.biblegateway.com/passage/?search=James%201%3A19%3B1%20Corinthians%2014%3A9%3BProverbs%204%3A7&amp;version=NIV">James 1:19, 1 Corinthians 14:9, Proverbs 4:7</a>; <a href="https://www.biblegateway.com/passage/?search=Ecclesiastes%203%3A1%3BEcclesiastes%207%3A8%3BProverbs%2015%3A22&amp;version=NIV">Ecclesiastes 3:1, Ecclesiastes 7:8, Proverbs 15:22</a>.</li>
+  <li>Related local reports: <code>2026-09-24-omp-idle-battery-audit.md</code>, <code>agent-usage-audit-2026-07-29.html</code>.</li>
+</ul>
+
+<h2 id="method">10. Method</h2>
+<ul>
+  <li>Costs, tokens, models and tool counts come from <code>stats.db</code> aggregates. Session counts come from top-level transcript files. The stats table also counts advisor and subagent files as sessions, so its <code>count(distinct session_file)</code> is higher.</li>
+  <li>I classified prompts with regexes over all 3,189 unique prompts in <code>history.db</code>. Duplicated prompts are stored once, so frequency counts for things like <code>/quit</code> run low. The patterns are in the audit transcript. Counts are approximate to within a few prompts.</li>
+  <li>"Blocks per 100 tool calls" divides <code>Blocked:</code> tool results in main and subagent transcripts by main-agent tool calls for the month. The July audit used a different window and counted only tool-preference blocks, so compare the trend, not its 1.2.</li>
+  <li>I read transcript excerpts from four sessions: didx-org 2026-08-31, wow 2026-09-17, attentiond 2026-09-12 and the tofu worktree 2026-09-22. The other quotes come from <code>history.db</code> prompts and advisor notes. The quotes are verbatim. None contained secrets. I left out a calendar URL and personal Codex topics.</li>
+  <li>The first version of this report said <code>teach</code> was used on 2026-09-23 and <code>pr-diagram</code> on 2026-09-15. Both came from word matches in <code>history.db</code>. I corrected them from the <code>skill-prompt</code> entries in the transcripts.</li>
+</ul>
+
+<h2 id="applied">11. Changes applied on 2026-09-24</h2>
+<p>You kept <code>rules-guard</code>. Everything else in sections 6.2, 6.3 and 7 was applied. Re-measure these in the next audit.</p>
+<table>
+<tr><th>Change</th><th>Where</th><th>Checked by</th></tr>
+<tr><td>New <code>pr-house-style</code> and <code>answer-only</code>, personal, production</td><td><code>~/.agents/skills/personal/</code></td><td>A print-mode session lists both in its skill index</td></tr>
+<tr><td>New <code>tofu-state-split</code>, personal, testing (hidden, <code>/skill:tofu-state-split</code>)</td><td><code>~/.agents/skills/personal/testing/</code></td><td>Absent from the index, as intended for testing</td></tr>
+<tr><td><code>pr-diagram</code> restored from its 2026-08-19 invocation</td><td><code>~/.agents/skills/personal/pr-diagram/</code></td><td>Listed in the index</td></tr>
+<tr><td><code>teach</code> retired with the last copy it had</td><td><code>~/.agents/skills/retired/teach/</code></td><td><code>skill-stage list</code></td></tr>
+<tr><td>Trigger phrases added to <code>how</code>, <code>why</code>, <code>blast-radius</code>. <code>foundational-learning-radar</code> narrowed to explanation threads. <code>technical-writing</code> covers PR bodies. <code>usage-audit</code> gained method notes. README paths fixed.</td><td>skills and <code>~/.claude/skills/README.md</code></td><td>omp compresses descriptions to 12 words; compression failed once for <code>blast-radius</code></td></tr>
+<tr><td>Advisor pinned to <code>openai-codex/gpt-6-sol:medium</code>, <code>maxNotesPerUpdate: 2</code></td><td><code>WATCHDOG.yaml</code></td><td>Advisor transcript <code>__advisor.doctrine.jsonl</code> ran gpt-6-sol. The effort level is not recorded in the transcript.</td></tr>
+<tr><td><code>eval.py: false</code>, <code>disabledProviders</code> for ollama, lm-studio and llama.cpp, <code>power.sleepPrevention: idle</code>, advisor fallback to <code>anthropic/claude-sonnet-5:medium</code></td><td><code>config.yml</code></td><td><code>omp config get</code>. The print session offered only <code>js</code> to eval and logged no discovery warnings.</td></tr>
+<tr><td><code>plan.defaultOnStartup: true</code>, excluded from git</td><td><code>~/didx.projects/tofu/.omp/config.yml</code>, <code>.git/info/exclude</code></td><td><code>omp config get</code> from the tofu root; <code>git check-ignore</code></td></tr>
+<tr><td>Shell section states the fragment matching</td><td><code>RULES.md</code></td><td>Read back</td></tr>
+<tr><td>Removed <code>Bash(2)</code> and two one-off <code>find</code> allows</td><td><code>~/.claude/settings.json</code></td><td><code>jq</code> parses it</td></tr>
+<tr><td>Claude memory ported as rulebook rules: <code>tofu-conventions</code>, <code>mono-ci-secrets</code>, <code>service-naming</code>. PR and jj rules went into <code>pr-house-style</code>. I skipped the old "never commit or push" rules, because your omp sessions commit and push on request.</td><td><code>~/.omp/agent/rules/</code></td><td>Listed in the print session's domain rules</td></tr>
+</table>
+
+</main>
+</body>
+</html>

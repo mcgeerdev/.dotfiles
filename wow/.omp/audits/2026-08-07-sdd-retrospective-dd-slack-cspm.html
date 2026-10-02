@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SDD Retrospective &mdash; Datadog CSM findings to Slack (dd-slack-cspm)</title>
+<style>
+:root{
+  --bg:#0f1216; --panel:#161b22; --panel2:#1c232c; --line:#2a3340;
+  --ink:#e6edf3; --dim:#9aa7b4; --faint:#6b7885;
+  --acc:#4cc2ff; --good:#3fb950; --warn:#d29922; --bad:#f85149; --mid:#a371f7;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.62 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;}
+.wrap{max-width:1180px;margin:0 auto;padding:38px 26px 90px}
+header.top{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+h1{font-size:30px;line-height:1.2;margin:0 0 10px;letter-spacing:-.4px}
+.sub{color:var(--dim);font-size:15px;max-width:80ch}
+.meta{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px}
+.tag{font:12px/1 var(--mono);background:var(--panel2);border:1px solid var(--line);
+  color:var(--dim);padding:6px 9px;border-radius:5px}
+h2{font-size:21px;margin:52px 0 6px;padding-top:10px;letter-spacing:-.2px}
+h2 .n{color:var(--faint);font:13px/1 var(--mono);margin-right:9px}
+h3{font-size:16px;margin:28px 0 8px;color:var(--ink)}
+h4{font-size:14px;margin:20px 0 6px;color:var(--dim);text-transform:uppercase;letter-spacing:.7px}
+p{margin:10px 0}
+a{color:var(--acc)}
+code{font:13px/1.5 var(--mono);background:var(--panel2);border:1px solid var(--line);
+  padding:1px 5px;border-radius:4px;color:#c9d7e4}
+ul,ol{margin:10px 0 10px 22px;padding:0}
+li{margin:6px 0}
+.lede{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--acc);
+  border-radius:7px;padding:18px 22px;margin:18px 0}
+.lede ul{margin:0 0 0 20px}
+.lede li{margin:9px 0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:20px 22px;margin:18px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+th{text-align:left;background:var(--panel2);color:var(--dim);font-weight:600;
+  font-size:12px;text-transform:uppercase;letter-spacing:.6px;padding:9px 11px;border-bottom:1px solid var(--line)}
+td{padding:10px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#1a212a}
+.num{font:13px/1.5 var(--mono);white-space:nowrap}
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}
+@media(max-width:900px){.kpi{grid-template-columns:repeat(2,1fr)}}
+.kpi div{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:15px}
+.kpi .v{font:24px/1.1 var(--mono);color:var(--acc)}
+.kpi .v.bad{color:var(--bad)} .kpi .v.warn{color:var(--warn)} .kpi .v.good{color:var(--good)}
+.kpi .k{color:var(--dim);font-size:12px;margin-top:7px;line-height:1.45}
+.b{display:inline-block;font:11px/1 var(--mono);padding:4px 7px;border-radius:4px;
+  border:1px solid var(--line);background:var(--panel2);color:var(--dim);white-space:nowrap}
+.b.obs{color:#7ee787;border-color:#255d2c}
+.b.inf{color:#e3b341;border-color:#6b5416}
+.b.bad{color:#ff9d95;border-color:#7a2820}
+.b.good{color:#7ee787;border-color:#255d2c}
+figure{margin:22px 0;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px}
+figcaption{color:var(--dim);font-size:12.5px;margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+svg{display:block;width:100%;height:auto}
+blockquote{margin:12px 0;padding:11px 16px;border-left:3px solid var(--mid);
+  background:var(--panel2);border-radius:0 6px 6px 0;color:#cfd9e3;font-size:14px}
+blockquote .src{display:block;margin-top:7px;color:var(--faint);font:11.5px/1.4 var(--mono)}
+.toc{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 20px;margin:22px 0}
+.toc ol{margin:6px 0 0 20px;columns:2;column-gap:34px}
+@media(max-width:760px){.toc ol{columns:1}}
+.toc a{text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.foot{margin-top:60px;border-top:1px solid var(--line);padding-top:18px;color:var(--faint);font-size:12.5px}
+.q{font-weight:600;color:var(--ink)}
+.ans{margin:4px 0 16px}
+hr{border:none;border-top:1px solid var(--line);margin:26px 0}
+
+.kpi .k .num{white-space:normal;word-break:break-word;display:inline-block}
+.kpi div{overflow-wrap:anywhere}
+td .num{white-space:normal}
+details{background:var(--panel);border:1px solid var(--line);border-radius:7px;margin:10px 0;padding:0}
+details[open]{padding-bottom:14px}
+summary{cursor:pointer;padding:12px 16px;font-weight:600;font-size:14.5px;color:var(--ink);list-style:none;display:flex;gap:10px;align-items:baseline}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"\25B8";color:var(--acc);font-size:12px;flex:0 0 auto}
+details[open] summary::before{content:"\25BE"}
+summary:hover{background:var(--panel2)}
+details > *:not(summary){margin-left:16px;margin-right:16px}
+details table{width:calc(100% - 0px)}
+.readpath{background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--good);
+  border-radius:6px;padding:13px 17px;margin:18px 0;font-size:14px;color:#cfd9e3}
+
+pre{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:14px;
+  overflow-x:auto;font:12.5px/1.7 var(--mono);color:#c9d7e4;margin:12px 0}
+@media(max-width:1000px){.grid-rescue{grid-template-columns:1fr !important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+<h1>Retrospective &mdash; Datadog CSM critical/high findings to Slack</h1>
+<p class="sub">Why a specification budgeted at four hours took three calendar days, what should have been cut, and a four-hour workflow built from GitHub Spec Kit's existing stages. Evidence: the original grill-me transcript, three later agent sessions, the Codex advisory thread, the artifacts and Git state. Nothing was modified.</p>
+<div class="meta">
+<span class="tag">dd-slack-cspm</span><span class="tag">didx-xyz/tofu @ 1006b56</span>
+<span class="tag">2026-08-04 &rarr; 2026-08-07</span><span class="tag">times UTC (local = UTC+2)</span>
+</div>
+</header>
+
+<div class="readpath">
+<strong>How to read this in 15 minutes.</strong> The eleven numbered sections are the report &mdash; about 3,000 words. Every collapsed <em>Evidence</em> block is supporting detail: transcript quotes, counts and per-question answers. Open only what you want to challenge.
+</div>
+
+<div class="toc">
+<strong>Contents</strong>
+<ol>
+<li><a href="#s1">Executive verdict</a></li><li><a href="#s2">Reconstructed timeline</a></li>
+<li><a href="#s3">Friction table</a></li><li><a href="#s4">What you could have done differently</a></li>
+<li><a href="#s5">What the agent or workflow should have done</a></li><li><a href="#s6">Unavoidable work</a></li>
+<li><a href="#s7">Earliest sensible release boundary</a></li><li><a href="#s8">Four-hour workflow with budgets</a></li>
+<li><a href="#s9">Implementing it with Spec Kit</a></li><li><a href="#s10">Immediate rescue plan</a></li>
+<li><a href="#s11">Five metrics</a></li>
+</ol>
+</div>
+
+<h2 id="s1"><span class="n">01</span>Executive verdict</h2>
+<div class="lede">
+<ul>
+<li><strong>No release boundary was ever approved, so questioning had nothing to stop against.</strong> Scope widened five times and narrowed four, all after deep interviewing began. The four-hour expectation was first stated 71 hours in, in a different tool, and was never given to any executing agent.</li>
+<li><strong>The specification became the research report.</strong> 35% of <code>spec.md</code> is codebase and provider grounding; 23% is decision archaeology. Binding requirements are 9.6%. Reviewing 951 lines to approve 40 rows is the elapsed time.</li>
+<li><strong>One review message with 36 numbered items forced 19 hours of serialised clarification.</strong> Your next words were &ldquo;too many references and I can&rsquo;t keep track&rdquo;. Spec Kit caps clarification at five questions for exactly this reason.</li>
+<li><strong>The security discovery was necessary and must be kept.</strong> No validation on <code>query</code> or <code>rule_types</code>, <code>account_name</code> ForceNew and unreadable, a dead Slack handle already live in the org, email removal destroying the only proven path &mdash; all real, all invisible when they fail. The fault is <em>where and when</em> it was written, not that it was found.</li>
+<li><strong>A shippable slice existed on day one and is still unshipped.</strong> Importing the existing rule and pointing it at Slack delivers the <em>visibility</em> half of the request &mdash; the outcome the brief recorded in &sect;2. It does not deliver the actionability the request also asked for, and that narrowing was never explicitly approved. The branch is 0 commits ahead of <code>origin/master</code>, 2 behind, tree clean.</li>
+</ul>
+</div>
+
+<div class="kpi">
+<div><div class="v bad">70.4 h</div><div class="k">elapsed, request to final spec write</div></div>
+<div><div class="v warn">~9.6 h</div><div class="k">attended working time, all stages</div></div>
+<div><div class="v bad">9.6%</div><div class="k">of spec.md is binding requirements (91 / 951 lines)</div></div>
+<div><div class="v bad">0</div><div class="k">commits of implementation, 70 h in</div></div>
+</div>
+
+<h2 id="s2"><span class="n">02</span>Reconstructed timeline</h2>
+<figure><svg viewBox="0 0 1080 370" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,Menlo,monospace">
+<rect width="100%" height="100%" fill="#161b22"/>
+<line x1="190" y1="40" x2="190" y2="298" stroke="#2a3340"/>
+<text x="195" y="32" fill="#9aa7b4" font-size="12">Aug 4</text>
+<line x1="345" y1="40" x2="345" y2="298" stroke="#2a3340"/>
+<text x="350" y="32" fill="#9aa7b4" font-size="12">Aug 5</text>
+<line x1="632" y1="40" x2="632" y2="298" stroke="#2a3340"/>
+<text x="637" y="32" fill="#9aa7b4" font-size="12">Aug 6</text>
+<line x1="919" y1="40" x2="919" y2="298" stroke="#2a3340"/>
+<text x="924" y="32" fill="#9aa7b4" font-size="12">Aug 7</text>
+<line x1="274" y1="40" x2="274" y2="298" stroke="#202834" stroke-dasharray="2 4"/>
+<line x1="417" y1="40" x2="417" y2="298" stroke="#202834" stroke-dasharray="2 4"/>
+<line x1="560" y1="40" x2="560" y2="298" stroke="#202834" stroke-dasharray="2 4"/>
+<line x1="704" y1="40" x2="704" y2="298" stroke="#202834" stroke-dasharray="2 4"/>
+<line x1="847" y1="40" x2="847" y2="298" stroke="#202834" stroke-dasharray="2 4"/>
+<line x1="990" y1="40" x2="990" y2="298" stroke="#202834" stroke-dasharray="2 4"/>
+<text x="14" y="65" fill="#e6edf3" font-size="12.5">Grill-me interview</text>
+<rect x="194" y="52" width="46" height="18" rx="3" fill="#4cc2ff" opacity="0.20"/>
+<rect x="192" y="54" width="6.2" height="14" rx="2" fill="#4cc2ff" opacity="0.95"/>
+<rect x="213" y="54" width="19.3" height="14" rx="2" fill="#4cc2ff" opacity="0.95"/>
+<rect x="239" y="54" width="3.0" height="14" rx="2" fill="#4cc2ff" opacity="0.95"/>
+<text x="14" y="98" fill="#e6edf3" font-size="12.5">Decision brief</text>
+<rect x="428" y="85" width="9" height="18" rx="3" fill="#3fb950" opacity="0.20"/>
+<rect x="428" y="87" width="3.0" height="14" rx="2" fill="#3fb950" opacity="0.95"/>
+<rect x="435" y="87" width="3.0" height="14" rx="2" fill="#3fb950" opacity="0.95"/>
+<text x="14" y="131" fill="#e6edf3" font-size="12.5">Prerequisite 4.x (parallel)</text>
+<rect x="450" y="118" width="277" height="18" rx="3" fill="#6b7885" opacity="0.20"/>
+<text x="14" y="164" fill="#e6edf3" font-size="12.5">Spec generated</text>
+<rect x="789" y="151" width="3" height="18" rx="3" fill="#a371f7" opacity="0.20"/>
+<rect x="789" y="153" width="3.0" height="14" rx="2" fill="#a371f7" opacity="0.95"/>
+<text x="14" y="197" fill="#e6edf3" font-size="12.5">Spec review + clarify</text>
+<rect x="796" y="184" width="222" height="18" rx="3" fill="#d29922" opacity="0.20"/>
+<rect x="796" y="186" width="15.3" height="14" rx="2" fill="#d29922" opacity="0.95"/>
+<rect x="844" y="186" width="11.5" height="14" rx="2" fill="#d29922" opacity="0.95"/>
+<rect x="1000" y="186" width="18.3" height="14" rx="2" fill="#d29922" opacity="0.95"/>
+<text x="14" y="230" fill="#e6edf3" font-size="12.5">Plan + spec amendment</text>
+<rect x="1018" y="217" width="23" height="18" rx="3" fill="#f85149" opacity="0.20"/>
+<rect x="1018" y="219" width="22.9" height="14" rx="2" fill="#f85149" opacity="0.95"/>
+<text x="14" y="263" fill="#e6edf3" font-size="12.5">Tasks + PR questions</text>
+<rect x="1041" y="250" width="7" height="18" rx="3" fill="#4cc2ff" opacity="0.20"/>
+<rect x="1041" y="252" width="6.6" height="14" rx="2" fill="#4cc2ff" opacity="0.95"/>
+<text x="14" y="302" fill="#3fb950" font-size="12.5">4h budget</text>
+<rect x="194" y="289" width="48" height="18" rx="3" fill="#3fb950" opacity="0.30" stroke="#3fb950"/>
+<text x="251" y="302" fill="#3fb950" font-size="11.5">intended spec-approved point</text>
+<line x1="1035" y1="44" x2="1035" y2="313" stroke="#f85149" stroke-width="2"/>
+<circle cx="1035" cy="44" r="4" fill="#f85149"/>
+<text x="1050" y="329" fill="#f85149" font-size="11.5" text-anchor="end">spec final write 08-07 09:44Z &#8212; 70.4 h after the request</text>
+<line x1="14" y1="340" x2="1050" y2="340" stroke="#2a3340"/>
+<text x="14" y="358" fill="#6b7885" font-size="11.5">Solid = attended working blocks (agent + human active). Pale = elapsed span. All times UTC; local SAST = UTC+2.</text>
+</svg>
+<figcaption>Attended blocks total ~9.6 hours against 70.4 hours elapsed. The gap is not idleness &mdash; it is three overnight breaks inside one unfinished review, which is what an unbounded document buys.</figcaption>
+</figure>
+
+<table>
+<thead><tr><th>Stage</th><th>Window (UTC)</th><th class="num">Elapsed</th><th class="num">Attended</th><th>Output</th></tr></thead>
+<tbody>
+<tr><td><strong>1. Problem statement</strong></td><td class="num">08-04 11:19</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td>381 characters, via <code>/grill-me</code></td></tr>
+<tr><td><strong>2. Grill-me interview</strong></td><td class="num">08-04 11:19 &rarr; 15:09</td><td class="num">3.8 h</td><td class="num">2.2 h</td><td>Q1&ndash;Q8, two false closeouts, two retractions</td></tr>
+<tr><td><strong>3. Decision brief</strong></td><td class="num">08-05 06:55 &rarr; 07:42</td><td class="num">0.8 h</td><td class="num">0.25 h</td><td>D1&ndash;D11, A1&ndash;A5, R1&ndash;R10, 7 open decisions</td></tr>
+<tr><td style="color:#9aa7b4"><em>prerequisite, parallel</em></td><td class="num">08-05 08:45 &rarr; 08-06 07:54</td><td class="num">23 h</td><td class="num">&mdash;</td><td>provider 4.x, merged <code>fd59330</code> (#821)</td></tr>
+<tr><td><strong>4. Spec generated</strong></td><td class="num">08-06 13:09 &rarr; 13:24</td><td class="num">0.25 h</td><td class="num">0.25 h</td><td>The fastest stage in the whole process</td></tr>
+<tr><td><strong>5. Review + clarification</strong></td><td class="num">08-06 13:43 &rarr; 08-07 08:19</td><td class="num" style="color:#f85149">18.6 h</td><td class="num">4.2 h</td><td>36-item review; RD1&ndash;RD22; a third document written then abandoned</td></tr>
+<tr><td><strong>6. Amendments</strong></td><td class="num">08-07 08:19 &rarr; 10:14</td><td class="num">1.9 h</td><td class="num">1.9 h</td><td><code>plan.md</code>; closed gate reopened for RD23</td></tr>
+<tr><td><strong>7. Tasks + readiness</strong></td><td class="num">08-07 10:14 &rarr; 10:47</td><td class="num">0.6 h</td><td class="num">0.6 h</td><td><code>tasks.md</code>, 23 tasks, 7 gates</td></tr>
+</tbody>
+</table>
+
+<figure><svg viewBox="0 0 1080 400" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,Helvetica,sans-serif">
+<rect width="100%" height="100%" fill="#161b22"/>
+<line x1="150" y1="26" x2="150" y2="378" stroke="#2a3340" stroke-width="2"/>
+<text x="8" y="46" fill="#6b7885" font-size="11" font-family="ui-monospace,Menlo,monospace">08-04 11:19</text>
+<circle cx="150" cy="42" r="6" fill="none" stroke="#4cc2ff" stroke-width="2"/>
+<text x="172" y="41" fill="#e6edf3" font-size="13" font-weight="600">Request as written</text>
+<text x="172" y="56" fill="#9aa7b4" font-size="11.5">vulnerability scanning, critical+high, Slack + playbooks, new SRE can spot and address</text>
+<text x="8" y="83" fill="#6b7885" font-size="11" font-family="ui-monospace,Menlo,monospace">08-04 11:40</text>
+<polygon points="150,73 162,79 150,85" fill="#d29922"/>
+<circle cx="150" cy="79" r="5" fill="#d29922"/>
+<text x="172" y="78" fill="#e6edf3" font-size="13" font-weight="600">CSPM → all of CSM</text>
+<text x="172" y="93" fill="#9aa7b4" font-size="11.5">agent re-grounds: "CSM is not one signal source"; 5 rule types → CSM umbrella</text>
+<text x="8" y="120" fill="#6b7885" font-size="11" font-family="ui-monospace,Menlo,monospace">08-04 13:28</text>
+<circle cx="150" cy="116" r="5" fill="#3fb950"/>
+<text x="172" y="115" fill="#e6edf3" font-size="13" font-weight="600">playbooks proved impossible</text>
+<text x="172" y="130" fill="#9aa7b4" font-size="11.5">notification rules have no message field; nowhere to put a link</text>
+<text x="8" y="157" fill="#6b7885" font-size="11" font-family="ui-monospace,Menlo,monospace">08-04 13:39</text>
+<circle cx="150" cy="153" r="5" fill="#3fb950"/>
+<text x="172" y="152" fill="#e6edf3" font-size="13" font-weight="600">playbook dropped (D5)</text>
+<text x="172" y="167" fill="#9aa7b4" font-size="11.5">storage decision (wiki vs Obsidian) deferred to an SRE call</text>
+<text x="8" y="194" fill="#6b7885" font-size="11" font-family="ui-monospace,Menlo,monospace">08-04 14:26</text>
+<polygon points="150,184 162,190 150,196" fill="#d29922"/>
+<circle cx="150" cy="190" r="5" fill="#d29922"/>
+<text x="172" y="189" fill="#e6edf3" font-size="13" font-weight="600">Cases / tickets discovered</text>
+<text x="172" y="204" fill="#9aa7b4" font-size="11.5">SECURITY case project + ticket/due-date/mute rules enter the design space</text>
+<text x="8" y="231" fill="#6b7885" font-size="11" font-family="ui-monospace,Menlo,monospace">08-04 15:05</text>
+<circle cx="150" cy="227" r="5" fill="#3fb950"/>
+<text x="172" y="226" fill="#e6edf3" font-size="13" font-weight="600">split into Phase 1 / Phase 2</text>
+<text x="172" y="241" fill="#9aa7b4" font-size="11.5">cases + tickets pushed to a second branch</text>
+<text x="8" y="268" fill="#6b7885" font-size="11" font-family="ui-monospace,Menlo,monospace">08-04 15:08</text>
+<polygon points="150,258 162,264 150,270" fill="#d29922"/>
+<circle cx="150" cy="264" r="5" fill="#d29922"/>
+<text x="172" y="263" fill="#e6edf3" font-size="13" font-weight="600">ordering inverted</text>
+<text x="172" y="278" fill="#9aa7b4" font-size="11.5">provider 4.x sequenced FIRST → becomes a blocking prerequisite (D10)</text>
+<text x="8" y="305" fill="#6b7885" font-size="11" font-family="ui-monospace,Menlo,monospace">08-06 ~14:00</text>
+<polygon points="150,295 162,301 150,307" fill="#d29922"/>
+<circle cx="150" cy="301" r="5" fill="#d29922"/>
+<text x="172" y="300" fill="#e6edf3" font-size="13" font-weight="600">7 rule types → 12 (RD4)</text>
+<text x="172" y="315" fill="#9aa7b4" font-size="11.5">exhaustive findings-valid partition; under-inclusion fails silently</text>
+<text x="8" y="342" fill="#6b7885" font-size="11" font-family="ui-monospace,Menlo,monospace">08-06 ~18:00</text>
+<circle cx="150" cy="338" r="5" fill="#3fb950"/>
+<text x="172" y="337" fill="#e6edf3" font-size="13" font-weight="600">dev filter deferred (RD3)</text>
+<text x="172" y="352" fill="#9aa7b4" font-size="11.5">D8 removed from v1; becomes its own gated change</text>
+<text x="8" y="379" fill="#6b7885" font-size="11" font-family="ui-monospace,Menlo,monospace">08-07 09:44</text>
+<polygon points="150,369 162,375 150,381" fill="#d29922"/>
+<circle cx="150" cy="375" r="5" fill="#d29922"/>
+<text x="172" y="374" fill="#e6edf3" font-size="13" font-weight="600">destroy=false added (RD23)</text>
+<text x="172" y="389" fill="#9aa7b4" font-size="11.5">closed review gate reopened during planning to guard the imported rule</text>
+<g transform="translate(700,352)">
+<circle cx="0" cy="0" r="5" fill="#d29922"/><polygon points="0,-6 12,0 0,6" fill="#d29922"/><text x="20" y="4" fill="#9aa7b4" font-size="11.5">scope widened</text>
+<circle cx="150" cy="0" r="5" fill="#3fb950"/><text x="162" y="4" fill="#9aa7b4" font-size="11.5">scope narrowed</text>
+</g>
+</svg>
+<figcaption>Five widenings, four narrowings, none gated. The directory is still named <code>dd-slack-cspm</code> though scope became all of CSM on day one at 11:40Z.</figcaption>
+</figure>
+
+<details>
+<summary>Evidence &mdash; artifact sizes, duplicate copies, session identifiers</summary>
+<table>
+<thead><tr><th>Artifact</th><th class="num">Lines</th><th class="num">Words</th><th>Created</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td><code>decision-brief.md</code></td><td class="num">233</td><td class="num">2,394</td><td class="num">08-05 07:42Z</td><td>Frozen 08-04 record + &sect;13 amendments</td></tr>
+<tr><td><code>spec/spec.md</code></td><td class="num">951</td><td class="num">14,708</td><td class="num">08-06 13:24Z</td><td>Source of truth only from 08-07 07:58Z (RD20)</td></tr>
+<tr><td><code>spec/spec-review.md</code></td><td class="num">597</td><td class="num">6,062</td><td class="num">08-07 07:44Z</td><td>Written and abandoned the same day</td></tr>
+<tr><td><code>spec/plan.md</code></td><td class="num">693</td><td class="num">8,817</td><td class="num">08-07 08:35Z</td><td>Approved 08-07 10:14Z</td></tr>
+<tr><td><code>spec/tasks.md</code></td><td class="num">1,675</td><td class="num">13,153</td><td class="num">08-07 10:22Z</td><td>23 tasks, 7 gates</td></tr>
+</tbody>
+</table>
+<p>Every file exists twice &mdash; <code>tofu-wt/dd-slack-cspm/.sdd/</code> and <code>didx-sdd/tofu/dd-slack-cspm/</code>. All five pairs are byte-identical, kept so by three manual syncs. <code>didx-sdd</code> is <strong>not a Git repository</strong>, so the copy declared authoritative has no history. <span class="b obs">observed</span></p>
+<p><strong>Sessions.</strong> Grill-me <code>019fcc76&hellip;</code> (08-04 11:09Z &rarr; 08-05 08:43Z; 320 events, 7 user turns, 42 assistant messages). Spec <code>019fd72a&hellip;</code> (08-06 13:02Z &rarr; 08-07 08:19Z; 1,076 events, 22 user turns, 26 advisor interventions, 14 at blocker severity). Plan/tasks <code>019fdb4d&hellip;</code> (08-07 08:18Z &rarr; 10:47Z; 11 user turns). Codex advisory <code>019fd0d2&hellip;</code> (08-05 &rarr; 08-07) plus five single-question Codex threads. Attended time clusters event timestamps with a 25-minute idle threshold.</p>
+</details>
+
+<h2 id="s3"><span class="n">03</span>Friction table</h2>
+<table>
+<thead><tr><th style="width:30%">Observed evidence</th><th style="width:21%">Cost or delay</th><th style="width:23%">Root cause</th><th style="width:26%">Recommended change</th></tr></thead>
+<tbody><tr><td>No boundary was written or approved. The request went straight into <code>/grill-me</code>; the first design question came 68 minutes later, after the agent had already re-scoped to all of CSM.</td><td>Every later question had unbounded standing. 5 widenings, 4 narrowings over 3 days.</td><td>Missing gate between <em>what ships first</em> and <em>how it works</em>.</td><td>A one-page slice statement, human-approved, before any interviewing.</td></tr>
+<tr><td>The review returned 36 numbered items in one 21,829-character message: 8 blocking, 19 non-blocking, 9 corrections.</td><td>18.6 h elapsed / 4.2 h attended to clear, one item per turn.</td><td>The review prompt asked for ten defect classes at once, including &ldquo;missing observability, rollout or rollback requirements&rdquo; &mdash; inviting <em>new</em> requirements into a scope review.</td><td>Cap at five questions, one at a time, each with a recommended answer. The rest &rarr; a Deferred list.</td></tr>
+<tr><td>&sect;4 &ldquo;Codebase grounding&rdquo; is 330 of 951 lines: provider source at v4.17.0, module conventions, tag provenance, change mechanics.</td><td>Every review pass re-read a research report.</td><td>Research had no artifact of its own, so it landed in the only document that existed.</td><td>Put it in <code>research.md</code> and cite it by ID. The spec states the requirement; research says why it is believed.</td></tr>
+<tr><td>A further 220 lines are process record: RD register, traceability, review gate, withdrawn items, amendments.</td><td>The document must be read historically. It also grew a contradiction &mdash; header says twenty decisions, &sect;12 says twenty-two &mdash; consciously left unrepaired.</td><td>Decision history stored inside the requirement document.</td><td>ADRs hold reversals. The spec holds only what is currently true.</td></tr>
+<tr><td>Brief and spec restate the same material section for section: problem, scope, A1&ndash;A5, D1&ndash;D11, R1&ndash;R10, dependencies, operational and security requirements.</td><td>Two authorities for one decision set. Verbatim overlap is only 14.8% of the brief &mdash; it was <em>re-argued</em>, so the texts could drift, and did.</td><td>Artifact-boundary confusion. The 08-06 prompt said &ldquo;preserve the brief&rsquo;s scope&rdquo; while the brief held 7 open decisions.</td><td>One document owns decisions. RD17 had to amend the brief; RD20 had to declare a winner.</td></tr>
+<tr><td>A third rendering, <code>spec-review.md</code>, written 07:44Z and declared unmaintained 07:58Z the same morning.</td><td>Three correction rounds, then abandoned &mdash; after briefly holding two decisions <code>spec.md</code> did not.</td><td>&ldquo;Too long to review&rdquo; was treated by writing a shorter copy rather than shortening it.</td><td>Never fork a document for readability. Cut it, or cut its scope.</td></tr>
+<tr><td>~11 of 34 numbered decisions reversed, withdrawn or retracted; 6 more deferred. D3&rarr;RD4, D8&rarr;RD3, RD8 withdrawn, FR-6&rarr;FR-22, OR-2 withdrawn, Yoma retracted, <code>prevent_destroy</code>&rarr;<code>destroy = false</code>.</td><td>A third of the decision surface was rework. Two reversals reached the shared copy first.</td><td>Decisions were taken before the governing evidence existed, because grounding and deciding shared one pass.</td><td>Finish a timeboxed evidence probe <em>before</em> clarification. Decide once, on evidence.</td></tr>
+<tr><td>The agent began writing the module at 14:17:40Z during an interview, was stopped at 14:18:56Z, then said &ldquo;no further questions&rdquo; twice while five threads were still open.</td><td>Consumed the interview&rsquo;s closing window and made the closeout meaningless.</td><td>Stage boundaries were prose conventions, not enforced steps.</td><td>Named commands with fixed outputs make &ldquo;this stage writes no code&rdquo; structural.</td></tr>
+<tr><td>26 advisor interventions in the spec session, 14 at blocker severity. The agent&rsquo;s own handoff: &ldquo;five times this session I asserted a mechanism that turned out not to hold, and twice it had already been written into the document.&rdquo;</td><td>Each is a round trip. Surgery caused its own defects: reducing FR-6 to a pointer dropped a live requirement; a count edit destroyed a separator.</td><td>Document size drove the defect rate.</td><td>Smaller documents, plus a mechanical consistency check instead of proofreading.</td></tr>
+<tr><td>The four-hour expectation appears for the first time at 08-07 10:39Z, in a Codex thread, 71 hours in.</td><td>No agent could trade completeness against a budget it never received.</td><td>The constraint existed only in your head.</td><td>State the timebox in the opening prompt, with the expiry action: at the limit, split scope.</td></tr></tbody>
+</table>
+
+<figure><svg viewBox="0 0 1080 250" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,Helvetica,sans-serif">
+<rect width="100%" height="100%" fill="#161b22"/>
+<text x="20" y="26" fill="#e6edf3" font-size="13" font-weight="600">spec.md — 951 lines, 14,708 words</text>
+<rect x="20.0" y="40" width="360.9" height="40" fill="#d29922" opacity="0.85"/>
+<text x="200" y="65" fill="#0f1216" font-size="13" font-weight="700" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">35%</text>
+<rect x="380.9" y="40" width="240.6" height="40" fill="#a371f7" opacity="0.85"/>
+<text x="501" y="65" fill="#0f1216" font-size="13" font-weight="700" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">23%</text>
+<rect x="621.5" y="40" width="152.0" height="40" fill="#3fb950" opacity="0.85"/>
+<text x="697" y="65" fill="#0f1216" font-size="13" font-weight="700" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">15%</text>
+<rect x="773.5" y="40" width="236.2" height="40" fill="#4cc2ff" opacity="0.85"/>
+<text x="892" y="65" fill="#0f1216" font-size="13" font-weight="700" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">23%</text>
+<rect x="1009.7" y="40" width="50.3" height="40" fill="#f85149" opacity="0.85"/>
+<rect x="20" y="101" width="12" height="12" fill="#d29922"/>
+<text x="40" y="111" fill="#e6edf3" font-size="12.5">Codebase grounding — research report</text>
+<text x="1060" y="111" fill="#9aa7b4" font-size="12" text-anchor="end" font-family="ui-monospace,Menlo,monospace">330 lines &#183; 34.7%</text>
+<rect x="20" y="126" width="12" height="12" fill="#a371f7"/>
+<text x="40" y="136" fill="#e6edf3" font-size="12.5">Decision archaeology — RD register, traceability, review gate, withdrawn items, amendments</text>
+<text x="1060" y="136" fill="#9aa7b4" font-size="12" text-anchor="end" font-family="ui-monospace,Menlo,monospace">220 lines &#183; 23.1%</text>
+<rect x="20" y="151" width="12" height="12" fill="#3fb950"/>
+<text x="40" y="161" fill="#e6edf3" font-size="12.5">Binding requirements (40 rows) + acceptance criteria (22)</text>
+<text x="1060" y="161" fill="#9aa7b4" font-size="12" text-anchor="end" font-family="ui-monospace,Menlo,monospace">139 lines &#183; 14.6%</text>
+<rect x="20" y="176" width="12" height="12" fill="#4cc2ff"/>
+<text x="40" y="186" fill="#e6edf3" font-size="12.5">Problem, goal, scope, dependencies, assumptions, risks</text>
+<text x="1060" y="186" fill="#9aa7b4" font-size="12" text-anchor="end" font-family="ui-monospace,Menlo,monospace">216 lines &#183; 22.7%</text>
+<rect x="20" y="201" width="12" height="12" fill="#f85149"/>
+<text x="40" y="211" fill="#e6edf3" font-size="12.5">Out of scope / follow-ups (11 items, none authorised)</text>
+<text x="1060" y="211" fill="#9aa7b4" font-size="12" text-anchor="end" font-family="ui-monospace,Menlo,monospace">46 lines &#183; 4.8%</text>
+<text x="20" y="247" fill="#f85149" font-size="12.5" font-weight="600">58% of the specification is research or process record. 9.6% is binding requirements.</text>
+</svg>
+<figcaption>Where the 951 lines went. The 40 requirement rows and 22 acceptance criteria are the part a reviewer must actually approve.</figcaption>
+</figure>
+
+<details>
+<summary>Evidence &mdash; what caused the length, attributed by share</summary>
+<table>
+<thead><tr><th>Cause</th><th class="num">Share</th><th>Evidence</th></tr></thead>
+<tbody>
+<tr><td><strong>Research inside the spec</strong></td><td class="num">~35%</td><td>&sect;4, 330 of 951 lines</td></tr>
+<tr><td><strong>Artifact-boundary confusion / process record</strong></td><td class="num">~23%</td><td>RD register, &sect;11 traceability, &sect;12 gate, &sect;13 withdrawn, &sect;14 amendments = 220 lines</td></tr>
+<tr><td><strong>Broad scope</strong></td><td class="num">~10%</td><td>The second rule and 12-type partition generate FR-4, FR-12, R8, R9, R13, AC-12, AC-13 and the naming debate</td></tr>
+<tr><td><strong>Speculative completeness</strong></td><td class="num">~8%</td><td>&sect;10&rsquo;s 11 unauthorised follow-ups; A6&ndash;A9; R12&ndash;R15; long &ldquo;consequences accepted&rdquo; passages on choices with no reader yet</td></tr>
+<tr><td><strong>Genuine risk</strong></td><td class="num">~15%</td><td>The silent-failure family R1, R2, R11, R12, R13 and the staged S1&ndash;S4 delivery. This earns its place.</td></tr>
+<tr><td><strong>Literal repetition</strong></td><td class="num">~2%</td><td>Verbatim eight-word-shingle overlap with the brief is 14.8% of the brief, 2.3% of the spec</td></tr>
+</tbody>
+</table>
+<p>Honest ranking: <strong>artifact-boundary confusion first, research placement second, scope third.</strong> Literal repetition is minor; speculative completeness moderate. Genuine risk explains roughly one line in seven.</p>
+</details>
+
+<h2 id="s4"><span class="n">04</span>What you could have done differently</h2>
+<div class="panel">
+<ol>
+<li><strong>State the timebox and the expiry rule up front.</strong> &ldquo;Four hours to an approved spec. At four hours we cut scope, not add sections.&rdquo;</li>
+<li><strong>Approve a one-page slice statement before <code>/grill-me</code>.</strong> Three lines: <em>v1 = critical and high CSM findings arrive in one shared Slack channel, routing managed in OpenTofu. Non-goals: playbooks, cases, tickets, acknowledgement, ownership, filtering, Yoma.</em></li>
+<li><strong>Do not name a mechanism in the problem statement.</strong> &ldquo;Slack notification with playbooks&rdquo; committed to a delivery mechanism two hours before anyone knew the resource cannot carry a message.</li>
+<li><strong>Ask for requirements, not requirements plus plan.</strong> The 08-06 prompt requested observability, rollout, rollback and secret handling inside a document called a specification.</li>
+<li><strong>Pick the source of truth on day one, one directory, under Git.</strong></li>
+<li><strong>When 36 items arrived, the right instruction was &ldquo;answer only what blocks PR1&rdquo;</strong>, not &ldquo;one at a time&rdquo; &mdash; which turned a batching problem into a serialisation problem.</li>
+<li><strong>Start PR1 while clarification continued.</strong> The spec&rsquo;s own S1 stage proves it was independent.</li>
+</ol>
+</div>
+<p><strong>Kept right:</strong> refusing to let the module be written during the interview; forcing one question at a time when overwhelmed; forcing the source-of-truth ruling; accepting RD23 when the plan surfaced a real deletion hazard; asking for a plain-English edition &mdash; correct instinct, wrong remedy.</p>
+
+<h2 id="s5"><span class="n">05</span>What the agent or workflow should have done</h2>
+<div class="panel">
+<ol>
+<li><strong>Refuse to interview before a boundary exists.</strong> The right first move on a request naming an impossible capability is one question &mdash; visibility only, or visibility plus a work queue?</li>
+<li><strong>Announce scope changes as scope changes.</strong> At 11:40Z the widening from vulnerability scanning to all of CSM arrived inside a message headed &ldquo;Corrected&rdquo;.</li>
+<li><strong>Cap the review at five blocking items.</strong> Of 36, eight were labelled blocking; at most three blocked PR1.</li>
+<li><strong>Write research to a research file</strong> from the first keystroke.</li>
+<li><strong>Keep reversals out of the requirement document.</strong> The instinct behind &sect;13 and &sect;14 is right; the file is wrong.</li>
+<li><strong>Stop asking what the repository or provider source can answer.</strong> FR-11/RD16 dissolved on evidence; the plan&rsquo;s [D-9] was finally settled by building a credential-free fixture instead of asking &mdash; right move, made late.</li>
+<li><strong>Never fork a document for readability.</strong> It created a second place decisions could live, and two immediately did.</li>
+<li><strong>Do not reopen a closed gate for a plan-level guard.</strong> RD23 as an ADR plus a plan requirement costs nothing; as a spec amendment it produced a new section, requirement, criterion and risk row.</li>
+</ol>
+</div>
+
+<h2 id="s6"><span class="n">06</span>Unavoidable work that must not be removed</h2>
+<p>This is security-sensitive routing whose failure mode is silence. Four properties of the surface make the analysis load-bearing rather than merely thorough:</p>
+<div class="panel">
+<ul style="margin:0">
+<li><strong>Nothing validates the routing.</strong> <code>selectors.query</code> passes verbatim, unchecked by OpenTofu or Datadog, and <code>rule_types</code> has no element-level validation. A wrong value gives a clean plan, a clean apply, HTTP 200 and zero notifications indefinitely &mdash; indistinguishable from &ldquo;no findings&rdquo;. This alone justified deferring the filter out of v1.</li>
+<li><strong>Delivery can be silently absent.</strong> The Datadog app must be invited to the channel or every notification is dropped &mdash; with a live in-org precedent already delivering nowhere. <code>account_name</code> is <code>ForceNew</code> and unreadable by any provider resource; <code>channel_name</code> is not normalised, so a missing <code>#</code> gives a clean apply and a broken mapping.</li>
+<li><strong>Cut-over destroys the only proven path.</strong> Removing the email targets before Slack delivery is observed is total, silent loss. The staged S1&ndash;S4 delivery with a manual proof before cut-over is the correct structural answer.</li>
+<li><strong>The live object cannot be recreated.</strong> A version-8 rule edited eight times in a UI must be adopted by import; org-scoped duplicates fire with no error; and removing the resource block later plans a destroy, which <code>prevent_destroy</code> does not guard.</li>
+</ul>
+</div>
+<p><strong>Budget it honestly:</strong> 45&ndash;60 minutes of read-only, parallelisable probing. Not three days. It felt like three days because it ran <em>inside</em> the decision loop instead of before it, and was written <em>inside</em> the specification instead of beside it.</p>
+
+<h2 id="s7"><span class="n">07</span>The earliest sensible release boundary</h2>
+<div class="lede"><p style="margin:0"><strong>Slice 1: bring the existing notification rule under OpenTofu management and prove it delivers to one shared Slack channel.</strong> Nothing else.</p></div>
+<p>Import <code>jfd-tvy-erj</code> with its current five rule types, current name and both email targets (PR1); add the channel mapping and the Slack target beside the emails (PR2); run <em>Test Notifications</em> and observe arrival; remove the emails (PR3).</p>
+<p><strong>Why this is the boundary:</strong> the live rule already covers <code>application_library_vulnerability</code>, <code>misconfiguration</code>, <code>attack_path</code>, <code>container_image_vulnerability</code> and <code>api_security</code> at critical and high. Pointing it at a shared channel satisfies the <strong>narrowed visibility outcome</strong> &mdash; a new SRE watches one channel instead of two personal mailboxes, which is brief &sect;2 as written. It does <strong>not</strong> satisfy the original request, which also asked for playbooks and for a joiner to &ldquo;address them&rdquo;. That narrowing is the right call on the evidence (the resource cannot carry a message), but &sect;4 of this report records that it was never explicitly approved &mdash; so slice 1 should ship labelled as visibility, with actionability still owed and tracked, not quietly closed.</p>
+<p><strong>When it should have been cut: 2026-08-04, between 13:28Z and 13:39Z</strong> &mdash; 2 h 10 m in, when &ldquo;notification rules have no message field&rdquo; was established. At that instant the request provably split into <em>visibility</em> (one resource type, testable) and <em>actionability</em> (playbooks, cases, tickets, ownership &mdash; a different product surface). Second-best point: 14:26Z, when Cases and ticket rules reopened the design space after &ldquo;no further questions&rdquo; had been said twice.</p>
+
+<details>
+<summary>Evidence &mdash; what slice 1 excludes, and why each is a refinement not the outcome</summary>
+<table>
+<thead><tr><th>Excluded</th><th>Why it is not the outcome</th></tr></thead>
+<tbody>
+<tr><td>Second rule + 12-type disjoint partition (FR-2, FR-4, RD4)</td><td>Improves per-message context and future coverage. Costs FR-4, FR-12, R8, R9, R13, most of AC-12/AC-13 and the whole naming debate.</td></tr>
+<tr><td>Ratified rule names (RD10, RD11, UD-1, UD-9, FR-12)</td><td>Only matters once there are two rules to tell apart. Slice 1 keeps the live name, which FR-20 requires anyway.</td></tr>
+<tr><td><code>cloudapi-dev</code> exclusion filter (D8, FR-6, OR-2, R1, R7)</td><td>Already deferred by RD3. Suppresses one finding out of seven against an unvalidatable failure mode.</td></tr>
+<tr><td>Yoma coverage (A2, UD-8, RD19, OR-8)</td><td>Unverifiable from the repository. RD19 already excludes it and records the arrival signal.</td></tr>
+<tr><td>Cases, tickets, due dates, mute rules, playbooks, the <code>sre</code> team channel</td><td>Actionability, not visibility. A different slice.</td></tr>
+</tbody>
+</table>
+<p>Roughly 12 of the 36 review items and 8 of the 23 review decisions belong to the excluded set. <span class="b inf">inference</span> Not wasted &mdash; slice 2&rsquo;s inputs, already paid for.</p>
+<p><strong>Could a smaller slice have started while decisions continued? Yes, and the spec proves it against itself.</strong> Stage S1 depends only on the provider 4.x prerequisite (satisfied 08-06 morning) and reading the live rule. It does not depend on the channel existing (OR-1 blocks S2), the workspace name (AC-3 blocks S2), the rule-type partition or names (S2), the filter (deferred) or Yoma (excluded). PR1 was implementable from the morning of 08-06. <span class="b obs">observed</span></p>
+</details>
+
+<h2 id="s8"><span class="n">08</span>A four-hour SDD workflow with time budgets</h2>
+<figure><svg viewBox="0 0 1080 440" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,Helvetica,sans-serif">
+<rect width="100%" height="100%" fill="#161b22"/>
+<text x="14" y="42" fill="#f85149" font-size="11.5" font-weight="700" letter-spacing="0.7">HUMAN GATES</text>
+<line x1="14" y1="50" x2="1066" y2="50" stroke="#2a3340"/>
+<text x="14" y="144" fill="#4cc2ff" font-size="11.5" font-weight="700" letter-spacing="0.7">SPEC KIT STAGES</text>
+<line x1="14" y1="152" x2="1066" y2="152" stroke="#2a3340"/>
+<text x="14" y="308" fill="#d29922" font-size="11.5" font-weight="700" letter-spacing="0.7">PARALLEL, OFF CRITICAL PATH</text>
+<line x1="14" y1="316" x2="1066" y2="316" stroke="#2a3340"/>
+<rect x="14.0" y="158" width="142.6" height="86" rx="6" fill="#1c232c" stroke="#3fb950"/>
+<text x="85.3" y="182" fill="#e6edf3" font-size="12" font-weight="700" text-anchor="middle" font-family="-apple-system,Segoe UI,Helvetica,sans-serif">Slice boundary</text>
+<text x="85.3" y="198" fill="#9aa7b4" font-size="10" text-anchor="middle">one page, written</text>
+<rect x="28.0" y="210" width="114.6" height="7" rx="3.5" fill="#0f1216"/>
+<rect x="28.0" y="210" width="50.9" height="7" rx="3.5" fill="#3fb950"/>
+<text x="85.3" y="235" fill="#3fb950" font-size="12" font-weight="700" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">20 min</text>
+<rect x="165.6" y="158" width="142.6" height="86" rx="6" fill="#1c232c" stroke="#4cc2ff"/>
+<text x="236.9" y="182" fill="#e6edf3" font-size="12" font-weight="400" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">/speckit.specify</text>
+<text x="236.9" y="198" fill="#9aa7b4" font-size="10" text-anchor="middle">requirements only</text>
+<rect x="179.6" y="210" width="114.6" height="7" rx="3.5" fill="#0f1216"/>
+<rect x="179.6" y="210" width="76.4" height="7" rx="3.5" fill="#4cc2ff"/>
+<text x="236.9" y="235" fill="#4cc2ff" font-size="12" font-weight="700" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">30 min</text>
+<rect x="317.1" y="158" width="142.6" height="86" rx="6" fill="#1c232c" stroke="#4cc2ff"/>
+<text x="388.4" y="182" fill="#e6edf3" font-size="12" font-weight="400" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">/speckit.clarify</text>
+<text x="388.4" y="198" fill="#9aa7b4" font-size="10" text-anchor="middle">max 5 questions</text>
+<rect x="331.1" y="210" width="114.6" height="7" rx="3.5" fill="#0f1216"/>
+<rect x="331.1" y="210" width="101.8" height="7" rx="3.5" fill="#4cc2ff"/>
+<text x="388.4" y="235" fill="#4cc2ff" font-size="12" font-weight="700" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">40 min</text>
+<rect x="468.7" y="158" width="142.6" height="86" rx="6" fill="#1c232c" stroke="#4cc2ff"/>
+<text x="540.0" y="182" fill="#e6edf3" font-size="10.5" font-weight="400" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">/speckit.checklist</text>
+<text x="540.0" y="198" fill="#9aa7b4" font-size="10" text-anchor="middle">silent-failure test</text>
+<rect x="482.7" y="210" width="114.6" height="7" rx="3.5" fill="#0f1216"/>
+<rect x="482.7" y="210" width="38.2" height="7" rx="3.5" fill="#4cc2ff"/>
+<text x="540.0" y="235" fill="#4cc2ff" font-size="12" font-weight="700" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">15 min</text>
+<rect x="620.3" y="158" width="142.6" height="86" rx="6" fill="#1c232c" stroke="#4cc2ff"/>
+<text x="691.6" y="182" fill="#e6edf3" font-size="12" font-weight="400" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">/speckit.plan</text>
+<text x="691.6" y="198" fill="#9aa7b4" font-size="10" text-anchor="middle">the &#8220;how&#8221; decisions</text>
+<rect x="634.3" y="210" width="114.6" height="7" rx="3.5" fill="#0f1216"/>
+<rect x="634.3" y="210" width="114.6" height="7" rx="3.5" fill="#4cc2ff"/>
+<text x="691.6" y="235" fill="#4cc2ff" font-size="12" font-weight="700" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">45 min</text>
+<rect x="771.9" y="158" width="142.6" height="86" rx="6" fill="#1c232c" stroke="#4cc2ff"/>
+<text x="843.1" y="182" fill="#e6edf3" font-size="12" font-weight="400" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">/speckit.tasks</text>
+<text x="843.1" y="198" fill="#9aa7b4" font-size="10" text-anchor="middle">vertical slices</text>
+<rect x="785.9" y="210" width="114.6" height="7" rx="3.5" fill="#0f1216"/>
+<rect x="785.9" y="210" width="50.9" height="7" rx="3.5" fill="#4cc2ff"/>
+<text x="843.1" y="235" fill="#4cc2ff" font-size="12" font-weight="700" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">20 min</text>
+<rect x="923.4" y="158" width="142.6" height="86" rx="6" fill="#1c232c" stroke="#4cc2ff"/>
+<text x="994.7" y="182" fill="#e6edf3" font-size="12" font-weight="400" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">/speckit.analyze</text>
+<text x="994.7" y="198" fill="#9aa7b4" font-size="10" text-anchor="middle">consistency check</text>
+<rect x="937.4" y="210" width="114.6" height="7" rx="3.5" fill="#0f1216"/>
+<rect x="937.4" y="210" width="38.2" height="7" rx="3.5" fill="#4cc2ff"/>
+<text x="994.7" y="235" fill="#4cc2ff" font-size="12" font-weight="700" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">15 min</text>
+<circle cx="85" cy="62" r="15" fill="#1c232c" stroke="#f85149" stroke-width="2"/>
+<text x="85" y="67" fill="#f85149" font-size="13" text-anchor="middle" font-weight="700" font-family="ui-monospace,Menlo,monospace">A</text>
+<text x="85" y="96" fill="#9aa7b4" font-size="10.5" text-anchor="middle">boundary approved</text>
+<line x1="85" y1="78" x2="85" y2="156" stroke="#f85149" stroke-dasharray="3 4" opacity="0.55"/>
+<circle cx="464" cy="62" r="15" fill="#1c232c" stroke="#f85149" stroke-width="2"/>
+<text x="464" y="67" fill="#f85149" font-size="13" text-anchor="middle" font-weight="700" font-family="ui-monospace,Menlo,monospace">B</text>
+<text x="464" y="96" fill="#9aa7b4" font-size="10.5" text-anchor="middle">spec approved</text>
+<line x1="464" y1="78" x2="464" y2="156" stroke="#f85149" stroke-dasharray="3 4" opacity="0.55"/>
+<circle cx="767" cy="62" r="15" fill="#1c232c" stroke="#f85149" stroke-width="2"/>
+<text x="767" y="67" fill="#f85149" font-size="13" text-anchor="middle" font-weight="700" font-family="ui-monospace,Menlo,monospace">C</text>
+<text x="767" y="96" fill="#9aa7b4" font-size="10.5" text-anchor="middle">plan approved</text>
+<line x1="767" y1="78" x2="767" y2="156" stroke="#f85149" stroke-dasharray="3 4" opacity="0.55"/>
+<circle cx="1062" cy="62" r="15" fill="#1c232c" stroke="#f85149" stroke-width="2"/>
+<text x="1062" y="67" fill="#f85149" font-size="13" text-anchor="middle" font-weight="700" font-family="ui-monospace,Menlo,monospace">D</text>
+<text x="1062" y="96" fill="#9aa7b4" font-size="10.5" text-anchor="end">apply authorised</text>
+<line x1="1062" y1="78" x2="1062" y2="156" stroke="#f85149" stroke-dasharray="3 4" opacity="0.55"/>
+<text x="14" y="268" fill="#3fb950" font-size="12.5" font-weight="700">Gate B (spec approved) at 105 minutes. Gate D (ready to apply) at 165 minutes. Timebox 240.</text>
+<text x="14" y="288" fill="#6b7885" font-size="11.5">At 240 minutes the default is not &#8220;keep writing&#8221; &#8212; it is: cut the slice, ship what is approved, respecify the remainder.</text>
+<rect x="14" y="322" width="510" height="54" rx="6" fill="#1c232c" stroke="#d29922"/>
+<text x="269" y="345" fill="#e6edf3" font-size="11.5" text-anchor="middle">Read-only evidence probe &#8594; research.md + 1-page risk memo</text>
+<text x="269" y="363" fill="#d29922" font-size="11" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">45m wall, hard cap, subagents, never blocks the spec</text>
+<rect x="546" y="322" width="520" height="54" rx="6" fill="#1c232c" stroke="#d29922"/>
+<text x="806" y="345" fill="#e6edf3" font-size="11.5" text-anchor="middle">Deferred questions &#8594; the next slice&#8217;s /speckit.specify</text>
+<text x="806" y="363" fill="#d29922" font-size="11" text-anchor="middle">never a new section in an already-approved spec</text>
+<line x1="14" y1="408" x2="1066" y2="408" stroke="#2a3340"/>
+<text x="14" y="427" fill="#6b7885" font-size="11.5">Gates are human. Stages are Spec Kit commands. Nothing in the diagram is a custom framework.</text>
+</svg>
+<figcaption>Four human gates, seven stages, one parallel research lane. Gate B &mdash; spec approved &mdash; lands at 105 minutes.</figcaption>
+</figure>
+<table>
+<thead><tr><th style="width:4%">#</th><th style="width:21%">Stage</th><th style="width:8%" class="num">Budget</th><th>Output and stop condition</th></tr></thead>
+<tbody>
+<tr><td class="num">0</td><td><strong>Constitution</strong> <span class="b">one-time</span></td><td class="num">0</td><td>Repo principles, written once, reused: apply is human-authorised; no live security control is deleted by hand; a control whose failure is silent needs a positive delivery proof; research lives in <code>research.md</code>; decisions live in ADRs.</td></tr>
+<tr><td class="num">1</td><td><strong>Slice boundary</strong></td><td class="num">20 min</td><td>One page: outcome, the single user, in-scope, explicit non-goals, timebox, expiry rule. <span class="b bad">Gate A &mdash; approved before any interviewing.</span></td></tr>
+<tr><td class="num">2</td><td><strong>Evidence probe</strong> <span class="b">parallel</span></td><td class="num">45 min wall</td><td>Read-only, subagent-parallel, hard-capped: provider schema at the pinned version, existing objects, validation gaps, silent-failure modes, precedent. Produces <code>research.md</code> plus a one-page risk memo. Never blocks stages 1 or 3; at 45 minutes it reports what it did not reach.</td></tr>
+<tr><td class="num">3</td><td><code>/speckit.specify</code></td><td class="num">30 min</td><td>Requirements and acceptance criteria only, citing <code>research.md</code> by ID. Target: under 150 lines, 40% requirement rows.</td></tr>
+<tr><td class="num">4</td><td><code>/speckit.clarify</code></td><td class="num">40 min</td><td>Five questions maximum, one at a time, each with a recommended answer; anything beyond the cap is listed Deferred. <span class="b bad">Gate B &mdash; spec approved, at 105 minutes.</span></td></tr>
+<tr><td class="num">5</td><td><code>/speckit.checklist</code></td><td class="num">15 min</td><td>Silent-failure checklist: does every requirement whose failure is invisible carry a positive proof criterion? Safety analysis lives here &mdash; as a test of the spec, not as more spec.</td></tr>
+<tr><td class="num">6</td><td><code>/speckit.plan</code></td><td class="num">45 min</td><td>Module shape, layout, identifiers, version constraints, staging, rollback &mdash; every &ldquo;how&rdquo; question from this record. <span class="b bad">Gate C &mdash; plan approved.</span></td></tr>
+<tr><td class="num">7</td><td><code>/speckit.tasks</code></td><td class="num">20 min</td><td>Vertical slices with explicit pause gates; one task per PR where the change is an apply.</td></tr>
+<tr><td class="num">8</td><td><code>/speckit.analyze</code></td><td class="num">15 min</td><td>Cross-artifact consistency: every requirement traced, no orphaned criterion, no contradiction. <span class="b bad">Gate D &mdash; apply authorised.</span></td></tr>
+<tr><td class="num">9</td><td><code>/speckit.implement</code></td><td class="num">&mdash;</td><td>Slice 1 only, per-PR approval as today. Slice 2 can sit in stage 3 while slice 1 is in stage 9.</td></tr>
+</tbody>
+</table>
+<div class="panel" style="border-left:3px solid var(--bad)">
+<strong>The expiry rule, as a rule and not a hope.</strong> At four hours the default action is to cut. Whatever is approved ships; every unresolved question becomes an input to the next slice&rsquo;s <code>/speckit.specify</code>, never a new section in an approved document. Amending an approved spec is reserved for one case: a discovery that makes the approved slice <em>wrong</em>, not one that makes it <em>incomplete</em>.
+</div>
+
+<h2 id="s9"><span class="n">09</span>Implementing it with Spec Kit commands and gates</h2>
+<p>Spec Kit was considered on 08-06 at 13:49Z and declined &mdash; &ldquo;I don&rsquo;t have github&rsquo;s SpecKit installed so I prefer this per prompt strategy&rdquo;. The per-prompt strategy is what produced unbounded documents: every prompt was hand-written, so every prompt could ask for more. The toolkit replaces negotiable prose with fixed contracts. <span class="b obs">observed</span></p>
+<pre>uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@vX.Y.Z
+specify init tofu-sdd --integration claude     # or --integration codex
+specify preset search                          # security / compliance presets</pre>
+<p>The highest-value contract is <code>/speckit.clarify</code>. Its template mandates a maximum of five questions per session, asked exactly one at a time, each with a <code>**Recommended:**</code> option and a plain-language &ldquo;why it matters&rdquo; line; answers are written back into the spec under a dated <code>## Clarifications</code> heading; anything over quota is flagged Deferred with a rationale. It also explicitly excludes &ldquo;plan-level execution details&rdquo; &mdash; exactly where FR-14, FR-15, RD7, RD9, RD11 and RD15 belonged.</p>
+<h4>Keeping security depth without inventing a framework</h4>
+<ul>
+<li><strong>Use a preset, not a bespoke template.</strong> Presets exist to add mandatory security review gates to plans and enforce compliance-oriented spec formats. A <code>didx-infra</code> preset can require a silent-failure section in every plan and a positive delivery proof for every notification-path change.</li>
+<li><strong>Use hooks for the evidence probe.</strong> A mandatory <code>hooks.before_clarify</code> entry in <code>.specify/extensions.yml</code> runs the provider-schema and silent-failure probe: the analysis cannot be skipped, and cannot leak into the spec body.</li>
+<li><strong>Keep research and ADRs in the feature directory</strong> &mdash; <code>specs/&lt;n&gt;-&lt;slice&gt;/research.md</code> and <code>&hellip;/decisions/*.md</code>. The spec cites; it does not restate.</li>
+<li><strong>One repository, one copy, under Git.</strong></li>
+</ul>
+
+<details>
+<summary>Evidence &mdash; full stage-to-gate mapping against this feature&rsquo;s failures</summary>
+<table>
+<thead><tr><th>Stage</th><th>What it fixes here</th><th>Gate</th></tr></thead>
+<tbody>
+<tr><td><code>/speckit.constitution</code></td><td>Encodes apply-authorisation, no-hand-deletion and the research/ADR split once. RD12&rsquo;s and OR-5&rsquo;s &ldquo;procedural&rdquo; caveats become constitutional principles.</td><td>&mdash;</td></tr>
+<tr><td><code>/speckit.specify</code></td><td>Forces the boundary to be written first, and &ldquo;what and why&rdquo; over &ldquo;how&rdquo;. The five widenings would each have to argue against this file.</td><td><strong>A</strong></td></tr>
+<tr><td><code>/speckit.clarify</code></td><td>The direct fix for the 36-item batch, and for plan-level questions leaking into a spec review.</td><td><strong>B</strong></td></tr>
+<tr><td><code>/speckit.checklist</code></td><td>&ldquo;Unit tests for English.&rdquo; <code>/speckit.clarify</code> re-validates <code>checklists/requirements.md</code> after each answer, so the safety check re-runs on every clarification instead of once.</td><td>&mdash;</td></tr>
+<tr><td><code>/speckit.plan</code></td><td>Gives &ldquo;how&rdquo; decisions a home &mdash; everything in &sect;4.3&ndash;&sect;4.5 and the RD7/RD9/RD11/RD15 family.</td><td><strong>C</strong></td></tr>
+<tr><td><code>/speckit.tasks</code> + <code>/speckit.taskstoissues</code></td><td>Turns 23 tasks into tracked issues so a fresh agent need not read a 1,675-line file &mdash; the worry you raised at 10:46Z.</td><td>&mdash;</td></tr>
+<tr><td><code>/speckit.analyze</code></td><td>Mechanises the consistency checks that were done by hand and got wrong: the dropped FR-6 requirement, the destroyed separator, the twenty-vs-twenty-two count.</td><td><strong>D</strong></td></tr>
+<tr><td><code>/speckit.converge</code></td><td>After slice 1 lands, assess the repo against spec/plan/tasks and append what remains &mdash; the disciplined way into slice 2.</td><td>&mdash;</td></tr>
+</tbody>
+</table>
+</details>
+
+<h2 id="s10"><span class="n">10</span>Immediate rescue plan</h2>
+<p>No research is discarded. The change is positional: the existing documents become a reference the implementation cites, not a gate it waits behind.</p>
+<div class="grid-rescue" style="display:grid;grid-template-columns:340px 1fr;gap:22px;align-items:start">
+<figure style="margin:0"><svg viewBox="0 0 330 470" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,Helvetica,sans-serif">
+<rect width="100%" height="100%" fill="#161b22"/>
+<rect x="14" y="14" width="302" height="96" rx="6" fill="#1c232c" stroke="#a371f7"/>
+<text x="25" y="33" fill="#e6edf3" font-size="12" font-weight="700">PARENT INITIATIVE (frozen record)</text>
+<text x="25" y="49" fill="#9aa7b4" font-size="10.5">decision-brief.md — 08-04 design record</text>
+<text x="25" y="63" fill="#9aa7b4" font-size="10.5">spec.md §4 — codebase grounding → research.md</text>
+<text x="25" y="77" fill="#9aa7b4" font-size="10.5">spec.md §10/§12/§13/§14 — ADRs + history</text>
+<text x="25" y="91" fill="#9aa7b4" font-size="10.5">read-only, git-init it, never on critical path</text>
+<line x1="165" y1="110" x2="165" y2="132" stroke="#2a3340" stroke-width="2"/>
+<polygon points="165,138 160,128 170,128" fill="#2a3340"/>
+<rect x="14" y="140" width="302" height="104" rx="6" fill="#1c232c" stroke="#3fb950"/>
+<text x="25" y="159" fill="#e6edf3" font-size="12" font-weight="700">SLICE 1 — compact spec, ready now</text>
+<text x="25" y="175" fill="#9aa7b4" font-size="10.5">Adopt jfd-tvy-erj by import (unchanged types)</text>
+<text x="25" y="189" fill="#9aa7b4" font-size="10.5">Add Slack target, prove delivery, drop emails</text>
+<text x="25" y="203" fill="#9aa7b4" font-size="10.5">≈ 28 already-ratified rows · 3 stacked PRs</text>
+<text x="25" y="217" fill="#9aa7b4" font-size="10.5">1 open decision (B5, blocks S2) · plan + tasks exist</text>
+<line x1="165" y1="244" x2="165" y2="266" stroke="#2a3340" stroke-width="2"/>
+<polygon points="165,272 160,262 170,262" fill="#2a3340"/>
+<rect x="14" y="274" width="302" height="80" rx="6" fill="#1c232c" stroke="#4cc2ff"/>
+<text x="25" y="293" fill="#e6edf3" font-size="12" font-weight="700">SLICE 2 — coverage widening</text>
+<text x="25" y="309" fill="#9aa7b4" font-size="10.5">Second rule + 12-type disjoint partition (RD4)</text>
+<text x="25" y="323" fill="#9aa7b4" font-size="10.5">Ratified names RD10/RD11</text>
+<text x="25" y="337" fill="#9aa7b4" font-size="10.5">Rule-type coverage check vs live findings</text>
+<rect x="14" y="364" width="302" height="92" rx="6" fill="#1c232c" stroke="#d29922"/>
+<text x="25" y="383" fill="#e6edf3" font-size="12" font-weight="700">BACKLOG — respecify only when pulled</text>
+<text x="25" y="399" fill="#9aa7b4" font-size="10.5">dev exclusion filter (RD3) · Yoma / A2 · A3</text>
+<text x="25" y="413" fill="#9aa7b4" font-size="10.5">cases + ticket/due-date/mute rules (RD18)</text>
+<text x="25" y="427" fill="#9aa7b4" font-size="10.5">sre team channel (RD21) · playbook storage</text>
+<text x="25" y="441" fill="#9aa7b4" font-size="10.5">delivery-liveness check · didx-org CSPM gap</text>
+</svg><figcaption style="font-size:11.5px">Parent record frozen; slice 1 cut from already-ratified rows.</figcaption></figure>
+<div>
+<h4>Parent initiative / historical record</h4>
+<p><code>didx-sdd/tofu/dd-slack-cspm/</code>, read-only: <code>decision-brief.md</code> as the frozen 08-04 design record, <code>spec.md</code> &sect;4 as research, &sect;10 as backlog, &sect;12&ndash;&sect;14 as the decision log. <code>plan.md</code> and <code>tasks.md</code> stay &mdash; they already cover slice 1. Two housekeeping actions: <code>git init</code> it, and keep one copy instead of two.</p>
+<h4>First child specification</h4>
+<p>About 28 rows, every one already ratified &mdash; a cut, not a rewrite: FR-1, FR-2 (S1 form), FR-3, FR-5, FR-7&ndash;FR-10, FR-13, FR-14, FR-16&ndash;FR-18, FR-20&ndash;FR-22; OR-1, OR-3&ndash;OR-7; SR-1&ndash;SR-8; AC-1&ndash;AC-11, AC-14a, AC-16&ndash;AC-21; DEP-2&ndash;DEP-5, DEP-8; plus the S1&ndash;S4 sequence. Target: under 150 lines.</p>
+<h4>Deferrable now</h4>
+<p>All already deferred in substance &mdash; the rescue is simply not to carry them: Yoma and A2 (RD19), A3, the <code>cloudapi-dev</code> filter (RD3), the case-project target and the ticket/due-date/mute family (RD18), the <code>sre</code> team channel (RD21), playbook and runbook storage, delivery-liveness monitoring, the <code>didx-org</code> CSPM gap, the SNS-to-individuals subscriptions, CI plan coverage, the compliance annex (A5).</p>
+<h4>Still to settle before planning &mdash; one decision, four facts</h4>
+<ul>
+<li><strong>Decision (B5):</strong> is the Slack channel mapping <strong>created</strong> by OpenTofu or <strong>imported</strong>? It matters because whoever creates the channel may also map it in the Datadog UI, and the resource ID is the deterministic <code>&lt;workspace&gt;:&lt;channel&gt;</code> pair. <strong>Evidence:</strong> three artifacts already assume <em>create</em> &mdash; spec AC-12 (&ldquo;<em>create</em> of the Slack channel mapping&rdquo;), <code>plan.md</code> (&ldquo;created at S2&rdquo;) and <code>tasks.md</code> T-13 &mdash; but no RD ever adjudicated it against B5&rsquo;s concern. So it is settled by default, not by decision. Closing it is a two-minute ruling: either confirm <em>create</em> and add &ldquo;do not map the channel in the UI&rdquo; to OR-1, or switch to <em>import</em>.</li>
+<li><strong>Facts:</strong> the workspace <code>account_name</code> read off the Datadog page (A9, AC-3, <code>ForceNew</code>); <code>#zbot-datadog-security</code> exists with <code>@Datadog</code> a member (DEP-3, AC-2, your action); an untargeted <code>tofu plan</code> for <code>sites/didx-org</code> captured as a drift inventory (AC-4); a named authoriser for the S4 cut-over (AC-1).</li>
+</ul>
+<h4>Ready for a compact spec and plan?</h4>
+<p><strong>Yes, with one open decision.</strong> The content problem was solved on 08-07; the boundary problem was not. Slice 1 carries <strong>one</strong> unadjudicated decision &mdash; B5 above &mdash; and no others: every other requirement it depends on is ratified and traced, and <code>plan.md</code> plus <code>tasks.md</code> already describe it as T-01 to T-23 across three stacked pull requests. Note that B5 blocks the <strong>S2</strong> apply, not PR1, so the child spec is an extraction of about an hour and PR1 can start while B5 is ruled and slice 2 is specified.</p>
+</div>
+</div>
+
+<h2 id="s11"><span class="n">11</span>Five metrics to capture during the next feature</h2>
+<table>
+<thead><tr><th style="width:23%">Metric</th><th style="width:24%">How to measure</th><th style="width:13%" class="num">Target</th><th>This feature</th></tr></thead>
+<tbody>
+<tr><td><strong>1. Time to boundary approval</strong></td><td>First request &rarr; written, human-approved slice statement</td><td class="num">&le; 30 min</td><td class="num" style="color:#f85149">never explicitly approved</td></tr>
+<tr><td><strong>2. Clarification questions before spec approval</strong></td><td>Asked; answered with the recommended default; Deferred</td><td class="num">&le; 5 asked</td><td class="num" style="color:#f85149">36 in one batch, then 5 further rounds</td></tr>
+<tr><td><strong>3. Spec density</strong></td><td>Binding requirement lines &divide; total spec lines</td><td class="num">&ge; 40%</td><td class="num" style="color:#f85149">9.6% (91 / 951)</td></tr>
+<tr><td><strong>4. Decision churn</strong></td><td>Reversed + withdrawn + retracted &divide; numbered decisions</td><td class="num">&le; 10%</td><td class="num" style="color:#f85149">~32% (11 / 34); 50% with deferrals</td></tr>
+<tr><td><strong>5. Time to first merged PR</strong></td><td>First request &rarr; slice-1 PR1 merged</td><td class="num">&le; 1 working day</td><td class="num" style="color:#f85149">not reached at 70 h; 0 commits</td></tr>
+</tbody>
+</table>
+<p>All five are cheap to collect and all five would have fired inside the first four hours. Metric 3 is the most diagnostic: it detects research and process record crowding out requirements before a reviewer has to notice it by exhaustion.</p>
+
+<div class="panel" style="border-left:3px solid var(--good)">
+<h4 style="margin-top:0">The controls that would have stopped useful discovery from expanding the first release</h4>
+<p style="margin-bottom:8px">None removes analysis; all relocate it.</p>
+<ol style="margin-bottom:0">
+<li><strong>Approve the slice boundary before any interviewing</strong> &mdash; discovery then argues against a written boundary instead of expanding into a vacuum.</li>
+<li><strong>A separate, timeboxed research artifact</strong> &mdash; findings land somewhere real without lengthening the document under review.</li>
+<li><strong>A five-question clarify cap with an explicit Deferred list</strong> &mdash; 36 items becomes 5 questions and a 31-item backlog.</li>
+<li><strong>One source of truth, one Git-tracked place, from minute one.</strong></li>
+<li><strong>Timebox expiry means split, not extend</strong> &mdash; a later discovery improves the next slice; it reopens the approved one only if it makes it wrong.</li>
+<li><strong>Decision history in ADRs, not in the spec.</strong></li>
+</ol>
+</div>
+<h2 id="qa"><span class="n">&mdash;</span>Appendix &mdash; evidence answers</h2>
+<p style="color:#9aa7b4;font-size:13.5px">Each question from the brief, answered against the transcripts. Collapsed so it stays off the 15-minute path.</p>
+<details>
+<summary>What did the initial request leave ambiguous?</summary>
+
+<blockquote>&ldquo;We need to start operationilizing the datadog vulnerability scanning so we have can keep track of the critical and high vulnerabilities. Currently I go to datadog and have a look then verify and address them. I&rsquo;d prefer a slack notification with playbooks so that when a new SRE joins they can simply watch slack and address them in tofu or go verify the findings in AWS.&rdquo;
+<span class="src">/grill-me &mdash; 2026-08-04 11:19:14Z &middot; 381 characters <span class="b obs">observed</span></span></blockquote>
+<p>A healthy problem statement: it names the user, the pain, the outcome and a preferred mechanism. Six things it did not settle, each of which later cost time:</p>
+<ul>
+<li><strong>Which Datadog product.</strong> &ldquo;Vulnerability scanning&rdquo; names CSM Vulnerabilities, but the table you review weekly is CSM Misconfigurations &mdash; surfaced only at 14:22:09Z when you asked what &ldquo;CSM Threats are off everywhere&rdquo; meant.</li>
+<li><strong>What &ldquo;keep track of&rdquo; means.</strong> Notification, or a work queue with state? Resolved by the agent asserting it at 13:29:43Z, not by a stated success criterion.</li>
+<li><strong>&ldquo;With playbooks&rdquo;</strong> named a capability that does not exist on the resource. 2 h 10 m elapsed before that was established.</li>
+<li><strong>Which accounts and orgs.</strong> DIDx vs Yoma was never stated; it consumed a probe, produced a confident wrong answer, was retracted, and is still unverified (A2).</li>
+<li><strong>Severity semantics.</strong> &ldquo;Only the broad findings are important&rdquo; (14:25:05Z) had to be interpreted; D4 records it as top-of-range severity only.</li>
+<li><strong>No boundary, no budget, no done-condition.</strong> &ldquo;Address them in tofu or go verify the findings in AWS&rdquo; invited remediation-workflow scope that was never fenced.</li>
+</ul>
+<p><strong>Balance:</strong> none of this is a user failure. A five-question clarify stage with a boundary gate resolves all six in under half an hour.</p>
+</details>
+<details>
+<summary>When did the work change from CSPM to the broader CSM scope?</summary>
+
+<p><strong>2026-08-04 11:40:16Z</strong>, 21 minutes in, in a message beginning &ldquo;<em>Corrected. &lsquo;CSM&rsquo; is not one signal source, and grounding it changed my model in a way that matters</em>&rdquo;. A self-correction after re-reading the repo, not a user decision. Ratified at the 14:20:37Z closeout as D1 (&ldquo;Scope: CSM, two notification rules&rdquo;).</p>
+<p>Scope widened again on 08-06 as <strong>RD4</strong>: from D3&rsquo;s 7 rule types to the exhaustive 12-member findings-valid partition, on the argument that under-inclusion fails silently. Both widenings are defensible. Neither was presented as a scope change with a cost. The feature directory is still called <code>dd-slack-cspm</code>.</p>
+</details>
+<details>
+<summary>When did &ldquo;spot and address&rdquo; become &ldquo;Slack notification only&rdquo;?</summary>
+
+<p>Three steps on 2026-08-04, inside 11 minutes:</p>
+<ul>
+<li><strong>13:28:02Z</strong> &mdash; &ldquo;<code>datadog_security_notification_rule</code> has <strong>no message field</strong> &hellip; There is nowhere to put a playbook link.&rdquo;</li>
+<li><strong>13:29:43Z</strong> &mdash; &ldquo;<strong>Slack is the notification; Datadog CSM is the ledger.</strong> Slack has no state &mdash; a message cannot be &lsquo;in progress&rsquo; or &lsquo;accepted risk&rsquo;.&rdquo;</li>
+<li><strong>13:39:00Z</strong> &mdash; the playbook is dropped; storage deferred to an SRE team call. Recorded as D5.</li>
+</ul>
+<p>So the boundary was set by a provider capability discovery 2 h 10 m into the interview &mdash; the right answer, reached the expensive way.</p>
+</details>
+<details>
+<summary>Was that release boundary explicitly approved before detailed grilling?</summary>
+
+<p><strong>No.</strong></p>
+<ul>
+<li>It emerged at Q4, after Q1&ndash;Q3, a full org-topology probe, discovery of the live rule <code>jfd-tvy-erj</code>, and the tag-grammar experiments.</li>
+<li>Your consent was implicit &mdash; you dropped the playbook &mdash; never a written statement of what v1 delivers.</li>
+<li>It moved three more times the same afternoon: cases and ticket rules re-entered at 14:26:04Z, were pushed to &ldquo;Phase 2&rdquo; at 15:05:23Z, and at 15:08:57Z the ordering was inverted so the provider 4.x migration went first &mdash; creating the blocking prerequisite D10 that cost a further day.</li>
+</ul>
+</details>
+<details>
+<summary>Which questions genuinely protected the first release?</summary>
+
+<table><thead><tr><th>Question</th><th>Protects against</th><th>Landed as</th></tr></thead><tbody>
+<tr><td>Q2 &mdash; which state owns org-scoped objects</td><td>Duplicate org-scoped rules fire twice, no error</td><td>D2, SR-2, AC-19</td></tr>
+<tr><td>Q8 &mdash; import or recreate <code>jfd-tvy-erj</code></td><td>Hand-deleting a live control at version 8, no reviewer, no recoverable history</td><td>D9, FR-10, SR-1, R3</td></tr>
+<tr><td>Q5 &mdash; which channel, and is the app in it</td><td>Mapping applies cleanly, notifications discarded. Live precedent: <code>@slack-zbot-datadog-monitors-sarb</code> delivers nowhere</td><td>OR-1, R2, AC-2, DEP-3</td></tr>
+<tr><td>Email-removal sequencing</td><td>Removing the only proven path before any Slack delivery was observed</td><td>R4, OR-4, S1&ndash;S4, AC-16</td></tr>
+<tr><td>Q6 &mdash; keep <code>time_aggregation</code></td><td>Changing two variables at once; a volume surprise becomes unattributable</td><td>D7, FR-7</td></tr>
+<tr><td>B6 &mdash; is <code>account_name = &quot;HQ&quot;</code> a fact</td><td><code>ForceNew</code>, unreadable by any provider resource; a wrong value destroys and recreates</td><td>A9, AC-3, R11</td></tr>
+<tr><td>B8 &mdash; was <code>rule_types</code> checked against live findings</td><td>A wrong type matches nothing: clean plan, clean apply, zero notifications, HTTP 200</td><td>RD4, FR-4, R13</td></tr>
+</tbody></table>
+<p>One thread that looked protective was not: the environment-filter work (Q7, three rounds of tag-grammar experiments, D8) produced a decision <strong>deferred out of v1</strong> two days later by RD3. Measured against what ships, it is the most expensive question in the record.</p>
+</details>
+<details>
+<summary>Which questions concerned deferred features or technical design?</summary>
+
+<div class="grid2">
+<div class="panel"><h4>Deferred features &mdash; belonged in a backlog</h4><ul>
+<li>Playbook storage, wiki vs Obsidian (D5, still open)</li>
+<li><code>SECURITY</code> case project as a second target (UD-2 &rarr; RD18)</li>
+<li>Ticket-creation / due-date / mute rules (UD-4 &rarr; RD18)</li>
+<li>Yoma coverage (UD-8 &rarr; RD19; A2 unverified)</li>
+<li>Datadog <code>sre</code> team notification channel (RD21)</li>
+<li>CSM Threats / CWS, dev SBOM, the <code>didx-org</code> CSPM gap</li>
+<li>The <code>didx-sso-security-hub</code> account, never inspected</li>
+<li>Drift detection (D11), delivery-liveness monitoring</li>
+<li>The <code>cloudapi-dev</code> exclusion filter (RD3)</li>
+</ul></div>
+<div class="panel"><h4>Technical design &mdash; belonged in the plan</h4><ul>
+<li><code>display{}</code>: five fields explicit vs inherited (UD-5, RD8 withdrawn, RD9, AC-14a)</li>
+<li><code>versions.tf</code> pinned <code>~&gt; 4.14</code> vs floor-only (UD-6, RD7, FR-15)</li>
+<li>Whether the module ships <code>outputs.tf</code> (RD15, FR-14)</li>
+<li>Rule names as inputs vs hard-coded (UD-9, RD11)</li>
+<li>Resource and variable identifiers (plan [D-1], [D-5])</li>
+<li>Whether the module ships a <code>README.md</code> (plan [D-6])</li>
+<li>Handle-derivation expression and <code>validation{}</code> (RD6, FR-13, FR-21)</li>
+<li>Lockfile expectations (FR-17), the 15-step <code>hk check --all</code> list (FR-18)</li>
+<li>Whether a <code>tags</code> variable is needed &mdash; FR-11/RD16, a ratification item whose premise dissolved on evidence. It should never have been a question.</li>
+</ul></div></div>
+</details>
+<details>
+<summary>Which decisions belonged in the specification, and which elsewhere?</summary>
+
+<p><strong>In the spec &mdash; about twelve to fifteen rows.</strong> Scope and non-goals; severities critical and high; routing to one shared Slack channel; a single owning state; adopt by import and never hand-delete; Slack becomes the only target <em>after</em> delivery is observed; triage stays in Datadog; the human prerequisites; the acceptance criteria testing those; the audit invariants SR-1&ndash;SR-5. All testable, none dependent on how the module is written.</p>
+<table><thead><tr><th style="width:13%">Destination</th><th>Content currently in <code>spec.md</code></th></tr></thead><tbody>
+<tr><td><strong>Research</strong></td><td>All of &sect;4 (330 lines): provider source at v4.17.0, the 18-member enum, module conventions across nine modules, tag provenance, <code>import</code>/<code>removed</code> precedent from <code>fd59330</code>. Plus the 08-04 API evidence: the 1030-vs-984 enumeration, tag-grammar experiments, the 43 untagged findings, finding volumes.</td></tr>
+<tr><td><strong>Plan</strong></td><td>Module file layout, version constraint, <code>display</code> contents, the derived-handle expression, <code>validation{}</code>, identifiers, README, the <code>-target</code> &times; <code>import</code> measurement, expected lockfile behaviour.</td></tr>
+<tr><td><strong>ADR</strong></td><td>RD23 (<code>destroy = false</code>) already <em>is</em> an ADR: decision, refuted alternative with citation, and a four-row bias table. Also RD2, RD3, RD4, RD7.</td></tr>
+<tr><td><strong>Runbook</strong></td><td>The <em>Test Notifications</em> procedure, capturing the drift inventory, the <code>removed {}</code> rollback with <code>destroy = false</code>, and OR-3 &mdash; &ldquo;a quiet vulnerability rule is not a failure signal&rdquo;, an on-call interpretation note, not a requirement.</td></tr>
+</tbody></table>
+</details>
+<details>
+<summary>Which information was repeated across the brief and the specification?</summary>
+
+<p>Structurally, all of it. Nine of the brief&rsquo;s twelve sections have a one-to-one counterpart:</p>
+<table><thead><tr><th>Decision brief</th><th>Specification</th><th>Overlap</th></tr></thead><tbody>
+<tr><td>&sect;1 Problem, &sect;2 Desired outcome</td><td>&sect;1 Problem, &sect;2 Goal</td><td>Same facts, re-narrated</td></tr>
+<tr><td>&sect;4 System boundary</td><td>&sect;3 Scope / non-goals</td><td>&ldquo;Preserved in substance&rdquo;, the spec&rsquo;s own words</td></tr>
+<tr><td>&sect;5 A1&ndash;A5</td><td>&sect;6.1 A1&ndash;A5</td><td>Identical IDs, restated at length</td></tr>
+<tr><td>&sect;6 D1&ndash;D11</td><td>&sect;11 Traceability</td><td>One-to-one</td></tr>
+<tr><td>&sect;8 R1&ndash;R10</td><td>&sect;9 R1&ndash;R10 (+R11&ndash;R15)</td><td>All ten carried forward with commentary</td></tr>
+<tr><td>&sect;9 Operational</td><td>&sect;5.3 OR-1&ndash;OR-8</td><td>Four items expanded to eight</td></tr>
+<tr><td>&sect;10 Security / audit</td><td>&sect;5.4 SR-1&ndash;SR-8</td><td>Five bullets expanded to eight</td></tr>
+<tr><td>&sect;11 Dependencies (7)</td><td>&sect;7 DEP-1&ndash;DEP-8</td><td>One-to-one plus one</td></tr>
+</tbody></table>
+<p>Verbatim eight-word-shingle overlap is only <strong>14.8%</strong> of the brief &mdash; the expensive kind of duplication. The same decisions were re-argued in different words, so the documents could disagree, and did: RD17 had to append a &sect;13 Amendments section to the brief, and RD20 had to declare a winner. A third rendering, <code>spec-review.md</code>, briefly held two decisions <code>spec.md</code> did not.</p>
+</details>
+<details>
+<summary>Which decisions were later superseded, and why?</summary>
+
+<table><thead><tr><th>Original</th><th>Superseded by</th><th>Why</th></tr></thead><tbody>
+<tr><td>D3 &mdash; 7 rule types</td><td>RD4</td><td>No element-wise validation; a wrong or missing type matches nothing silently. Under-inclusion fails silently, over-inclusion announces itself.</td></tr>
+<tr><td>D8 &mdash; <code>query = &quot;-aws_account_name:cloudapi-dev&quot;</code></td><td>RD3 (deferred)</td><td><code>selectors.query</code> passes verbatim with no validation; a wrong filter gives a clean plan, clean apply, zero notifications. It suppresses one finding out of seven.</td></tr>
+<tr><td>Brief status &ldquo;Blocked&rdquo;</td><td>RD1</td><td>Merged as <code>fd59330</code> before the review ran &mdash; the brief was already stale when used as authoritative input.</td></tr>
+<tr><td>&ldquo;Yoma is a separate org&rdquo;, presented as verified 14:20:37Z</td><td>Retracted 14:22:05Z &rarr; A2 &rarr; RD19</td><td>Absence-of-evidence reasoning; the scan iterated 1030 findings against 984 expected and never reconciled. Still unverified.</td></tr>
+<tr><td>RD8 &mdash; <code>mute_buttons = false</code></td><td>Withdrawn &rarr; RD9</td><td>&ldquo;Category-wrong&rdquo;: the field governs muting a <em>monitor</em>, not a finding. It reached the shared copy as live before withdrawal.</td></tr>
+<tr><td>FR-6 (the filter requirement)</td><td>FR-22</td><td>Reducing FR-6 to a tombstone silently dropped the active v1 behaviour inside it, leaving AC-13 testing nothing. FR-22 repairs the agent&rsquo;s own edit.</td></tr>
+<tr><td>OR-2 &mdash; pre-apply query preview</td><td>Withdrawn (RD3)</td><td>Depended on a UI affordance never verified to exist for notification rules, and on a point-in-time finding count.</td></tr>
+<tr><td>SR-7 evidence clause</td><td>RD14 (rejected)</td><td>The PR template already carries the sections; left to author diligence.</td></tr>
+<tr><td>FR-11 &mdash; the <code>tags</code> item</td><td>RD16 (closed)</td><td>The premise dissolved on evidence &mdash; four modules omit <code>tags</code> for the same reason.</td></tr>
+<tr><td>Plan [D-4] &mdash; <code>prevent_destroy = true</code></td><td>Retracted &rarr; RD23</td><td><code>prevent_destroy</code> is removed with the resource block, so the maintainer who deletes the block deletes the guard. <code>destroy = false</code> persists in state.</td></tr>
+<tr><td>&ldquo;12 of 30 nodes produce PR diff content&rdquo;</td><td>Corrected to 7</td><td>Self-corrected a turn later; the figure matched nothing.</td></tr>
+</tbody></table>
+<p><strong>Eleven reversals or retractions plus six deferrals against 34 numbered decisions</strong> (D1&ndash;D11, RD1&ndash;RD23). Two reversals reached the shared copy before being caught.</p>
+</details>
+<details>
+<summary>Did the process maintain one clear source of current truth?</summary>
+
+<p><strong>No, until 2026-08-07 07:58:26Z</strong> &mdash; when you wrote &ldquo;the spec.md is the source of truth and should be kept up to date&rdquo;, recorded as RD20, sixty-eight hours in. Concrete harm before that:</p>
+<ul>
+<li>The brief was named authoritative on 08-06 while the spec was changing two of its ratified decisions.</li>
+<li>At 07:57:23Z the agent declined to record a decision in <code>spec.md</code> because an earlier instruction said &ldquo;do not modify the original specification <em>yet</em>&rdquo;, and instead kept a written queue of &ldquo;four queued changes to <code>spec.md</code>&rdquo; in the review edition.</li>
+<li>&sect;12 asserted &ldquo;Nothing is outstanding&rdquo; while the UD-8 row still read as open &mdash; the defect that became Q-2.</li>
+<li>Two hand-synced copies of everything, with the authoritative directory not a Git repository.</li>
+<li><code>spec.md</code> still ends with a deliberately unrepaired contradiction about how many decisions it records.</li>
+</ul>
+</details>
+<details>
+<summary>Which delays came from framing, which from the agent, and which were unavoidable?</summary>
+
+<h4>From the initial framing</h4>
+<ul>
+<li><strong>Product-name ambiguity</strong> &rarr; 21 minutes of re-grounding, a corrected coverage inventory, and the CSM-Threats confusion resurfacing at 14:22Z.</li>
+<li><strong>&ldquo;With playbooks&rdquo;</strong> &rarr; the most consequential framing cost: it set the interview toward message content and playbook delivery, and led to Q4, the wiki/Obsidian open decision, and the cases/tickets branch.</li>
+<li><strong>No timebox given to any agent</strong> &mdash; stated for the first time 71 hours in, in a different tool.</li>
+<li><strong>No boundary and no done-condition</strong>, so &ldquo;more analysis&rdquo; was always locally correct.</li>
+<li><strong>The 08-06 spec prompt requested plan-grade content</strong>; the review prompt then asked for ten defect classes including missing observability, rollout and rollback requirements &mdash; inviting new requirements into a review meant to catch scope creep.</li>
+<li><strong>&ldquo;Preserve the brief&rsquo;s scope and non-goals&rdquo;</strong> while the brief held seven open decisions guaranteed the spec would reopen them.</li>
+</ul>
+<p><strong>Balance:</strong> the first two are ordinary imprecision that a five-question clarify stage removes in minutes. The last three are the expensive ones, and they are process-shaped rather than wording-shaped.</p>
+<h4>From the agent&rsquo;s questioning and generation</h4>
+<ul>
+<li>The 36-item review batch in one message &mdash; the largest single cause of elapsed time.</li>
+<li>Two false closeouts at 14:20:37Z and 14:22:09Z, followed by five more substantive threads to 15:09Z.</li>
+<li>A stage violation: writing module code at 14:17:40Z during an interview, reverted at 14:19:14Z.</li>
+<li>Assertion defects &mdash; five mechanisms asserted that did not hold, two already written into the document; 26 advisor interventions, 14 at blocker severity.</li>
+<li>Self-inflicted document damage: FR-6 reduced to a pointer dropped a live requirement; a count edit destroyed a separator; a paragraph landed in the wrong block; the <code>[&Delta;]</code> marker misapplied; [D-4] built on a false premise; &ldquo;12 of 30&rdquo; wrong by five.</li>
+<li>Writing then abandoning <code>spec-review.md</code> &mdash; 597 lines, three correction rounds, obsolete within 14 minutes of the source-of-truth ruling.</li>
+<li>Volume: 174,437 characters of assistant prose in the spec session, 63,670 in the plan session. Most well-reasoned; all of it had to be read.</li>
+</ul>
+<h4>Unavoidable</h4>
+<p>See &sect;6. The silent-failure analysis and the import mechanics. Both load-bearing; neither should be cut.</p>
+</details>
+
+<div class="foot">
+<p><strong>Evidence base.</strong> Grill-me session <code>019fcc76-f87f-7000-aa95-f7241a56c783</code>; spec session <code>019fd72a-abff-7000-a920-732fa0bdedfb</code>; plan/tasks session <code>019fdb4d-8775-7000-812e-dfdace0e570c</code>; sync session <code>019fdbc5-5a6a-7000-9a35-25639e3475ad</code>; Codex advisory thread <code>019fd0d2-1fef-70a2-9b05-01dce545b36b</code> plus five single-question Codex threads. Artifacts under <code>didx-sdd/tofu/dd-slack-cspm/</code> and <code>tofu-wt/dd-slack-cspm/.sdd/</code>. Git state of <code>feature/dd-slack-cspm</code> at <code>1006b56</code>. Spec Kit stages and the five-question clarify cap verified against <code>github/spec-kit</code> <code>README.md</code> and <code>templates/commands/clarify.md</code> on the default branch.</p>
+<p><strong>Labels.</strong> <span class="b obs">observed</span> marks a claim taken directly from a transcript, artifact, timestamp or Git command. <span class="b inf">inference</span> marks a derived estimate. Attended-time figures cluster session event timestamps with a 25-minute idle threshold and are approximate by construction. Churn percentages count D1&ndash;D11 and RD1&ndash;RD23 as the decision surface; other reasonable countings shift the figure by a few points, not by a category.</p>
+<p><strong>Not modified:</strong> no code, Git state, brief, specification, plan, task list or review artifact was changed in producing this report.</p>
+</div>
+
+</div>
+</body>
+</html>
