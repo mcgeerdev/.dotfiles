@@ -171,6 +171,11 @@ codexResets:
 task:
   agentAdvisor:
     task: "off"
+  agentModelOverrides:
+    luna: openai-codex/gpt-6-luna
+    opus: anthropic/claude-opus-5-5
+    sol: openai-codex/gpt-6-sol
+    sonnet: anthropic/claude-sonnet-5-5
 composer:
   shape: box
 browser:
