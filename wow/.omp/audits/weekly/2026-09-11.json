@@ -6,7 +6,7 @@
     "tokens": 881085606,
     "messages": 6336,
     "tool_calls": 4369,
-    "prompts": 357,
+    "prompts": 356,
     "api_errors": 17
   },
   "by_project": [
@@ -261,7 +261,7 @@
     },
     {
       "cwd": "/Users/devanmcgeer/sc.projects/SecureCitizen.Portal",
-      "prompts": 59
+      "prompts": 58
     },
     {
       "cwd": "/Users/devanmcgeer/didx.projects/mono",
@@ -279,9 +279,9 @@
     "tool_calls_pct": -56.09
   },
   "watch": [
-    "cost down 53.97% vs prior week ($702.05 vs $1525.34)",
-    "bash (main) tool error rate 9.64% (116/1203 calls), highest among major tools",
-    "-didx.projects-tofu main agent cost $275.70, 39.3% of total cost"
+    "cost down 53.97% to $702.05 (vs $1525.34) and tool_calls down 56.09% to 4369 (vs 9950)",
+    "advisor glob calls fell 97.36% to 37 (vs 1400 last week); advisor read fell 82.55% to 339 (vs 1943)",
+    "glob (advisor) error rate jumped to 16.22% (6/37) from 0.5% (7/1400) last week"
   ],
   "signals": {
     "window": {
@@ -300,17 +300,17 @@
       },
       "lifetime": {
         "note": "whole history file, untimed",
-        "total": 13428,
+        "total": 13437,
         "commands": {
-          "git": 2442,
+          "git": 2445,
           "jj": 1979,
           "tofu": 1459,
-          "cd": 864,
+          "cd": 867,
           "mise": 811,
           "k": 706,
           "kubectl": 533,
           "vim": 511,
-          "la": 491,
+          "la": 493,
           "omp": 443,
           "brew": 332,
           "aws": 330,
@@ -331,8 +331,8 @@
         "subcommands": {
           "tofu plan": 762,
           "mise run": 549,
-          "git status": 491,
-          "git pull": 443,
+          "git status": 492,
+          "git pull": 445,
           "jj git": 429,
           "k get": 389,
           "git checkout": 384,

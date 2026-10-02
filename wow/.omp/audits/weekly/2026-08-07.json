@@ -418,9 +418,9 @@
     "tool_calls_pct": null
   },
   "watch": [
-    "bash error rate 27.3% for subagent (65/238) vs 13.7% for main (126/917), highest of any tool",
-    "claude-opus-5 at 67.1% of total cost ($448.09 of $667.48)",
-    "top session $84.89 in -didx.projects-tofu-wt-dd-slack-cspm (2026-08-07T08-18-39)"
+    "-didx.projects-tofu-wt-dd-slack-cspm main hit $180.88 across 887 msgs, the week's highest project cost",
+    "bash tool_calls for agent_type=subagent errored 65 of 238 times (27.3%)",
+    "91 api_errors across 6939 messages"
   ],
   "signals": {
     "window": {
@@ -439,17 +439,17 @@
       },
       "lifetime": {
         "note": "whole history file, untimed",
-        "total": 13428,
+        "total": 13437,
         "commands": {
-          "git": 2442,
+          "git": 2445,
           "jj": 1979,
           "tofu": 1459,
-          "cd": 864,
+          "cd": 867,
           "mise": 811,
           "k": 706,
           "kubectl": 533,
           "vim": 511,
-          "la": 491,
+          "la": 493,
           "omp": 443,
           "brew": 332,
           "aws": 330,
@@ -470,8 +470,8 @@
         "subcommands": {
           "tofu plan": 762,
           "mise run": 549,
-          "git status": 491,
-          "git pull": 443,
+          "git status": 492,
+          "git pull": 445,
           "jj git": 429,
           "k get": 389,
           "git checkout": 384,

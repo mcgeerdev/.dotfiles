@@ -4,6 +4,8 @@ SAVEHIST=100000
 setopt APPEND_HISTORY
 setopt INC_APPEND_HISTORY
 setopt HIST_IGNORE_DUPS
+# ": <epoch>:<duration>;" on each line, so wow-signals can count per week.
+setopt EXTENDED_HISTORY
 
 export PATH="/opt/homebrew/bin:$PATH"
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"

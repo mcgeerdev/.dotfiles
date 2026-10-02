@@ -285,9 +285,9 @@
     "tool_calls_pct": 0.09
   },
   "watch": [
-    "write (subagent) error rate hit 75% (18/24 calls), up from a smaller share last week",
-    "Top session -didx.projects-tofu 2026-08-24T12-55-24 cost $120.92 ($174.22 with its advisor thread), above last week's top of $87.16",
-    "New folder -.dotfiles-nvim-.omp-agent appeared with $19.96 combined cost (117 main + 115 advisor msgs), absent from last week's by_project list"
+    "write tool errors 18/24 (75%) for subagent",
+    "bash tool errors 16/35 (46%) for subagent",
+    "top session cost $120.92, 37% of week total $327.99, tofu main"
   ],
   "signals": {
     "window": {
@@ -306,17 +306,17 @@
       },
       "lifetime": {
         "note": "whole history file, untimed",
-        "total": 13428,
+        "total": 13437,
         "commands": {
-          "git": 2442,
+          "git": 2445,
           "jj": 1979,
           "tofu": 1459,
-          "cd": 864,
+          "cd": 867,
           "mise": 811,
           "k": 706,
           "kubectl": 533,
           "vim": 511,
-          "la": 491,
+          "la": 493,
           "omp": 443,
           "brew": 332,
           "aws": 330,
@@ -337,8 +337,8 @@
         "subcommands": {
           "tofu plan": 762,
           "mise run": 549,
-          "git status": 491,
-          "git pull": 443,
+          "git status": 492,
+          "git pull": 445,
           "jj git": 429,
           "k get": 389,
           "git checkout": 384,

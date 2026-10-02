@@ -102,6 +102,14 @@ becomes the GitHub release notes.
    evidence. Keep earlier suggestions unless the user adopted the tool
    or the evidence no longer holds.
 
+## Declined
+
+The owner removed these from a release. Do not make or suggest them again.
+Removals leave no trace on `main` after a squash merge, so this list is the
+record.
+
+- Shell aliases for `tofu` subcommands (`tp`, `ti`), 2026-09-27.
+
 ## Guards
 
 - If there is no weekly digest JSON dated within the last 7 days, stop.

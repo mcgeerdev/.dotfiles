@@ -109,6 +109,10 @@ bashInterceptor:
       tool: bash
       flags: m
       message: "`git reset --hard` is blocked by policy — ask the User before discarding work."
+    - pattern: "(?:^|[;&|]+\\s*)gh\\s+(?:run\\s+watch\\b|pr\\s+checks\\b[^;&|\\n]*--watch\\b)|\\bsleep\\s+\\d+\\s*(?:;|&&)\\s*gh\\s+pr\\s+checks\\b"
+      tool: github
+      flags: m
+      message: "Watch CI with the `github` tool's `run_watch` op (`run` for one run, `branch` for every run on the PR head), and only when the User asked for the result or your own next step needs it. Otherwise report the PR URL and stop."
 github:
   enabled: true
 secrets:
