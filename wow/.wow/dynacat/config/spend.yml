@@ -1,0 +1,64 @@
+# What each omp session open in Herdr has cost today, fed by attentiond's
+# spend source, which reads ~/.omp/stats.db.
+#
+# Included from wow.yml as the side column. One row per omp pane: today's total,
+# then the main, advisor and subagent split. A session whose advisor transcript
+# passed [spend] advisor_cost or lookups_per_note in ~/.attn/config.toml also
+# sits in the Attention block on the Work page, which is where Snooze and Bump
+# live; this block names the limit it passed and offers Open.
+#
+# The limits count the advisor transcript's whole life, the split counts today,
+# so a flagged row can show a small number beside it.
+#
+# attentiond runs `omp stats --summary` before each read, because omp only
+# indexes new turns when asked. "index as of" is the newest turn it found: when
+# that falls behind, the numbers are old and /health says why.
+
+- type: custom-api
+  title: Spend
+  cache: 1m
+  # The source polls every five minutes; a minute here means a fresh read
+  # shows up within a minute of landing.
+  update-interval: 1m
+  url: ${ATTENTIOND_URL}/api/work
+  template: |
+    {{ $sessions := .JSON.Array "items.#(source==\"spend\")#" }}
+    {{ if eq (len $sessions) 0 }}
+      <p class="color-paragraph">No omp session open in Herdr.</p>
+    {{ else }}
+    {{/* One legend for every row: the column is too narrow to label each
+         number. */}}
+    <p class="size-h6 color-paragraph margin-bottom-10">today: main · advisor · sub{{ with index $sessions 0 }}{{ $asOf := .String "context.as_of" }}{{ if $asOf }}<br>indexed <span {{ $asOf | parseTime "rfc3339" | toRelativeTime }}></span> ago{{ end }}{{ end }}</p>
+    <ul class="list list-gap-14 collapsible-container" data-collapse-after="6">
+      {{ range $sessions }}
+      {{/* Only two tones reach this block: attention for a session over a
+           limit, neutral for the rest. The "!" carries the same signal as the
+           colour. */}}
+      {{ $flagged := eq (.String "tone") "attention" }}
+      <li>
+        <div class="flex items-center gap-10">
+          <span class="grow text-truncate {{ if .Bool "snoozed" }}color-paragraph{{ else }}color-highlight{{ end }}">{{ if .Bool "snoozed" }}zz {{ end }}{{ .String "context.workspace_label" }}</span>
+          <span class="shrink-0 color-highlight">${{ .String "context.today_total" }}</span>
+        </div>
+        <div class="size-h6 color-paragraph text-truncate" title="{{ .String "context.session_title" }}">{{ .String "context.session_title" }}</div>
+        <div class="size-h6 color-paragraph">{{ .String "context.today_main" }} · {{ .String "context.today_advisor" }} · {{ .String "context.today_subagent" }}</div>
+        {{ if $flagged }}
+        {{/* The advisor limits count the transcript's whole life, so the
+             numbers here are the advisor's, not today's. The full sentence
+             is on hover. */}}
+        <div class="flex items-center gap-10 size-h6">
+          <span class="grow tone-attention" title="{{ .String "context.reason" }}">!
+            {{ if eq (.String "label") "advisor cost" }}advisor ${{ .String "context.advisor_cost" }}
+            {{ else }}{{ .String "context.advisor_lookups" }} lookups, {{ .String "context.advisor_notes" }} {{ if eq (.String "context.advisor_notes") "1" }}note{{ else }}notes{{ end }}{{ end }}</span>
+          {{ range .Array "actions" }}{{ if eq (.String "id") "focus" }}
+          <button type="button" class="shrink-0 size-h6 color-highlight" style="background:none;border:0;padding:0;font:inherit;cursor:pointer"
+            onclick="fetch('{{ .String "href" }}',{method:'POST',mode:'no-cors'});this.disabled=true">{{ .String "label" }}</button>
+          {{ end }}{{ end }}
+        </div>
+        {{ end }}
+      </li>
+      {{ end }}
+    </ul>
+    {{ end }}
+    {{/* Open is a fetch rather than a form for the reason given in
+         herdr.yml: Dynacat serves form-action 'self'. */}}

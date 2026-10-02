@@ -32,6 +32,7 @@
       {{ if eq $source "github" }}{{ $kind = "PR" }}{{ end }}
       {{ if eq $source "calendar" }}{{ $kind = "CAL" }}{{ end }}
       {{ if eq $source "shell" }}{{ $kind = "TERM" }}{{ end }}
+      {{ if eq $source "spend" }}{{ $kind = "SPEND" }}{{ end }}
 
       {{/* tone drives colour and glyph. Colour alone fails for anyone who
            cannot separate red from green, so each state also carries a glyph.

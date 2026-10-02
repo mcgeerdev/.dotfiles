@@ -45,6 +45,8 @@ installed integration.
 │       ├── herdr.yml              agents in this Herdr session, beside it
 │       ├── all-work.yml           everything attentiond knows, included by home.yml
 │       ├── stale.yml              work nothing has happened to in a month
+│       ├── wow.yml                the WOW page
+│       ├── spend.yml              today's omp cost per session, beside it
 │       └── internet.yml           the Home page, the speed test alone
 └── herdr/
     └── config.toml                Herdr config
@@ -264,13 +266,22 @@ stack is for.
 | Scratchpad | live, Dynacat `to-do` widget, tasks in SQLite on this host |
 | Calendar | Dynacat `calendar` widget, month grid only |
 
-`WOW` is the second page, at `/wow`, fetched from the public
-`mcgeerdev/.dotfiles` repository with a 1h cache:
+`WOW` is the second page, at `/wow`. Patterns and Changelog are fetched from
+the public `mcgeerdev/.dotfiles` repository with a 1h cache; Spend sits in the
+side column, live against attentiond:
 
 | Block | State |
 | --- | --- |
+| Spend | live, attentiond's spend source over `~/.omp/stats.db`, 1m interval |
 | Patterns | `custom-api` over `wow/.omp/audits/patterns/summary.json` on `main` |
 | Changelog | `custom-api` over the GitHub releases API, latest release notes |
+
+Spend has one row per omp session open in Herdr: today's cost, split into
+main, advisor and subagent. `[spend]` in `~/.attn/config.toml` sets two advisor
+limits, a dollar cost and a lookups-per-note ratio, counted over the advisor
+transcript's whole life. A session past either one turns red here and goes into
+the Attention block on the Work page as `advisor cost` or `advisor lookups`,
+where Snooze and Bump apply to it like anything else.
 
 `Home` is the third page, at `/home`, with two blocks:
 

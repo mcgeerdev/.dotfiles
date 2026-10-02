@@ -119,3 +119,21 @@ lead = "10m"       # a meeting this close moves into the attention queue
 [[calendar.feeds]]
 label = "didx"
 url_env = "ATTENTIOND_CALENDAR_DIDX"
+
+[spend]
+# Today's omp cost per session open in Herdr, split into main, advisor and
+# subagent, for the Spend block on the WOW page. Read from ~/.omp/stats.db.
+enabled = true
+poll = "5m"
+
+# omp only indexes new turns into stats.db when asked. This asks, before every
+# read; the first run after days without one takes about half a minute.
+sync = ["omp", "stats", "--summary"]
+
+# A session goes into the Attention block when one of its advisor transcripts
+# passes either limit, counted over the transcript's whole life. The costliest
+# advisor transcript so far ($683) made 171 lookups per note; a normal month
+# runs about 4.
+advisor_cost = 25          # dollars
+lookups_per_note = 20      # read, grep and glob calls per advise call
+min_lookups = 100          # below this the ratio is not judged

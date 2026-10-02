@@ -1,6 +1,7 @@
 # Way of Work page: released behaviour patterns (Patterns) and the latest
-# release's notes (Changelog). Fetched server-side from the public repo;
-# long caches, the sources change weekly/monthly.
+# release's notes (Changelog), with today's omp spend beside them (Spend).
+# Patterns and Changelog are fetched server-side from the public repo; long
+# caches, the sources change weekly/monthly. Spend is live against attentiond.
 #
 # Patterns reads main, which only receives release merges, so the page shows
 # released patterns and the URL survives each new release/* branch. Release
@@ -9,6 +10,12 @@
 - name: WOW
   slug: wow
   columns:
+    # The side column, the way the calendar sits on the Work page. Patterns
+    # say how the work went; Spend says what it is costing right now.
+    - size: small
+      widgets:
+        - $include: spend.yml
+
     - size: full
       widgets:
         - type: custom-api
