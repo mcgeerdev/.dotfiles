@@ -1,27 +1,26 @@
 #!/usr/bin/env bash
-# Move skills along the production line and keep both harness trees in sync.
+# Move skills along the production line and keep the flat skill tree in sync.
 #
 # Two independent axes. Ownership says whose skill it is. Lifecycle says how far
 # along it is. Promoting never changes ownership; adopting never changes stage.
 #
-#   owner    stage       location                              loaded by
-#   adapted  production  ~/.agents/skills/<name>                both harnesses
-#   adapted  testing     ~/.agents/skills/testing/<name>        omp only, hidden
-#   adapted  retired     ~/.agents/skills/retired/<name>        nothing
-#   personal production  ~/.agents/skills/personal/<name>       both harnesses
-#   personal testing     ~/.agents/skills/personal/testing/...  omp only, hidden
-#   personal retired     ~/.agents/skills/personal/retired/...  nothing
+#   owner    stage       location (under ~/.omp/agent/skills)  loaded by
+#   adapted  production  <name>                                 every harness
+#   adapted  testing     testing/<name>                         omp only, hidden
+#   adapted  retired     retired/<name>                         nothing
+#   personal production  personal/<name>, linked as <name>      every harness
+#   personal testing     personal/testing/<name>                omp only, hidden
+#   personal retired     personal/retired/<name>                nothing
+#
+# The store is the tree. ~/.claude/skills and ~/.agents/skills are symlinks to
+# it, so the only links to manage are the flat <name> -> personal/<name> ones.
 #
 # Every command is idempotent, including `new`. Asking for a state the skill is
 # already in reports that and exits 0.
 
 set -euo pipefail
 
-STORE="$HOME/.agents/skills"
-CLAUDE_TREE="$HOME/.claude/skills"
-REPO_TREE="$HOME/.dotfiles/wow/.omp/agent/skills"
-CLAUDE_PREFIX="../../.agents/skills"
-REPO_PREFIX="../../../../../.agents/skills"
+STORE="$HOME/.dotfiles/wow/.omp/agent/skills"
 
 die() { printf 'skill-stage: %s\n' "$1" >&2; exit 1; }
 
@@ -44,12 +43,21 @@ subpath_of() { # owner stage name
 
 path_of() { printf '%s/%s' "$STORE" "$(subpath_of "$1" "$2" "$3")"; }
 
+# A personal production link sits in the adapted production slot, so that slot
+# only counts when it holds a real directory.
+exists_at() { # owner stage name
+  local dir
+  dir="$(path_of "$1" "$2" "$3")"
+  [ -f "$dir/SKILL.md" ] || return 1
+  [ "$1/$2" != adapted/production ] || [ ! -L "$dir" ]
+}
+
 # Echoes "<owner> <stage>", or fails when the skill does not exist.
 locate() {
   local name="$1" owner stage
   for owner in adapted personal; do
     for stage in production testing retired; do
-      if [ -f "$(path_of "$owner" "$stage" "$name")/SKILL.md" ]; then
+      if exists_at "$owner" "$stage" "$name"; then
         printf '%s %s' "$owner" "$stage"; return 0
       fi
     done
@@ -59,10 +67,10 @@ locate() {
 
 is_live() { [ "$1" = production ]; }
 
-# Production skills of both owners, which are the ones that get symlinks.
-live_names() {
+# Personal production skills, the only ones that need a flat link.
+linked_names() {
   local f
-  for f in "$STORE"/*/SKILL.md "$STORE"/personal/*/SKILL.md; do
+  for f in "$STORE"/personal/*/SKILL.md; do
     [ -f "$f" ] || continue
     basename "$(dirname "$f")"
   done | sort -u
@@ -80,31 +88,26 @@ hide: true
   fi
 }
 
-# Drop links we own that no longer point at a production skill, then add the
-# missing ones. Links outside .agents/skills are never touched, which is what
-# keeps the unslop alias safe.
+# Drop flat links that no longer point at a personal production skill, then add
+# the missing ones. Links that do not point into personal/ are never touched.
 relink() {
-  local pair tree prefix entry target name live added=0 removed=0 owner stage
-  live="$(live_names)"
-  for pair in "$CLAUDE_TREE|$CLAUDE_PREFIX" "$REPO_TREE|$REPO_PREFIX"; do
-    tree="${pair%%|*}"; prefix="${pair##*|}"
-    for entry in "$tree"/*; do
-      [ -L "$entry" ] || continue
-      target="$(readlink "$entry")"
-      case "$target" in *.agents/skills/*) ;; *) continue ;; esac
-      name="$(basename "$entry")"
-      if ! printf '%s\n' "$live" | grep -qx "$name" || [ ! -f "$entry/SKILL.md" ]; then
-        rm "$entry"; removed=$((removed + 1))
-      fi
-    done
-    while IFS= read -r name; do
-      [ -n "$name" ] || continue
-      [ -e "$tree/$name" ] && continue
-      if location=$(locate "$name"); then read -r owner stage <<< "$location"; else continue; fi
-      ln -s "$prefix/$(subpath_of "$owner" "$stage" "$name")" "$tree/$name"
-      added=$((added + 1))
-    done <<< "$live"
+  local entry target name live added=0 removed=0
+  live="$(linked_names)"
+  for entry in "$STORE"/*; do
+    [ -L "$entry" ] || continue
+    target="$(readlink "$entry")"
+    case "$target" in personal/*) ;; *) continue ;; esac
+    name="$(basename "$entry")"
+    if ! printf '%s\n' "$live" | grep -qx "$name" || [ ! -f "$entry/SKILL.md" ]; then
+      rm "$entry"; removed=$((removed + 1))
+    fi
   done
+  while IFS= read -r name; do
+    [ -n "$name" ] || continue
+    { [ -e "$STORE/$name" ] || [ -L "$STORE/$name" ]; } && continue
+    ln -s "personal/$name" "$STORE/$name"
+    added=$((added + 1))
+  done <<< "$live"
   printf 'links: %d added, %d removed\n' "$added" "$removed"
 }
 
@@ -121,6 +124,8 @@ settle() { # name owner|- stage|-
   fi
   src="$(path_of "$from_owner" "$from_stage" "$name")"
   dst="$(path_of "$to_owner" "$to_stage" "$name")"
+  # Releasing a personal production skill lands where its own flat link sits.
+  if [ -L "$dst" ] && [ "$(readlink "$dst")" = "personal/$name" ]; then rm "$dst"; fi
   mkdir -p "$(dirname "$dst")"
   mv "$src" "$dst"
   set_hide "$dst/SKILL.md" "$to_stage"
@@ -136,8 +141,9 @@ cmd_list() {
       for f in "$(path_of "$owner" "$stage" '')"*/SKILL.md; do
         [ -f "$f" ] || continue
         name="$(basename "$(dirname "$f")")"
+        exists_at "$owner" "$stage" "$name" || continue
         if is_live "$stage"; then
-          printf '%-36s %-9s %-11s %s\n' "$name" "$owner" "$stage" "both harnesses"
+          printf '%-36s %-9s %-11s %s\n' "$name" "$owner" "$stage" "every harness"
         elif [ "$stage" = testing ]; then
           printf '%-36s %-9s %-11s %s\n' "$name" "$owner" "$stage" "omp, hidden"
         else
