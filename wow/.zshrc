@@ -10,7 +10,6 @@ setopt EXTENDED_HISTORY
 export PATH="/opt/homebrew/bin:$PATH"
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 export PATH="$HOME/.local/share/mise/shims:$PATH"
-eval "$(mise activate zsh)"
 
 alias la="ls -la"
 alias ..="cd .."
@@ -155,3 +154,7 @@ tofu() {
       ;;
   esac
 }
+
+# Last, so nothing changes PATH after mise saves it. A later change makes the
+# first prompt run mise's hook a second time and repeat its warnings.
+eval "$(mise activate zsh)"
