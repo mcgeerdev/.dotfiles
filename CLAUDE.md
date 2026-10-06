@@ -72,6 +72,7 @@ git clone git@github.com:mcgeerdev/.claude.git ~/.claude
   no AI attribution or `Co-Authored-By` trailers.
 - Never `git rm` a file. `git mv` it to
   `archive/wow/YYYY-MM/<repo-relative-path>` and fix its references.
+  `.DS_Store` is the exception: it never belongs in the repo, so delete it.
 - Merging the release PR tags `YYYY.MM.N`, publishes a GitHub release
   (notes = PR body), and cuts the next `release/*` branch
   (`.github/workflows/release.yaml`). `wow-sync` applies it locally.
