@@ -4,11 +4,11 @@
 # machine that is already in sync it changes nothing.
 #
 # A real file or directory where a link belongs is moved to
-# ~/.dotfiles-backup/<timestamp>/ before linking, so nothing is lost.
+# ~/.dotfiles-backup/<timestamp>.<random>/ before linking, so nothing is lost.
 set -euo pipefail
 
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-backup="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
+backup="" # created on first use, unique per run
 
 # These sit inside ~/.claude (its own git repo) and ~/.agents (shared with other
 # tools), so stow would fight over them. link|store, both relative to $HOME.
@@ -19,12 +19,34 @@ AGENT_LINKS="
 "
 
 backup_path() { # path relative to $HOME
+  if [ -z "$backup" ]; then
+    mkdir -p "$HOME/.dotfiles-backup"
+    backup="$(mktemp -d "$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S).XXXX")"
+  fi
   mkdir -p "$(dirname "$backup/$1")"
   mv "$HOME/$1" "$backup/$1"
   echo "moved ~/$1 to $backup/$1"
 }
 
-# 1. Stow wow/. A dry run lists what blocks it; move those aside, then stow.
+# Stow aborts outright when a real directory sits where wow/ has a file, so
+# move those first. Only walk where $HOME has a real directory: everywhere else
+# stow links the whole directory and never looks inside.
+move_dirs_over_files() { # path relative to wow/, empty for the top
+  local entry rel
+  for entry in "$repo/wow/${1:+$1/}"* "$repo/wow/${1:+$1/}".[!.]*; do
+    [ -e "$entry" ] || [ -L "$entry" ] || continue
+    rel="${1:+$1/}$(basename "$entry")"
+    [ -d "$HOME/$rel" ] && [ ! -L "$HOME/$rel" ] || continue
+    if [ -d "$entry" ] && [ ! -L "$entry" ]; then
+      move_dirs_over_files "$rel"
+    else
+      backup_path "$rel"
+    fi
+  done
+}
+
+# 1. Stow wow/. A dry run lists what else blocks it; move those aside, then stow.
+move_dirs_over_files ""
 conflicts="$(
   { stow -n -d "$repo" -t "$HOME" -R wow 2>&1 || true; } | sed -nE \
     -e 's/^  \* cannot stow .* over existing target (.+) since .*/\1/p' \

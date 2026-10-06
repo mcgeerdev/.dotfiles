@@ -33,8 +33,8 @@ single-machine reproducibility, not multi-user distribution.
 ./install.sh
 ```
 Run it on a fresh machine or whenever you suspect drift; a second run changes
-nothing. Anything real (not a link) where a link belongs is moved to
-`~/.dotfiles-backup/<timestamp>/` first, and each move is printed.
+nothing. Anything real (not a link) where a link belongs is moved to a new
+`~/.dotfiles-backup/<timestamp>.<random>/` first, and each move is printed.
 
 ### Edit a config
 1. Edit the file under `<folder>/.config/...` directly — symlinks point here.
