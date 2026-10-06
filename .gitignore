@@ -1,2 +1,27 @@
 /pkms/*
 /obsidian/*
+
+.DS_Store
+.zcompdump*
+
+# omp runtime state. wow/.omp is stowed as ~/.omp, so omp writes here.
+/wow/.omp/*.db*
+/wow/.omp/install-id
+/wow/.omp/browser-relay/
+/wow/.omp/cache/
+/wow/.omp/logs/
+/wow/.omp/natives/
+/wow/.omp/puppeteer/
+/wow/.omp/run/
+/wow/.omp/audits/.obsidian/
+/wow/.omp/agent/*.db
+/wow/.omp/agent/*.db-*
+/wow/.omp/agent/blobs/
+/wow/.omp/agent/cache/
+/wow/.omp/agent/custom-session-files/
+/wow/.omp/agent/last-changelog-version
+/wow/.omp/agent/memories/
+/wow/.omp/agent/predict/
+/wow/.omp/agent/secret-placeholder.key
+/wow/.omp/agent/sessions/
+/wow/.omp/agent/terminal-sessions/

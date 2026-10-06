@@ -20,8 +20,8 @@ mcp:
 skills:
   customDirectories:
     - ~/.omp/agent/skills
-    - ~/.agents/skills/testing
-    - ~/.agents/skills/personal/testing
+    - ~/.omp/agent/skills/testing
+    - ~/.omp/agent/skills/personal/testing
 defaultThinkingLevel: high
 steeringMode: all
 followUpMode: all
