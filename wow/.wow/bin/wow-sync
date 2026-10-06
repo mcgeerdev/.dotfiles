@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # wow-sync — apply merged way-of-work releases to this machine: fast-forward
-# the live checkout to origin/main, re-stow wow, reinstall the LaunchAgents
-# (all but itself: bootout of a running label kills its own process tree).
+# the live checkout to origin/main and reinstall the LaunchAgents (all but
+# itself: bootout of a running label kills its own process tree). Linking is
+# manual: run ~/.dotfiles/install.sh when you want it.
 set -uo pipefail
 
 # mise shims last: gitleaks (pre-commit hook) lives only there, and an
@@ -28,6 +29,5 @@ exec "$HOME/.wow/bin/attn-run" --id wow:sync --title "wow · apply release" -- \
     set -euo pipefail
     repo="$HOME/.dotfiles"
     git -C "$repo" pull --ff-only origin main
-    cd "$repo" && STOW_FOLDERS=wow ./install.sh
     make -C "$HOME/.wow" digest-install WOW_SKIP=wow.wow-sync
   '
