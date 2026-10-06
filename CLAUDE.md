@@ -16,19 +16,25 @@ single-machine reproducibility, not multi-user distribution.
 - `nvim/.config/wezterm/wezterm.lua` — WezTerm terminal config.
 - `pkms/` — Personal knowledge submodule (private, gitignored content).
 - `claude/` — Claude/agent config submodule (`mcgeerdev/.claude`). Tracks the
-  live `~/.claude` repo: `AGENTS.md`, `skills/`, `rules/`, `settings.json`.
+  live `~/.claude` repo: `AGENTS.md`, `rules/`, `settings.json`.
   Not a stow package. See "Submodules".
-- `install.sh` — Stow driver. Reads `$STOW_FOLDERS` (comma-separated).
+- `wow/.omp/agent/skills/` and `wow/.omp/agent/commands/` — the single store for
+  agent skills and slash commands. `~/.claude/skills`, `~/.agents/skills` and
+  `~/.claude/commands` are symlinks to them, created by `install.sh`. Manage
+  lanes with `wow/.omp/agent/bin/skill-stage`; index in `skills/README.md`.
+- `install.sh` — Stows everything in `wow/` into `$HOME`, adds the agent links
+  above, sets `core.hooksPath`. Takes no arguments.
 - `watch.sh` / `addKnowledge.cron` — pkms autocommit helpers.
 
 ## HOW
 
 ### Install / re-stow
 ```bash
-STOW_FOLDERS=nvim ./install.sh
+./install.sh
 ```
-Unstows then re-stows each listed folder. Silent on success; surfaces any
-stow conflict to stderr.
+Run it on a fresh machine or whenever you suspect drift; a second run changes
+nothing. Anything real (not a link) where a link belongs is moved to
+`~/.dotfiles-backup/<timestamp>/` first, and each move is printed.
 
 ### Edit a config
 1. Edit the file under `<folder>/.config/...` directly — symlinks point here.
@@ -36,10 +42,9 @@ stow conflict to stderr.
    Ghostty, restart wezterm).
 
 ### Submodules
-`pkms` and `claude` are separate repos. Neither is a stow package. Never add
-either to `$STOW_FOLDERS`: `stow claude` links the submodule's contents into
-`$HOME` directly, giving you `~/AGENTS.md` and `~/skills` instead of anything
-under `~/.claude`.
+`pkms` and `claude` are separate repos. Neither is a stow package. Never stow
+either: `stow claude` links the submodule's contents into `$HOME` directly,
+giving you `~/AGENTS.md` and `~/skills` instead of anything under `~/.claude`.
 
 Never commit pkms content from this repo; `.gitignore` already blocks it. Use
 `watch.sh` / `addKnowledge.cron` for autocommit inside `pkms/`.
