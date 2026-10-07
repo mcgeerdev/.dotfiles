@@ -3,6 +3,7 @@ description: Commit and open a pull request
 metadata:
   skills:
     - git-commit
+    - pr-house-style
     - unslop
     - google-style
 ---
@@ -17,10 +18,11 @@ If not already done:
 Before writing anything, read and follow these skills:
 
 - skill://git-commit
+- skill://pr-house-style
 - skill://unslop
 - skill://google-style
 
-Fill the PR body from `.github/PULL_REQUEST_TEMPLATE.md` when the repository has one.
+Pick the PR body format in the order skill://pr-house-style sets: the release format for `release/*` into `main`, then the repository's PR template when it has one, then the BLUF format. Never a template and BLUF together.
 
 Keep PR Description **_FOCUSED_** and **_CONCISE_**
 
