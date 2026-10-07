@@ -64,8 +64,12 @@
       {{ if eq $source "herdr" }}{{ $kind = "AGENT" }}{{ end }}
 
       {{/* What this row is. An agent is its workspace, because that is what
-           Herdr's own sidebar calls it. A command is the command. */}}
-      {{ $what := .String "context.cmd" }}
+           Herdr's own sidebar calls it. A command is its title, the same words
+           All work shows: attn-run builds one from the project and the
+           command, and a job started with --title names itself. The raw
+           command is no use as a name; a WOW job's is a whole `bash -c`
+           script. */}}
+      {{ $what := .String "title" }}
       {{ if eq $source "herdr" }}{{ $what = .String "context.workspace_label" }}{{ end }}
 
       {{/* Where it is. A workspace label is not unique: two of mine are both
@@ -92,21 +96,22 @@
         {{/* For an agent, label is Herdr's own status word, so the pane reads
              the same here as it does in Herdr's sidebar. */}}
         <span class="size-h6 shrink-0 {{ $toneClass }}" style="display:inline-block;min-width:8.5rem">{{ if $glyph }}{{ $glyph }} {{ end }}{{ .String "label" }}</span>
-        <span class="shrink-0 color-highlight text-truncate">{{ $what }}</span>
-        {{ if $tab }}<span class="size-h6 shrink-0 color-paragraph">{{ $tab }}</span>{{ end }}
-        {{ if $agent }}<span class="size-h6 shrink-0 color-paragraph">{{ $agent }}</span>{{ end }}
-        <span class="grow text-truncate size-h6 color-paragraph">{{ $where }}</span>
+        {{/* When the row is too narrow, the name keeps its room and the rest
+             gives way. Tab, agent name and path share one span whose flex
+             basis is zero, so it only gets what the name leaves over; the
+             name is not shrink-0, so a long one truncates instead of pushing
+             the columns after it out of the widget. */}}
+        <span class="color-highlight text-truncate">{{ $what }}</span>
+        <span class="flex-1 text-truncate size-h6 color-paragraph">{{ if $tab }}{{ $tab }} · {{ end }}{{ if $agent }}{{ $agent }} · {{ end }}{{ $where }}</span>
         <span class="size-h6 shrink-0 color-paragraph" {{ .String "updated_at" | parseTime "rfc3339" | toRelativeTime }}></span>
-        {{ range .Array "actions" }}
+        {{/* Open, and only Open. Snooze and Bump arrive on every item, but
+             each control has one home and theirs is the Attention block. */}}
+        {{ range .Array "actions" }}{{ if eq (.String "id") "focus" }}
         <span class="shrink-0">
-          {{ if eq (.String "method") "GET" }}
-            <a class="size-h6 color-highlight" href="{{ .String "href" }}" target="_blank">{{ .String "label" }}</a>
-          {{ else }}
-            <button type="button" class="size-h6 color-highlight" style="background:none;border:0;padding:0;font:inherit;cursor:pointer"
-              onclick="fetch('{{ .String "href" }}',{method:'POST',mode:'no-cors'});this.disabled=true">{{ .String "label" }}</button>
-          {{ end }}
+          <button type="button" class="size-h6 color-highlight" style="background:none;border:0;padding:0;font:inherit;cursor:pointer"
+            onclick="fetch('{{ .String "href" }}',{method:'POST',mode:'no-cors'});this.disabled=true">{{ .String "label" }}</button>
         </span>
-        {{ end }}
+        {{ end }}{{ end }}
       </li>
 
       {{ end }}

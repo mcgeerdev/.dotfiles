@@ -300,7 +300,9 @@ That third search is the one that catches a pull request you approved and now
 have to merge: approving it consumes the review request, so without it the
 branch disappears from the board exactly when it becomes your job. Each item
 says which search found it in `context.role`: `author`, `reviewer` or
-`reviewed`.
+`reviewed`. The board's first column shows it as `AUTHOR` or `REVIEWER`; a
+pull request you already reviewed still counts as yours to review, and its
+label says what has happened since.
 
 The widget filters `/api/work` down to
 `source == "github"` with a gjson query, so the board shows every pull request
@@ -325,13 +327,15 @@ gjson query. A query matches one source at a time, and merging two of them
 would mean re-sorting what the daemon already sorted; Dynacat's `append` only
 returns `[]any`, which its sort helpers will not take anyway.
 
-An agent row shows its workspace, a command row shows the command. Both show
-the last two segments of the directory, because a workspace label is not
-unique: two of mine are both called `tofu`, one in `sites/cloudapi-dev` and one
-in `sites/cloudapi-prod`, and the path is the only thing that separates them.
-The tab name and the agent kind appear only when they say something: Herdr
-numbers a tab it has no name for and otherwise names it after the agent, and
-the kind is the same word on every row.
+An agent row shows its workspace. A command row shows its title, the same words
+All work shows, never the raw command: a WOW job's command is a whole `bash -c`
+script. Both show the last two segments of the directory, because a workspace
+label is not unique: two of mine are both called `tofu`, one in
+`sites/cloudapi-dev` and one in `sites/cloudapi-prod`, and the path is the only
+thing that separates them. The tab name and the agent kind appear only when
+they say something: Herdr numbers a tab it has no name for and otherwise names
+it after the agent, and the kind is the same word on every row. Open is the
+only button on a row; Snooze and Bump live in Attention.
 
 Only agents appear under `AGENT`. attentiond does not report a pane running an
 ordinary shell, so this is every agent and the tab it is in, not every tab.
