@@ -172,6 +172,10 @@ speech:
 interruptMode: immediate
 codexResets:
   autoRedeem: "no"
+# ~/.omp/wt sits inside ~/.dotfiles, and APFS cannot clone a repository
+# into its own subtree, so isolated workers there fail with EINVAL.
+worktree:
+  base: ~/.local/share/omp/wt
 task:
   agentAdvisor:
     task: "off"
