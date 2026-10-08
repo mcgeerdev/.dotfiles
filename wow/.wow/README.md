@@ -300,9 +300,20 @@ That third search is the one that catches a pull request you approved and now
 have to merge: approving it consumes the review request, so without it the
 branch disappears from the board exactly when it becomes your job. Each item
 says which search found it in `context.role`: `author`, `reviewer` or
-`reviewed`. The board's first column shows it as `AUTHOR` or `REVIEWER`; a
-pull request you already reviewed still counts as yours to review, and its
-label says what has happened since.
+`reviewed`. The board's first column turns that into your part in it:
+
+| Column | When |
+| --- | --- |
+| `AUTHOR` | you opened it |
+| `ONLY YOU` | you are the one pending reviewer, asked directly (`context.review_scope = sole`) |
+| `SHARED` | another reviewer or a team can answer it too (`shared`) |
+| `REVIEWER` | you already reviewed it, so no request is pending; the label says what has happened since |
+
+`SHARED` carries no number on purpose: `context.reviewers` counts pending
+requests with a team as one, not people.
+
+`review_scope` needs an attentiond build that reports it. Without it, a review
+you owe also shows as `REVIEWER`.
 
 The widget filters `/api/work` down to
 `source == "github"` with a gjson query, so the board shows every pull request
