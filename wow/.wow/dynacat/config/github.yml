@@ -41,7 +41,15 @@
       {{ else if eq $tone "active" }}{{ $toneClass = "tone-active" }}{{ $glyph = "~" }}
       {{ else if eq $tone "done" }}{{ $toneClass = "tone-done" }}{{ $glyph = "." }}
       {{ end }}
+      {{/* Your part in it. A pull request you already reviewed is one you are
+           still a reviewer on; the label beside it says what has happened
+           since. A role the daemon adds later shows as its own word. */}}
+      {{ $role := .String "context.role" }}
+      {{ if eq $role "author" }}{{ $role = "AUTHOR" }}
+      {{ else if or (eq $role "reviewer") (eq $role "reviewed") }}{{ $role = "REVIEWER" }}
+      {{ end }}
       <li class="flex items-center gap-10">
+        <span class="size-h6 shrink-0 color-paragraph" style="display:inline-block;min-width:5.6rem">{{ $role }}</span>
         {{/* label is the human word for why this item is here; the daemon
              owns the vocabulary. */}}
         <span class="size-h6 shrink-0 {{ $toneClass }}">{{ if $glyph }}{{ $glyph }} {{ end }}{{ .String "label" }}</span>

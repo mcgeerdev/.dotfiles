@@ -63,19 +63,23 @@ git clone git@github.com:mcgeerdev/.claude.git ~/.claude
 ```
 
 ### Way of Work changes
-`main` only receives release merges. Never commit to it directly.
+Interactive changes, the owner's or an agent's in a session, go to `main`:
+commit in the live checkout `~/.dotfiles` and push, or open a PR into
+`main` from a worktree. The owner bypasses the `master` ruleset, so a
+direct push works.
 
-- Changes ride the current `release/<version>` branch, checked out in the
-  worktree `~/.dotfiles-release` (`~/.wow/bin/wow-worktree` creates and
-  updates it). The live checkout `~/.dotfiles` stays on `main`.
+- The WOW jobs commit to `release/next`, checked out in the worktree
+  `~/.dotfiles-release`. `~/.wow/bin/wow-worktree` creates it and merges
+  `main` into it before every run; on conflicting lines `main` wins.
 - One commit per change, conventional subject (`feat(wow): …`), 50/72,
   no AI attribution or `Co-Authored-By` trailers.
 - Never `git rm` a file. `git mv` it to
   `archive/wow/YYYY-MM/<repo-relative-path>` and fix its references.
   `.DS_Store` is the exception: it never belongs in the repo, so delete it.
-- Merging the release PR tags `YYYY.MM.N`, publishes a GitHub release
-  (notes = PR body), and cuts the next `release/*` branch
-  (`.github/workflows/release.yaml`). `wow-sync` applies it locally.
+- Merging the release PR tags the next `YYYY.MM.N` from
+  `.github/workflows/scripts/calver.sh`, publishes a GitHub release
+  (notes = PR body), and GitHub deletes `release/next`. The next WOW job
+  starts it again from `main`. `wow-sync` applies the merge locally.
 
 ## SUBSYSTEM POINTERS
 - Neovim internals (LSP, plugins, keymaps): `nvim/.config/nvim/CLAUDE.md`

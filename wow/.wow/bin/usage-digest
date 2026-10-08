@@ -77,7 +77,7 @@ exec "$HOME/.wow/bin/attn-run" \
     git push origin "$branch"
     if [[ -z $(gh pr list --head "$branch" --json number --jq ".[0].number // empty") ]]; then
       gh pr create --base main --head "$branch" \
-        --title "Release ${branch#release/}" --label release \
+        --title "WOW release" --label release \
         --body "Weekly WOW release. The improve run maintains this body."
     fi
     # A login catch-up fires improve alongside this job; its guard ran

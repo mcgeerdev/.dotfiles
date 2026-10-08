@@ -22,12 +22,41 @@ The user has stated these rules in dozens of prompts. Apply them without being a
    - Other repos: match the last five merged titles (`gh pr list --state merged -L 5`).
 3. Assign to self with `--assignee @me`. In `tofu`, the labeler workflow adds labels, so don't add them by hand.
 4. Body:
-   - Look for a template before writing anything. GitHub reads `pull_request_template.md` in any letter case from `.github/`, the repo root, or `docs/`, and multiple templates from `.github/PULL_REQUEST_TEMPLATE/`. Search case-insensitively. `mono` has `.github/PULL_REQUEST_TEMPLATE.md`.
-   - If a template exists, it sets the format. Keep every heading in its order and fill each one. Write "None" or "N/A" under a section that doesn't apply instead of deleting it. Keep the checklist and footer lines such as `Closes <ticket>`, and tick only what was actually done. Drop the HTML guidance comments after following them.
-   - Only when there is no template, write two short sections. **What** is the value added and the final state, as bullets. **Why** is one sentence naming the trigger: a Datadog rule, a Linear ticket, an incident, or the user's request. Add no test plan section.
-   - In either format, leave out rollback steps, alternatives considered, the iteration history, and how the agent worked. When a template has a test plan, tick the checks that ran and list the ones the reviewer still has to run, unticked.
+   - Write it for a colleague who arrives cold: someone who has not read the plan, the review thread or the code, and will not. It describes the change as it is now, not how it came to be. Every term it uses is either common knowledge in the team or introduced on the spot, and every claim can be acted on without opening another document. This holds for a template body and a BLUF body alike.
+   - Pick the format in this order, and stop at the first that applies:
+     1. A release PR (`release/*` into `main`) uses the format in `skill://usage-audit/improve.md`. `wow-improve` writes those bodies, and they become the GitHub release notes.
+     2. A repository with a PR template uses the template alone, with no BLUF sections added. GitHub reads `pull_request_template.md` in any letter case from `.github/`, the repo root, or `docs/`, and multiple templates from `.github/PULL_REQUEST_TEMPLATE/`. Search case-insensitively. `mono` has `.github/PULL_REQUEST_TEMPLATE.md`. Keep every heading in its order and fill each one. Write "None" or "N/A" under a section that doesn't apply instead of deleting it. Keep the checklist and footer lines such as `Closes <ticket>`, and tick only what was actually done. Drop the HTML guidance comments after following them.
+     3. Everything else uses the BLUF format below.
+   - In a template or BLUF body, leave out rollback steps, alternatives considered, the iteration history, and how the agent worked. When a template has a test plan, tick the checks that ran and list the ones the reviewer still has to run, unticked.
    - Run `unslop` over the body before `gh pr create` or `gh pr edit`.
 5. Azure DevOps repos under `sc.projects/sc-remote-enroll` target `main`, whatever the harness reports as the base branch. Pass `--target-branch main`.
+
+## BLUF body
+
+The format for any PR that is not a release PR and has no repository template. The bottom line goes first, so a reviewer who reads only the first section knows what changed, why, and what it touches. The order is fixed: summary, impact, technical details, testing.
+
+```markdown
+### 🎯 BLUF (bottom line up front)
+
+- What: <exactly one sentence: the change and the state it leaves behind>
+- Why: <exactly one sentence naming the trigger: a Datadog rule, a Linear ticket, an incident, or the user's request>
+- Impact: <the blast radius: who or what behaves differently after merge (users, services, environments, dashboards, other repos), plus any breaking change, migration, feature flag or manual step>
+
+### 🛠️ Key technical changes
+
+- <active voice, at most 4 bullets>
+
+### 🧪 Verification and testing
+
+- How to verify: <one command or manual step for the reviewer>
+- Test coverage: <tests added or run, or "None">
+```
+
+- Keep the three headings exactly as written, emojis included.
+- What and Why are one sentence each. A second sentence belongs in Key technical changes or nowhere.
+- Impact says "None" only when nothing anyone can observe changes, such as a comment or a test-only change. A change to anything that runs, renders or ships has an impact: name it.
+- Key technical changes describe behaviour, not files. No file names, paths or line-by-line changes; the diff has them. The one exception is a file whose role the reviewer cannot guess from its name or the diff.
+- Test coverage names only checks that actually ran or tests that were added. Write "None" rather than imply coverage.
 
 ## Stacks
 
