@@ -15,6 +15,31 @@ Never add AI attribution or `Co-Authored-By` trailers to commits or PRs.
 
 If you need a paragraph long comment to justify why a workaround is OK, the code is wrong, fix the code.
 
+## Delegation
+
+The main session is the lead. It settles architecture, interfaces, scope and
+acceptance criteria before delegating, and it owns integration, verification
+and the PR.
+
+- Delegate only a contract that fits on one screen: objective, files, required
+  change, constraints, non-goals, interfaces it may change and must keep,
+  acceptance criteria. Too long means split it. No acceptance criteria means
+  don't delegate it. If the worker would have to pick an approach, pick it
+  first.
+- `implementer` makes bounded changes, `mechanic` makes changes with no open
+  choice, `scout` answers read-only questions. Put one scout result in the
+  shared `context` rather than having each worker rediscover it.
+- Run dependent tasks in order. Run 2 writers at once by default and never
+  more than 4. Give every concurrent writer `isolated: true` and its own files.
+- Read worker results, not transcripts. Open `agent://<id>` or `history://<id>`
+  only when a worker failed, returned `blocked`, missed a criterion, broke
+  integration, or review flags its work.
+- Send a fix back to the worker that made the change with `write agent://<id>`
+  while its context is still useful.
+- After integration, run the repository's checks once, then spawn `reviewer`
+  on the integrated diff, with code and its tests in the same group. Accept or
+  reject each finding before the PR.
+
 ## Scratch files
 
 Recursive `rm` is blocked in two places. `rules-guard` denies `rm -rf *` in

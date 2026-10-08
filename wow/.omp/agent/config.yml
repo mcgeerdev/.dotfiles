@@ -10,8 +10,9 @@ modelRoles:
   commit: anthropic/claude-haiku-4-5:low
   plan: anthropic/claude-fable-5:high
   slow: anthropic/claude-opus-5-5:high
-  smol: anthropic/claude-sonnet-5:low
-  task: anthropic/claude-sonnet-5:medium
+  review: anthropic/claude-opus-5-5:high
+  smol: anthropic/claude-haiku-5-5:low
+  task: anthropic/claude-sonnet-5-5:medium
   tiny: anthropic/claude-haiku-4-5:high
   vision: anthropic/claude-haiku-4-5
   default: anthropic/claude-opus-5-5:high
@@ -172,14 +173,25 @@ speech:
 interruptMode: immediate
 codexResets:
   autoRedeem: "no"
+# ~/.omp/wt sits inside ~/.dotfiles, and APFS cannot clone a repository
+# into its own subtree, so isolated workers there fail with EINVAL.
+worktree:
+  base: ~/.local/share/omp/wt
+# Workers: `implementer` (@task), `mechanic` (@smol), `scout` (@task),
+# `reviewer` (@review). The delegation policy is in RULES.md.
 task:
+  maxConcurrency: 4
+  isolation:
+    enabled: true
   agentAdvisor:
+    implementer: "off"
+    mechanic: "off"
+    reviewer: "off"
+    scout: "off"
     task: "off"
   agentModelOverrides:
-    luna: openai-codex/gpt-6-luna
-    opus: anthropic/claude-opus-5-5
-    sol: openai-codex/gpt-6-sol
-    sonnet: anthropic/claude-sonnet-5-5
+    reviewer: "@review"
+    scout: "@task"
 composer:
   shape: box
 browser:
