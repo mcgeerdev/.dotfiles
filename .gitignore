@@ -1,5 +1,6 @@
 /pkms/*
 /obsidian/*
+/changes/
 
 .DS_Store
 .zcompdump*
