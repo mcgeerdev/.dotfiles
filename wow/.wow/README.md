@@ -593,22 +593,29 @@ up. It is started by hand (see Still manual), so a catch-up run at login
 usually finishes before it exists and its event is dropped. The launchd
 log is the record that always exists.
 
-The release flow copies `didx.projects/mono`'s, inverted: the release branch
-carries the real changes.
+Two branches, one per author:
 
-- The current branch is the newest `release/YYYY.MM.N` on origin. Agents work
-  in the worktree `~/.dotfiles-release`, which `bin/wow-worktree` creates and
-  fast-forwards. `~/.dotfiles` stays on `main` as the live stow tree.
-- One PR, `Release YYYY.MM.N` (label `release`), grows until you merge it.
-  It also sits on the Pull requests board, because `mcgeerdev/.dotfiles` is in
+- `main` is yours. Commit in `~/.dotfiles`, the live stow tree, and push.
+  You bypass the `master` ruleset as the owner, or open a PR into `main`
+  when you want a review. `wow-sync` only fast-forwards, so commit or stash
+  before 10:00 if a release touched the same files.
+- `release/next` is the agents'. They work in the worktree
+  `~/.dotfiles-release`. Before every job, `bin/wow-worktree` creates it
+  from `main` if it does not exist, and otherwise merges `main` into it.
+  Where both sides changed the same lines, `main` wins. A conflict git
+  cannot settle that way, such as a file you deleted that the agent
+  edited, stops the job and logs `merging main into release/next failed`.
+- One PR, `WOW release` (label `release`), grows until you merge it. It
+  also sits on the Pull requests board, because `mcgeerdev/.dotfiles` is in
   `[github] repos`.
-- Merging runs `.github/workflows/release.yaml`: tag `YYYY.MM.N`, GitHub
-  release with the PR body as notes, then the next `release/*` branch from
-  `.github/workflows/scripts/calver.sh`.
+- Merging runs `.github/workflows/release.yaml`. It tags the next
+  `YYYY.MM.N` from `.github/workflows/scripts/calver.sh` and publishes a
+  GitHub release with the PR body as notes. GitHub deletes `release/next`
+  on merge, so the next job starts it again from `main`.
 - The `master` ruleset on `main` allows squash merges only, so each release
   lands as one commit. The per-change commits stay reachable from the PR
   ref after the branch is deleted: `git fetch origin refs/pull/<n>/head`,
-  then `git revert <sha>` on the current release branch backs one out.
+  then `git revert <sha>` on `main` backs one out.
 - Deletions are `git mv` into `archive/wow/YYYY-MM/<path>`, never `git rm`.
 
 Outputs, on the release branch: `wow/.omp/audits/weekly/YYYY-MM-DD.json`,

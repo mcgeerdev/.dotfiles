@@ -1,24 +1,41 @@
 #!/usr/bin/env bash
 # wow-worktree — ensure ~/.dotfiles-release is a worktree of ~/.dotfiles
-# checked out on the newest origin release/* branch, up to date; print its
-# path. Exits 1 (quietly, for guards) when offline or no release branch
-# exists yet.
+# checked out on release/next, up to date with origin and with main merged
+# in; print its path. Exits 1 (quietly, for guards) when offline, when the
+# worktree is dirty, or when main cannot be merged.
 set -euo pipefail
 
 repo="$HOME/.dotfiles"
 wt="$HOME/.dotfiles-release"
+branch=release/next
 
 git -C "$repo" fetch origin --prune --quiet || {
   echo "wow-worktree: fetch failed (offline?)" >&2; exit 1; }
 
-branch=$(git -C "$repo" ls-remote --heads origin 'release/*' \
-  | awk '{sub("refs/heads/", "", $2); print $2}' | sort -V | tail -1)
-[[ -n "$branch" ]] || { echo "wow-worktree: no release/* branch on origin" >&2; exit 1; }
+# Merging the release PR deletes the branch on GitHub, so the next release
+# starts again from main.
+if git -C "$repo" show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+  start="origin/$branch"
+else
+  start=origin/main
+fi
 
 if [[ ! -d "$wt" ]]; then
-  git -C "$repo" worktree add "$wt" "$branch" --quiet
-elif [[ "$(git -C "$wt" branch --show-current)" != "$branch" ]]; then
-  git -C "$wt" checkout "$branch" --quiet
+  git -C "$repo" worktree add --quiet --no-track -B "$branch" "$wt" "$start"
+elif [[ -n $(git -C "$wt" status --porcelain) ]]; then
+  echo "wow-worktree: $wt has uncommitted changes" >&2; exit 1
+elif [[ $start == origin/main ]] || [[ "$(git -C "$wt" branch --show-current)" != "$branch" ]]; then
+  git -C "$wt" checkout --quiet --no-track -B "$branch" "$start"
 fi
-git -C "$wt" pull --ff-only --quiet origin "$branch"
+git -C "$wt" merge --ff-only --quiet "$start" >&2
+
+# Your commits on main reach the release here. Where both sides changed the
+# same lines, main wins.
+if ! git -C "$wt" merge-base --is-ancestor origin/main HEAD; then
+  git -C "$wt" merge --quiet --no-edit -X theirs \
+    -m "Merge main into $branch" origin/main >&2 || {
+    git -C "$wt" merge --abort
+    echo "wow-worktree: merging main into $branch failed" >&2; exit 1; }
+  git -C "$wt" push --quiet origin "$branch" >&2
+fi
 echo "$wt"
