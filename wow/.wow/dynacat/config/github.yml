@@ -41,11 +41,18 @@
       {{ else if eq $tone "active" }}{{ $toneClass = "tone-active" }}{{ $glyph = "~" }}
       {{ else if eq $tone "done" }}{{ $toneClass = "tone-done" }}{{ $glyph = "." }}
       {{ end }}
-      {{/* Your part in it. A pull request you already reviewed is one you are
-           still a reviewer on; the label beside it says what has happened
-           since. A role the daemon adds later shows as its own word. */}}
+      {{/* Your part in it. On a review you owe, attentiond's review_scope says
+           who else was asked: ONLY YOU when nobody else can unblock it, SHARED
+           when another reviewer or a team can. No count: context.reviewers
+           counts requests, with a team as one, not people. A pull request you
+           already reviewed has no pending request; the label beside it says
+           what has happened since. A role the daemon adds later shows as its
+           own word. */}}
       {{ $role := .String "context.role" }}
+      {{ $scope := .String "context.review_scope" }}
       {{ if eq $role "author" }}{{ $role = "AUTHOR" }}
+      {{ else if and (eq $role "reviewer") (eq $scope "sole") }}{{ $role = "ONLY YOU" }}
+      {{ else if and (eq $role "reviewer") (eq $scope "shared") }}{{ $role = "SHARED" }}
       {{ else if or (eq $role "reviewer") (eq $role "reviewed") }}{{ $role = "REVIEWER" }}
       {{ end }}
       <li class="flex items-center gap-10">

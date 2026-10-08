@@ -14,19 +14,21 @@ ATTENTIOND_URL := http://127.0.0.1:7717
 .PHONY: start stop restart status logs dashboard-logs attn-logs attn open \
 	digest-install digest-uninstall digest-run patterns-run improve-run sync-run digest-status
 
-# The whole stack, minus Herdr.
+# The whole stack, minus Herdr. attentiond first: Dynacat renders every widget
+# as soon as it is up, and a daemon that is not listening yet leaves
+# "connection refused" on the page until the next refresh.
 start:
+	@$(ATTN) start
 	@$(COMPOSE) up -d
 	@echo "dynacat:    $(DASHBOARD_URL)"
-	@$(ATTN) start
 
 stop:
 	@$(ATTN) stop
 	@$(COMPOSE) down
 
 restart:
-	@$(COMPOSE) restart
 	@$(ATTN) restart
+	@$(COMPOSE) restart
 
 # attentiond in the foreground, which is what you want in a Herdr pane: the log
 # is in front of you and Ctrl-C is the off switch.
