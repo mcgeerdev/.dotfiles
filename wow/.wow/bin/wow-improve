@@ -33,10 +33,11 @@ fi
 # One improve pass per digest. A pass that only files suggestions leaves
 # no commit, so a successful run records the digest name in $marker; the
 # commit check covers a lost marker. Ancestry, not commit time, decides
-# what came after the digest.
+# what came after the digest. --first-parent skips your own feat/fix
+# commits that arrive with a merge from main.
 marker="$HOME/Library/Caches/wow-improve.done"
 if [[ "${1:-}" != "--force" ]] && { [[ "$(cat "$marker" 2>/dev/null)" == "$newest" ]] \
-  || [[ -n $(git -C "$wt" log "$digest_sha..HEAD" \
+  || [[ -n $(git -C "$wt" log --first-parent "$digest_sha..HEAD" \
     --grep='^\(feat\|fix\)(' --oneline 2>/dev/null) ]]; }; then
   echo "wow-improve: improvements already done for $newest, skipping"
   exit 0

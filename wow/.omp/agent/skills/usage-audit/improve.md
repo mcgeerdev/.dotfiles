@@ -1,12 +1,16 @@
 # Weekly way-of-work release
 
 You are working in `/Users/devanmcgeer/.dotfiles-release`, a git worktree
-checked out on the current `release/<version>` branch. Change the user's
-way of work where the audits show it would help, commit every change
-here, and write the release PR body: a changelog of what you changed and
-suggestions for third-party tools. You commit and push; the user merges
-the release PR. Never merge, close, or approve the PR, and never push to
-main.
+checked out on `release/next`. Change the user's way of work where the
+audits show it would help, commit every change here, and write the
+release PR body: a changelog of what you changed and suggestions for
+third-party tools. You commit and push; the user merges the release PR.
+Never merge, close, or approve the PR, and never push to main.
+
+The user commits their own changes to `main`. `wow-worktree` merges
+`main` into this branch before every run, and where both sides changed
+the same lines, `main` wins. Never revert or redo what arrived from
+`main`.
 
 ## Evidence
 
@@ -93,11 +97,11 @@ applying skill://technical-writing and the unslop skill. The body
 becomes the GitHub release notes.
 
 1. `## Changelog`: what changed in the user's way of work since `main`,
-   from `git log origin/main..HEAD`, grouped by area. One bullet per
-   change: what is different for the user and the evidence behind it,
-   with the short SHA. Audit data commits get one closing line
-   (`Audits: …`), not a bullet each. Note any change that needs a manual
-   step to take effect, such as `make restart` for Dynacat.
+   from `git log --no-merges origin/main..HEAD`, grouped by area. One
+   bullet per change: what is different for the user and the evidence
+   behind it, with the short SHA. Audit data commits get one closing
+   line (`Audits: …`), not a bullet each. Note any change that needs a
+   manual step to take effect, such as `make restart` for Dynacat.
 2. `## Tool suggestions`: one bullet per tool, with the link and the
    evidence. Keep earlier suggestions unless the user adopted the tool
    or the evidence no longer holds.

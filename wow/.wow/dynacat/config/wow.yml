@@ -3,9 +3,9 @@
 # Patterns and Changelog are fetched server-side from the public repo; long
 # caches, the sources change weekly/monthly. Spend is live against attentiond.
 #
-# Patterns reads main, which only receives release merges, so the page shows
-# released patterns and the URL survives each new release/* branch. Release
-# notes render pre-wrapped, not as markdown.
+# Patterns reads main, where audit files arrive only with a release merge, so
+# the page shows released patterns. Release notes render pre-wrapped, not as
+# markdown.
 
 - name: WOW
   slug: wow
