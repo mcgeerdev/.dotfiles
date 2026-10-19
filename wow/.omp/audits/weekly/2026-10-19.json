@@ -487,14 +487,14 @@
   ],
   "signals": {
     "window": {
-      "start": "2026-10-12T07:01:37Z",
-      "end": "2026-10-19T07:01:37Z"
+      "start": "2026-10-12T07:02:56Z",
+      "end": "2026-10-19T07:02:56Z"
     },
     "attention": {
       "available": true,
       "log_since": "2026-09-14",
       "appeared": {
-        "github": 56,
+        "github": 55,
         "shell": 2
       },
       "count": {
@@ -510,7 +510,7 @@
       "github_repos": {
         "didx-xyz/mono": 38,
         "didx-xyz/tofu": 14,
-        "mcgeerdev/.dotfiles": 4
+        "mcgeerdev/.dotfiles": 3
       },
       "notifications": {
         "ready to merge": 17,
@@ -525,66 +525,27 @@
     "shell": {
       "available": true,
       "window": {
-        "total": 14686,
+        "total": 164,
+        "bulk_stamped": 14533,
         "commands": {
-          "git": 2722,
-          "jj": 1979,
-          "tofu": 1505,
-          "cd": 1047,
-          "mise": 861,
-          "k": 727,
-          "vim": 613,
-          "la": 600,
-          "omp": 579,
-          "kubectl": 537,
-          "brew": 349,
-          "aws": 336,
-          "claude": 273,
-          "docker": 193,
-          "hum": 134,
-          "helmfile": 93,
-          "rm": 72,
-          "curl": 68,
-          "export": 66,
-          "pup": 56,
-          "helm": 55,
-          "coderabbit": 52,
-          "pnpm": 50,
-          "code": 44,
-          "ls": 44
+          "cd": 34,
+          "git": 34,
+          "omp": 20,
+          "vim": 16,
+          "la": 15,
+          "az": 10,
+          "claude": 6,
+          "mise": 4,
+          "make": 3
         },
         "subcommands": {
-          "tofu plan": 782,
-          "mise run": 574,
-          "git pull": 566,
-          "git status": 549,
-          "jj git": 429,
-          "git checkout": 428,
-          "k get": 398,
-          "git fetch": 307,
-          "jj st": 302,
-          "tofu apply": 297,
-          "jj bookmark": 276,
-          "git push": 256,
-          "tofu init": 255,
-          "kubectl get": 209,
-          "jj new": 160,
-          "git rebase": 157,
-          "k config": 145,
-          "omp update": 141,
-          "mise tasks": 114,
-          "brew upgrade": 111,
-          "git branch": 75,
-          "git diff": 67,
-          "kubectl logs": 67,
-          "kubectl exec": 64,
-          "brew search": 63
+          "git pull": 12,
+          "git checkout": 7,
+          "git status": 6
         },
         "editors": {
-          "vim": 613,
-          "code": 44,
-          "nvim": 1,
-          "vi": 1
+          "vim": 16,
+          "code": 1
         }
       },
       "lifetime": {
