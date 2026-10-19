@@ -1,0 +1,727 @@
+{
+  "date": "2026-10-12",
+  "window_days": 7,
+  "totals": {
+    "cost": 879.05,
+    "tokens": 3116716395,
+    "messages": 16140,
+    "tool_calls": 15855,
+    "prompts": 333,
+    "api_errors": 34
+  },
+  "by_project": [
+    {
+      "folder": "-devan.projects-dobra-robota-Slowka",
+      "agent_type": "advisor",
+      "msgs": 4238,
+      "cost": 199.16,
+      "tokens": 919185637
+    },
+    {
+      "folder": "-devan.projects-infra",
+      "agent_type": "advisor",
+      "msgs": 2560,
+      "cost": 166.03,
+      "tokens": 790914979
+    },
+    {
+      "folder": "-devan.projects-dobra-robota-Slowka",
+      "agent_type": "main",
+      "msgs": 1110,
+      "cost": 94.71,
+      "tokens": 238473553
+    },
+    {
+      "folder": "-devan.projects-incubator-attentiond",
+      "agent_type": "advisor",
+      "msgs": 1329,
+      "cost": 76.91,
+      "tokens": 369490079
+    },
+    {
+      "folder": "-didx.projects-mono",
+      "agent_type": "main",
+      "msgs": 456,
+      "cost": 50.41,
+      "tokens": 75638141
+    },
+    {
+      "folder": "-devan.projects-infra",
+      "agent_type": "main",
+      "msgs": 414,
+      "cost": 36.37,
+      "tokens": 79812955
+    },
+    {
+      "folder": "-didx.projects-tofu-sites-cloudapi-dev",
+      "agent_type": "advisor",
+      "msgs": 904,
+      "cost": 34.17,
+      "tokens": 156167808
+    },
+    {
+      "folder": "-sc.projects-SecureCitizen",
+      "agent_type": "main",
+      "msgs": 297,
+      "cost": 24.83,
+      "tokens": 37476828
+    },
+    {
+      "folder": "-didx.projects-tofu-sites-cloudapi-dev",
+      "agent_type": "main",
+      "msgs": 320,
+      "cost": 23.3,
+      "tokens": 61369929
+    },
+    {
+      "folder": "-didx.projects-mono",
+      "agent_type": "advisor",
+      "msgs": 681,
+      "cost": 18.78,
+      "tokens": 68389221
+    },
+    {
+      "folder": "-didx.projects-mono",
+      "agent_type": "subagent",
+      "msgs": 396,
+      "cost": 17.96,
+      "tokens": 48513808
+    },
+    {
+      "folder": "-.dotfiles-wow-.omp",
+      "agent_type": "main",
+      "msgs": 162,
+      "cost": 15.3,
+      "tokens": 20334102
+    },
+    {
+      "folder": "-devan.projects-incubator-attentiond",
+      "agent_type": "subagent",
+      "msgs": 273,
+      "cost": 14.13,
+      "tokens": 39511288
+    },
+    {
+      "folder": "-devan.projects-dobra-robota-Slowka",
+      "agent_type": "subagent",
+      "msgs": 470,
+      "cost": 13.64,
+      "tokens": 18671733
+    },
+    {
+      "folder": "-.dotfiles",
+      "agent_type": "main",
+      "msgs": 150,
+      "cost": 11.42,
+      "tokens": 27134111
+    },
+    {
+      "folder": "-.dotfiles-wow-.wow",
+      "agent_type": "main",
+      "msgs": 153,
+      "cost": 10.24,
+      "tokens": 20884506
+    },
+    {
+      "folder": "-devan.projects-incubator-attentiond",
+      "agent_type": "main",
+      "msgs": 168,
+      "cost": 9.43,
+      "tokens": 20524592
+    },
+    {
+      "folder": "-didx.projects-tofu",
+      "agent_type": "main",
+      "msgs": 72,
+      "cost": 9.4,
+      "tokens": 4821823
+    },
+    {
+      "folder": "-Desktop-didx-iso-scytale-templates",
+      "agent_type": "main",
+      "msgs": 80,
+      "cost": 7.96,
+      "tokens": 6161522
+    },
+    {
+      "folder": "-.dotfiles-wow-.omp",
+      "agent_type": "advisor",
+      "msgs": 371,
+      "cost": 7.7,
+      "tokens": 30590212
+    },
+    {
+      "folder": "-devan.projects-infra",
+      "agent_type": "subagent",
+      "msgs": 95,
+      "cost": 5.8,
+      "tokens": 6101160
+    },
+    {
+      "folder": "-devan.projects-incubator-gauger-server",
+      "agent_type": "main",
+      "msgs": 107,
+      "cost": 5.58,
+      "tokens": 11174941
+    },
+    {
+      "folder": "-sc.projects-SecureCitizen",
+      "agent_type": "advisor",
+      "msgs": 355,
+      "cost": 4.77,
+      "tokens": 18128895
+    },
+    {
+      "folder": "-.dotfiles-wow-.omp",
+      "agent_type": "subagent",
+      "msgs": 106,
+      "cost": 4.41,
+      "tokens": 7189378
+    },
+    {
+      "folder": "-sc.projects-SecureCitizen",
+      "agent_type": "subagent",
+      "msgs": 71,
+      "cost": 3.73,
+      "tokens": 3191215
+    },
+    {
+      "folder": "-.dotfiles-wow-.wow",
+      "agent_type": "advisor",
+      "msgs": 195,
+      "cost": 3.53,
+      "tokens": 15062828
+    },
+    {
+      "folder": "-.dotfiles",
+      "agent_type": "advisor",
+      "msgs": 157,
+      "cost": 1.75,
+      "tokens": 6504189
+    },
+    {
+      "folder": "-devan.projects-incubator-gauger-server",
+      "agent_type": "advisor",
+      "msgs": 120,
+      "cost": 1.27,
+      "tokens": 4770682
+    },
+    {
+      "folder": "-devan.projects",
+      "agent_type": "main",
+      "msgs": 23,
+      "cost": 1.25,
+      "tokens": 1133495
+    },
+    {
+      "folder": "-didx.projects-tofu",
+      "agent_type": "advisor",
+      "msgs": 104,
+      "cost": 1.02,
+      "tokens": 3951400
+    },
+    {
+      "folder": "-devan.projects-incubator-gauger",
+      "agent_type": "main",
+      "msgs": 12,
+      "cost": 0.89,
+      "tokens": 690444
+    },
+    {
+      "folder": "-Desktop-didx-iso-scytale-templates",
+      "agent_type": "advisor",
+      "msgs": 71,
+      "cost": 0.76,
+      "tokens": 1872052
+    },
+    {
+      "folder": "-sc.projects-SecureCitizen.Portal",
+      "agent_type": "main",
+      "msgs": 18,
+      "cost": 0.58,
+      "tokens": 789700
+    },
+    {
+      "folder": "-.dotfiles-wow-.wow",
+      "agent_type": "subagent",
+      "msgs": 16,
+      "cost": 0.51,
+      "tokens": 529347
+    },
+    {
+      "folder": "-.dotfiles-release",
+      "agent_type": "main",
+      "msgs": 11,
+      "cost": 0.38,
+      "tokens": 291912
+    },
+    {
+      "folder": "-Desktop-personal",
+      "agent_type": "main",
+      "msgs": 3,
+      "cost": 0.29,
+      "tokens": 91390
+    },
+    {
+      "folder": "-devan.projects",
+      "agent_type": "advisor",
+      "msgs": 24,
+      "cost": 0.19,
+      "tokens": 426581
+    },
+    {
+      "folder": "-sc.projects-SecureCitizen.Portal",
+      "agent_type": "advisor",
+      "msgs": 17,
+      "cost": 0.13,
+      "tokens": 248020
+    },
+    {
+      "folder": "-devan.projects-incubator-gauger",
+      "agent_type": "advisor",
+      "msgs": 10,
+      "cost": 0.1,
+      "tokens": 199065
+    },
+    {
+      "folder": "-didx.projects-mono-wt-auto-rebase-1599-20261008142444",
+      "agent_type": "main",
+      "msgs": 2,
+      "cost": 0.1,
+      "tokens": 47924
+    },
+    {
+      "folder": "-didx.projects-mono-wt-auto-rebase-1599-20261008142657",
+      "agent_type": "main",
+      "msgs": 6,
+      "cost": 0.09,
+      "tokens": 145359
+    },
+    {
+      "folder": "-Desktop-personal",
+      "agent_type": "advisor",
+      "msgs": 6,
+      "cost": 0.05,
+      "tokens": 58165
+    },
+    {
+      "folder": "-didx.projects-mono-wt-auto-rebase-1599-20261008142444",
+      "agent_type": "advisor",
+      "msgs": 2,
+      "cost": 0.02,
+      "tokens": 17049
+    },
+    {
+      "folder": "-didx.projects-mono-wt-auto-rebase-1599-20261008142657",
+      "agent_type": "advisor",
+      "msgs": 4,
+      "cost": 0.02,
+      "tokens": 34377
+    },
+    {
+      "folder": "-didx.projects-mono-wt-auto-rebase-1599-20261008142316",
+      "agent_type": "main",
+      "msgs": 1,
+      "cost": 0.0,
+      "tokens": 0
+    }
+  ],
+  "by_model": [
+    {
+      "model": "gpt-6-sol",
+      "msgs": 11353,
+      "cost": 508.75
+    },
+    {
+      "model": "claude-opus-5-5",
+      "msgs": 3971,
+      "cost": 322.36
+    },
+    {
+      "model": "claude-fable-5",
+      "msgs": 113,
+      "cost": 17.64
+    },
+    {
+      "model": "claude-sonnet-5",
+      "msgs": 91,
+      "cost": 15.24
+    },
+    {
+      "model": "claude-sonnet-5-5",
+      "msgs": 417,
+      "cost": 14.76
+    },
+    {
+      "model": "claude-haiku-4-5",
+      "msgs": 64,
+      "cost": 0.11
+    },
+    {
+      "model": "gpt-6-luna",
+      "msgs": 79,
+      "cost": 0.11
+    },
+    {
+      "model": "claude-haiku-5-5",
+      "msgs": 51,
+      "cost": 0.08
+    },
+    {
+      "model": "claude-sonnet-4-0",
+      "msgs": 1,
+      "cost": 0.0
+    }
+  ],
+  "tools": [
+    {
+      "tool": "read",
+      "agent_type": "advisor",
+      "calls": 8727,
+      "errors": 27
+    },
+    {
+      "tool": "bash",
+      "agent_type": "main",
+      "calls": 1434,
+      "errors": 143
+    },
+    {
+      "tool": "read",
+      "agent_type": "main",
+      "calls": 986,
+      "errors": 19
+    },
+    {
+      "tool": "read",
+      "agent_type": "subagent",
+      "calls": 980,
+      "errors": 20
+    },
+    {
+      "tool": "eval",
+      "agent_type": "main",
+      "calls": 537,
+      "errors": 45
+    },
+    {
+      "tool": "bash",
+      "agent_type": "subagent",
+      "calls": 466,
+      "errors": 41
+    },
+    {
+      "tool": "grep",
+      "agent_type": "subagent",
+      "calls": 373,
+      "errors": 4
+    },
+    {
+      "tool": "grep",
+      "agent_type": "main",
+      "calls": 369,
+      "errors": 7
+    },
+    {
+      "tool": "edit",
+      "agent_type": "main",
+      "calls": 318,
+      "errors": 17
+    },
+    {
+      "tool": "write",
+      "agent_type": "main",
+      "calls": 294,
+      "errors": 3
+    },
+    {
+      "tool": "advise",
+      "agent_type": "advisor",
+      "calls": 285,
+      "errors": 0
+    },
+    {
+      "tool": "yield",
+      "agent_type": "subagent",
+      "calls": 175,
+      "errors": 8
+    },
+    {
+      "tool": "wait",
+      "agent_type": "main",
+      "calls": 126,
+      "errors": 26
+    },
+    {
+      "tool": "eval",
+      "agent_type": "subagent",
+      "calls": 116,
+      "errors": 7
+    },
+    {
+      "tool": "edit",
+      "agent_type": "subagent",
+      "calls": 111,
+      "errors": 6
+    },
+    {
+      "tool": "glob",
+      "agent_type": "subagent",
+      "calls": 94,
+      "errors": 4
+    },
+    {
+      "tool": "todo",
+      "agent_type": "main",
+      "calls": 89,
+      "errors": 0
+    },
+    {
+      "tool": "glob",
+      "agent_type": "main",
+      "calls": 79,
+      "errors": 2
+    },
+    {
+      "tool": "web_search",
+      "agent_type": "main",
+      "calls": 77,
+      "errors": 0
+    },
+    {
+      "tool": "write",
+      "agent_type": "subagent",
+      "calls": 60,
+      "errors": 0
+    }
+  ],
+  "top_sessions": [
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-devan.projects-infra/2026-10-11T09-56-45-459Z_01a12a64-b513-77ad-a36f-4441476990a7/__advisor.doctrine.jsonl",
+      "cost": 113.14
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-devan.projects-dobra-robota-Slowka/2026-10-08T17-23-03-369Z_01a11c8a-3a49-718e-8dd6-a4ee37427aac/__advisor.doctrine.jsonl",
+      "cost": 111.7
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-devan.projects-dobra-robota-Slowka/2026-10-06T17-57-57-701Z_01a1125d-7745-70d0-ae98-5987bf709dd5/__advisor.doctrine.jsonl",
+      "cost": 79.03
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-devan.projects-incubator-attentiond/2026-10-07T08-16-12-201Z_01a1156f-35a9-7281-b5c8-bcf3b98c3e01/__advisor.doctrine.jsonl",
+      "cost": 76.91
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-devan.projects-infra/2026-10-06T19-47-20-876Z_01a112c1-9cac-710e-bdca-0e860b2f6446/__advisor.doctrine.jsonl",
+      "cost": 52.88
+    }
+  ],
+  "prompts_by_cwd": [
+    {
+      "cwd": "/Users/devanmcgeer/devan.projects/dobra-robota/Slowka",
+      "prompts": 102
+    },
+    {
+      "cwd": "/Users/devanmcgeer/didx.projects/tofu/sites/cloudapi-dev",
+      "prompts": 43
+    },
+    {
+      "cwd": "/Users/devanmcgeer/didx.projects/mono",
+      "prompts": 36
+    },
+    {
+      "cwd": "/Users/devanmcgeer/sc.projects/SecureCitizen",
+      "prompts": 31
+    },
+    {
+      "cwd": "/Users/devanmcgeer/devan.projects/infra",
+      "prompts": 31
+    },
+    {
+      "cwd": "/Users/devanmcgeer/Desktop/didx-iso-scytale/templates",
+      "prompts": 17
+    },
+    {
+      "cwd": "/Users/devanmcgeer/devan.projects/incubator/attentiond",
+      "prompts": 14
+    },
+    {
+      "cwd": "/Users/devanmcgeer/.dotfiles/wow/.omp",
+      "prompts": 14
+    },
+    {
+      "cwd": "/Users/devanmcgeer/.dotfiles",
+      "prompts": 14
+    },
+    {
+      "cwd": "/Users/devanmcgeer/.dotfiles/wow/.wow",
+      "prompts": 8
+    }
+  ],
+  "delta": {
+    "vs": "2026-10-05",
+    "cost_pct": 420.4,
+    "tokens_pct": 493.7,
+    "tool_calls_pct": 259.0
+  },
+  "watch": [
+    "gpt-6-sol cost $508.75 (11353 msgs) vs $47.33 (1777 msgs) last week, +975%",
+    "new top session $113.14 in devan.projects-infra (advisor) vs $17.04 peak last week",
+    "main wait tool error rate 20.6% (26/126) vs 8.7% (2/23) last week"
+  ],
+  "signals": {
+    "window": {
+      "start": "2026-10-05T07:01:34Z",
+      "end": "2026-10-12T07:01:34Z"
+    },
+    "attention": {
+      "available": true,
+      "log_since": "2026-09-14",
+      "appeared": {
+        "github": 160,
+        "herdr": 55,
+        "other": 53,
+        "shell": 10
+      },
+      "count": {
+        "github_failures": 25,
+        "daemon_starts": 8
+      },
+      "decisions": {
+        "bump": 2
+      },
+      "expired_unseen": {
+        "shell": 7
+      },
+      "github_repos": {
+        "didx-xyz/mono": 102,
+        "didx-xyz/tofu": 48,
+        "mcgeerdev/.dotfiles": 10
+      },
+      "notifications": {
+        "done": 21,
+        "checks running": 15,
+        "ready to merge": 14,
+        "blocked": 2
+      },
+      "transitions": {
+        "herdr:done": 13,
+        "shell:done": 8,
+        "shell:failed": 6
+      }
+    },
+    "shell": {
+      "available": true,
+      "window": {
+        "total": 409,
+        "bulk_stamped": 14016,
+        "commands": {
+          "git": 93,
+          "cd": 66,
+          "la": 37,
+          "omp": 36,
+          "vim": 34,
+          "mise": 17,
+          "tofu": 15,
+          "k": 14,
+          "coderabbit": 12,
+          "make": 9,
+          "du": 7,
+          "rm": 6,
+          "aws": 5,
+          "brew": 4,
+          "open": 4,
+          "tern": 4,
+          "claude": 3,
+          "rev-parse": 3
+        },
+        "subcommands": {
+          "git pull": 43,
+          "git checkout": 17,
+          "git status": 14,
+          "omp update": 9,
+          "git fetch": 8,
+          "mise run": 8,
+          "tofu apply": 7,
+          "tofu plan": 7,
+          "k get": 6,
+          "make start": 5,
+          "mise install": 5,
+          "k top": 4,
+          "make stop": 4,
+          "aws ssm": 3,
+          "git branch": 3
+        },
+        "editors": {
+          "vim": 34,
+          "vi": 1
+        }
+      },
+      "lifetime": {
+        "note": "whole history file, untimed",
+        "total": 14475,
+        "commands": {
+          "git": 2678,
+          "jj": 1979,
+          "tofu": 1505,
+          "cd": 1006,
+          "mise": 856,
+          "k": 727,
+          "vim": 593,
+          "la": 584,
+          "omp": 549,
+          "kubectl": 537,
+          "brew": 348,
+          "aws": 336,
+          "claude": 267,
+          "docker": 193,
+          "hum": 134,
+          "helmfile": 93,
+          "rm": 70,
+          "curl": 68,
+          "export": 66,
+          "helm": 55,
+          "pup": 53,
+          "coderabbit": 50,
+          "pnpm": 49,
+          "ls": 44,
+          "code": 42
+        },
+        "subcommands": {
+          "tofu plan": 782,
+          "mise run": 572,
+          "git pull": 547,
+          "git status": 542,
+          "jj git": 429,
+          "git checkout": 421,
+          "k get": 398,
+          "git fetch": 306,
+          "jj st": 302,
+          "tofu apply": 297,
+          "jj bookmark": 276,
+          "git push": 255,
+          "tofu init": 255,
+          "kubectl get": 209,
+          "jj new": 160,
+          "git rebase": 155,
+          "k config": 145,
+          "omp update": 138,
+          "mise tasks": 114,
+          "brew upgrade": 111,
+          "git branch": 73,
+          "git diff": 67,
+          "kubectl logs": 67,
+          "kubectl exec": 64,
+          "brew search": 63
+        },
+        "editors": {
+          "vim": 593,
+          "code": 42,
+          "nvim": 1,
+          "vi": 1
+        }
+      }
+    }
+  }
+}

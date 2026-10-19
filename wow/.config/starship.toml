@@ -135,8 +135,15 @@ format = '\[[$symbol($version)]($style)\]'
 [kotlin]
 format = '\[[$symbol($version)]($style)\]'
 
+# On everywhere: zsh history has 127 hand-typed `k config` calls that
+# only print the current context. Contexts with "prod" show in red.
 [kubernetes]
+disabled = false
 format = '\[[$symbol$context( \($namespace\))]($style)\]'
+
+[[kubernetes.contexts]]
+context_pattern = ".*prod.*"
+style = "bold red"
 
 [localip]
 format = '\[[$localipv4]($style)\]'

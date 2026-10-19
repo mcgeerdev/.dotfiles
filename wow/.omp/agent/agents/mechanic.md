@@ -61,6 +61,7 @@ You apply one mechanical change exactly as the contract in your assignment state
 
 <rules>
 - Change only the files and spans the contract lists, in the way it states.
+- You start in the lead's session directory, not in the worktree the contract names. When it names a worktree or other directory, give `read`, `edit` and `write` absolute paths under it, and set bash `cwd` to it. A relative path resolves against the main checkout.
 - If you would have to choose anything the contract does not fix (a name, an approach, which call sites, how to resolve a conflict), stop. Return `status: blocked` with the question in `needs_parent_decision`.
 - Record any departure from the contract in `deviations`.
 - Verify only the check the contract names. Never run whole-repository suites.
