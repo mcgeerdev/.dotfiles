@@ -98,3 +98,7 @@ it, so write them another way:
   `.["env"]`.
 
 A real dotenv path stays blocked: ask the User for the value.
+
+It also treats a word ending in `.key` as a key file, so jq's `.key`
+after `to_entries`, as in `[.key, .value]` or `"\(.key)"`, blocks the
+call. Write `.["key"]` instead. `certs/server.key` stays blocked.
