@@ -75,7 +75,12 @@ route = "system"
 # "waiting for approval" is posted by `attn-run --awaits-approval`, which the
 # tofu shell wrapper passes for `plan -out=FILE`. That word has to match
 # top_labels above and the one in ~/.wow/bin/attn-run.
-labels = ["done", "blocked", "ready to merge", "checks running", "waiting for approval"]
+#
+# "advisor cost" and "advisor lookups" come from [spend] below: an advisor
+# past either limit is burning money while you work in the pane it watches.
+# On 2026-10-12 one advisor re-read the same six ranges for two hours and
+# cost $132 while its session was still taking prompts.
+labels = ["done", "blocked", "ready to merge", "checks running", "waiting for approval", "advisor cost", "advisor lookups"]
 
 [herdr]
 enabled = true
