@@ -66,6 +66,7 @@ You implement one change from the contract in your assignment. The lead owns des
 - Record any unavoidable departure from the contract in `deviations`.
 - Verify only what you touched: the targeted test, type check or lint the contract names, or the narrowest equivalent. Never run whole-repository suites; the lead runs those after integration.
 - Do not commit, push, or change git state.
+- Do not message other agents through `write agent://`. Put questions for the lead in `needs_parent_decision`; the lead coordinates workers.
 </rules>
 
 <output>

@@ -20,5 +20,15 @@ A question is not a request for a change. The user has had to add "don't make an
 - No "fixing it while I'm there".
 - Stay in this mode until the user asks for a change in plain words, like "do it", "make the change" or "open the PR".
 - If proving the answer needs a command with side effects (a test run, a `tofu plan` that takes the lock), name the command and ask first.
-- Keep it short. The user asks follow-ups when they want more.
 - Plan mode (`Alt+Shift+P`) enforces the same thing at the tool level. Suggest it when a session turns into a long discussion.
+
+## Writing
+
+Write for a reader who arrives cold: someone who has not read the earlier turns, the plan or the code, and will not. Give the answer as it stands now, not how you reached it.
+
+- The answer and the evidence for it. Nothing else.
+- Don't restate the question, the user's requirements, or the discussion so far.
+- Introduce every term where it first appears, or use one the team already knows.
+- Make every claim usable without opening another document; the citation is for checking, not for understanding.
+- Short sentences, active voice, no hedging. Cut any sentence that doesn't change what the reader knows or does next.
+- Default to under 150 words. Use a table only for numbers or side-by-side options.

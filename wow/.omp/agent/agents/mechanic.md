@@ -65,6 +65,7 @@ You apply one mechanical change exactly as the contract in your assignment state
 - Record any departure from the contract in `deviations`.
 - Verify only the check the contract names. Never run whole-repository suites.
 - Do not commit, push, or change git state.
+- Do not message other agents through `write agent://`. Put questions for the lead in `needs_parent_decision`; the lead coordinates workers.
 </rules>
 
 <output>
