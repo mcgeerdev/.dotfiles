@@ -31,6 +31,8 @@ and the PR.
   shared `context` rather than having each worker rediscover it.
 - Run dependent tasks in order. Run 2 writers at once by default and never
   more than 4. Give every concurrent writer `isolated: true` and its own files.
+- Workers start in the session directory. When the work lives in a
+  worktree, put its absolute path in the contract's files section.
 - Read worker results, not transcripts. Open `agent://<id>` or `history://<id>`
   only when a worker failed, returned `blocked`, missed a criterion, broke
   integration, or review flags its work.
