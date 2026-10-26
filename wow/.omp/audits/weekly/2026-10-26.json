@@ -1,0 +1,584 @@
+{
+  "date": "2026-10-26",
+  "window_days": 7,
+  "totals": {
+    "cost": 289.3,
+    "tokens": 660298280,
+    "messages": 4991,
+    "tool_calls": 4139,
+    "prompts": 356,
+    "api_errors": 22
+  },
+  "by_project": [
+    {
+      "folder": "-didx.projects",
+      "agent_type": "main",
+      "msgs": 465,
+      "cost": 56.19,
+      "tokens": 75767053
+    },
+    {
+      "folder": "-devan.projects-incubator-attentiond",
+      "agent_type": "main",
+      "msgs": 348,
+      "cost": 47.76,
+      "tokens": 121131402
+    },
+    {
+      "folder": "-devan.projects-incubator-attentiond",
+      "agent_type": "advisor",
+      "msgs": 1169,
+      "cost": 46.16,
+      "tokens": 190599075
+    },
+    {
+      "folder": "-didx.projects-tofu",
+      "agent_type": "main",
+      "msgs": 295,
+      "cost": 34.03,
+      "tokens": 48317673
+    },
+    {
+      "folder": "-sc.projects",
+      "agent_type": "main",
+      "msgs": 246,
+      "cost": 26.05,
+      "tokens": 42629106
+    },
+    {
+      "folder": "-Desktop-personal-UOL-CM1015 Computational Mathematics",
+      "agent_type": "main",
+      "msgs": 142,
+      "cost": 11.54,
+      "tokens": 15906570
+    },
+    {
+      "folder": "-sc.projects",
+      "agent_type": "advisor",
+      "msgs": 431,
+      "cost": 9.27,
+      "tokens": 36356286
+    },
+    {
+      "folder": "-sc.projects-SecureCitizen",
+      "agent_type": "main",
+      "msgs": 46,
+      "cost": 8.02,
+      "tokens": 7758080
+    },
+    {
+      "folder": "-sc.projects",
+      "agent_type": "subagent",
+      "msgs": 187,
+      "cost": 7.48,
+      "tokens": 12704309
+    },
+    {
+      "folder": "-didx.projects",
+      "agent_type": "advisor",
+      "msgs": 449,
+      "cost": 6.59,
+      "tokens": 23638954
+    },
+    {
+      "folder": "-devan.projects",
+      "agent_type": "main",
+      "msgs": 79,
+      "cost": 5.35,
+      "tokens": 10980668
+    },
+    {
+      "folder": "-.dotfiles-release",
+      "agent_type": "main",
+      "msgs": 117,
+      "cost": 5.22,
+      "tokens": 13281759
+    },
+    {
+      "folder": "-devan.projects",
+      "agent_type": "subagent",
+      "msgs": 85,
+      "cost": 4.4,
+      "tokens": 9340673
+    },
+    {
+      "folder": "-didx.projects-tofu-sites-cloudapi-dev",
+      "agent_type": "main",
+      "msgs": 75,
+      "cost": 3.95,
+      "tokens": 8485010
+    },
+    {
+      "folder": "-didx.projects-tofu",
+      "agent_type": "advisor",
+      "msgs": 250,
+      "cost": 3.68,
+      "tokens": 12038813
+    },
+    {
+      "folder": "-Desktop-personal-UOL-CM1015 Computational Mathematics",
+      "agent_type": "advisor",
+      "msgs": 142,
+      "cost": 2.46,
+      "tokens": 7555310
+    },
+    {
+      "folder": "-devan.projects-incubator-attentiond",
+      "agent_type": "subagent",
+      "msgs": 66,
+      "cost": 2.31,
+      "tokens": 5081507
+    },
+    {
+      "folder": "-didx.projects",
+      "agent_type": "subagent",
+      "msgs": 76,
+      "cost": 2.17,
+      "tokens": 4177281
+    },
+    {
+      "folder": "-didx.projects-tofu-sites",
+      "agent_type": "main",
+      "msgs": 36,
+      "cost": 2.05,
+      "tokens": 3615330
+    },
+    {
+      "folder": "-devan.projects",
+      "agent_type": "advisor",
+      "msgs": 84,
+      "cost": 1.06,
+      "tokens": 3584458
+    },
+    {
+      "folder": "-didx.projects-tofu-sites-cloudapi-prod",
+      "agent_type": "main",
+      "msgs": 21,
+      "cost": 0.99,
+      "tokens": 937939
+    },
+    {
+      "folder": "-sc.projects-SecureCitizen",
+      "agent_type": "advisor",
+      "msgs": 43,
+      "cost": 0.95,
+      "tokens": 2580446
+    },
+    {
+      "folder": "-didx.projects-tofu-sites-cloudapi-dev",
+      "agent_type": "advisor",
+      "msgs": 59,
+      "cost": 0.59,
+      "tokens": 2128613
+    },
+    {
+      "folder": "-didx.projects-tofu",
+      "agent_type": "subagent",
+      "msgs": 10,
+      "cost": 0.39,
+      "tokens": 399208
+    },
+    {
+      "folder": "-didx.projects-tofu-sites",
+      "agent_type": "advisor",
+      "msgs": 34,
+      "cost": 0.29,
+      "tokens": 755877
+    },
+    {
+      "folder": "-didx.projects-tofu-sites-cloudapi-prod",
+      "agent_type": "advisor",
+      "msgs": 24,
+      "cost": 0.19,
+      "tokens": 331632
+    },
+    {
+      "folder": "-Desktop-personal-UOL",
+      "agent_type": "main",
+      "msgs": 6,
+      "cost": 0.14,
+      "tokens": 177251
+    },
+    {
+      "folder": "-Desktop-personal-UOL",
+      "agent_type": "advisor",
+      "msgs": 6,
+      "cost": 0.03,
+      "tokens": 37997
+    }
+  ],
+  "by_model": [
+    {
+      "model": "claude-opus-5-5",
+      "msgs": 1751,
+      "cost": 169.31
+    },
+    {
+      "model": "gpt-6-sol",
+      "msgs": 2564,
+      "cost": 63.17
+    },
+    {
+      "model": "claude-fable-5",
+      "msgs": 88,
+      "cost": 33.19
+    },
+    {
+      "model": "claude-sonnet-5-5",
+      "msgs": 401,
+      "cost": 15.25
+    },
+    {
+      "model": "claude-sonnet-5",
+      "msgs": 132,
+      "cost": 8.28
+    },
+    {
+      "model": "claude-haiku-4-5",
+      "msgs": 44,
+      "cost": 0.09
+    },
+    {
+      "model": "claude-haiku-5-5",
+      "msgs": 11,
+      "cost": 0.01
+    }
+  ],
+  "tools": [
+    {
+      "tool": "read",
+      "agent_type": "advisor",
+      "calls": 1136,
+      "errors": 2
+    },
+    {
+      "tool": "bash",
+      "agent_type": "main",
+      "calls": 512,
+      "errors": 42
+    },
+    {
+      "tool": "read",
+      "agent_type": "main",
+      "calls": 431,
+      "errors": 5
+    },
+    {
+      "tool": "eval",
+      "agent_type": "main",
+      "calls": 399,
+      "errors": 24
+    },
+    {
+      "tool": "read",
+      "agent_type": "subagent",
+      "calls": 290,
+      "errors": 10
+    },
+    {
+      "tool": "edit",
+      "agent_type": "main",
+      "calls": 211,
+      "errors": 17
+    },
+    {
+      "tool": "grep",
+      "agent_type": "main",
+      "calls": 195,
+      "errors": 3
+    },
+    {
+      "tool": "write",
+      "agent_type": "main",
+      "calls": 141,
+      "errors": 2
+    },
+    {
+      "tool": "advise",
+      "agent_type": "advisor",
+      "calls": 124,
+      "errors": 0
+    },
+    {
+      "tool": "bash",
+      "agent_type": "subagent",
+      "calls": 111,
+      "errors": 23
+    },
+    {
+      "tool": "eval",
+      "agent_type": "subagent",
+      "calls": 110,
+      "errors": 14
+    },
+    {
+      "tool": "grep",
+      "agent_type": "subagent",
+      "calls": 102,
+      "errors": 2
+    },
+    {
+      "tool": "todo",
+      "agent_type": "main",
+      "calls": 98,
+      "errors": 2
+    },
+    {
+      "tool": "web_search",
+      "agent_type": "subagent",
+      "calls": 49,
+      "errors": 0
+    },
+    {
+      "tool": "grep",
+      "agent_type": "advisor",
+      "calls": 47,
+      "errors": 0
+    },
+    {
+      "tool": "glob",
+      "agent_type": "main",
+      "calls": 36,
+      "errors": 1
+    },
+    {
+      "tool": "glob",
+      "agent_type": "subagent",
+      "calls": 34,
+      "errors": 0
+    },
+    {
+      "tool": "web_search",
+      "agent_type": "main",
+      "calls": 27,
+      "errors": 0
+    },
+    {
+      "tool": "wait",
+      "agent_type": "main",
+      "calls": 23,
+      "errors": 0
+    },
+    {
+      "tool": "write",
+      "agent_type": "subagent",
+      "calls": 15,
+      "errors": 0
+    }
+  ],
+  "top_sessions": [
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-devan.projects-incubator-attentiond/2026-10-13T14-38-11-763Z_01a135b3-1733-7780-949a-7ebf610c0581.jsonl",
+      "cost": 47.76
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-devan.projects-incubator-attentiond/2026-10-13T14-38-11-763Z_01a135b3-1733-7780-949a-7ebf610c0581/__advisor.doctrine.jsonl",
+      "cost": 46.16
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects/2026-10-16T10-56-39-918Z_01a1445b-59ee-74b0-bc9d-536983b112da.jsonl",
+      "cost": 44.23
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-sc.projects/2026-10-20T19-03-46-520Z_01a15ab2-c058-7319-96e9-8e6147b55c78.jsonl",
+      "cost": 18.98
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu/2026-10-20T05-48-19-697Z_01a157da-7f71-766a-b08b-4e5ca631f492.jsonl",
+      "cost": 16.77
+    }
+  ],
+  "prompts_by_cwd": [
+    {
+      "cwd": "/Users/devanmcgeer/didx.projects",
+      "prompts": 97
+    },
+    {
+      "cwd": "/Users/devanmcgeer/Desktop/personal/UOL/CM1015 Computational Mathematics",
+      "prompts": 90
+    },
+    {
+      "cwd": "/Users/devanmcgeer/didx.projects/tofu",
+      "prompts": 55
+    },
+    {
+      "cwd": "/Users/devanmcgeer/devan.projects/incubator/attentiond",
+      "prompts": 24
+    },
+    {
+      "cwd": "/Users/devanmcgeer/didx.projects/tofu/sites/cloudapi-dev",
+      "prompts": 21
+    },
+    {
+      "cwd": "/Users/devanmcgeer/sc.projects",
+      "prompts": 20
+    },
+    {
+      "cwd": "/Users/devanmcgeer/sc.projects/SecureCitizen",
+      "prompts": 18
+    },
+    {
+      "cwd": "/Users/devanmcgeer/Desktop/personal/explore",
+      "prompts": 11
+    },
+    {
+      "cwd": "/Users/devanmcgeer/devan.projects",
+      "prompts": 6
+    },
+    {
+      "cwd": "/Users/devanmcgeer/Desktop/personal/UOL",
+      "prompts": 6
+    }
+  ],
+  "delta": {
+    "vs": "2026-10-19",
+    "cost_pct": -46.5,
+    "tokens_pct": -60.8,
+    "tool_calls_pct": -61.6
+  },
+  "watch": [
+    "gpt-6-sol cost $63.17 (2564 msgs) vs $238.44 (6194 msgs) last week, -73.5%",
+    "edit/main error rate 17/211 (8.1%) vs 7/217 (3.2%) last week",
+    "bash/subagent error rate 23/111 (20.7%) vs 61/396 (15.4%) last week"
+  ],
+  "signals": {
+    "window": {
+      "start": "2026-10-19T07:01:29Z",
+      "end": "2026-10-26T07:01:29Z"
+    },
+    "attention": {
+      "available": true,
+      "log_since": "2026-09-14",
+      "appeared": {
+        "github": 297,
+        "shell": 21
+      },
+      "count": {
+        "github_failures": 31
+      },
+      "expired_unseen": {
+        "shell": 21
+      },
+      "github_repos": {
+        "didx-xyz/mono": 143,
+        "didx-xyz/tofu": 132,
+        "mcgeerdev/.dotfiles": 22
+      },
+      "notifications": {
+        "done": 33,
+        "checks running": 20,
+        "waiting for approval": 14,
+        "ready to merge": 11
+      },
+      "transitions": {
+        "shell:done": 33,
+        "shell:failed": 10
+      }
+    },
+    "shell": {
+      "available": true,
+      "window": {
+        "total": 251,
+        "commands": {
+          "tofu": 67,
+          "git": 27,
+          "cd": 23,
+          "omp": 20,
+          "aws": 19,
+          "mise": 15,
+          "la": 13,
+          "az": 11,
+          "k": 7,
+          "ls": 7,
+          "kubectl": 5,
+          "vim": 5,
+          "for": 4,
+          "open": 4
+        },
+        "subcommands": {
+          "tofu plan": 27,
+          "tofu apply": 17,
+          "aws sso": 13,
+          "mise run": 12,
+          "git pull": 9,
+          "git status": 9,
+          "tofu show": 9,
+          "tofu init": 8,
+          "git checkout": 5,
+          "tofu state": 5,
+          "k get": 4,
+          "aws sts": 3,
+          "k config": 3,
+          "mise tasks": 3
+        },
+        "editors": {
+          "vim": 5
+        }
+      },
+      "lifetime": {
+        "note": "whole history file, untimed",
+        "total": 14937,
+        "commands": {
+          "git": 2749,
+          "jj": 1979,
+          "tofu": 1572,
+          "cd": 1070,
+          "mise": 876,
+          "k": 734,
+          "vim": 618,
+          "la": 613,
+          "omp": 599,
+          "kubectl": 542,
+          "aws": 355,
+          "brew": 349,
+          "claude": 273,
+          "docker": 193,
+          "hum": 134,
+          "helmfile": 93,
+          "rm": 72,
+          "curl": 68,
+          "export": 66,
+          "pup": 57,
+          "helm": 56,
+          "coderabbit": 52,
+          "ls": 51,
+          "pnpm": 50,
+          "code": 44
+        },
+        "subcommands": {
+          "tofu plan": 809,
+          "mise run": 586,
+          "git pull": 575,
+          "git status": 558,
+          "git checkout": 433,
+          "jj git": 429,
+          "k get": 402,
+          "tofu apply": 314,
+          "git fetch": 308,
+          "jj st": 302,
+          "jj bookmark": 276,
+          "tofu init": 263,
+          "git push": 256,
+          "kubectl get": 211,
+          "jj new": 160,
+          "git rebase": 157,
+          "k config": 148,
+          "omp update": 141,
+          "mise tasks": 117,
+          "brew upgrade": 111,
+          "git branch": 75,
+          "git diff": 67,
+          "kubectl logs": 67,
+          "tofu state": 65,
+          "aws sso": 64
+        },
+        "editors": {
+          "vim": 618,
+          "code": 44,
+          "nvim": 1,
+          "vi": 1
+        }
+      }
+    }
+  }
+}
