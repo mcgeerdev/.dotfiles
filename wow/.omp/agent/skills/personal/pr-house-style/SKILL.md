@@ -1,6 +1,6 @@
 ---
 name: pr-house-style
-description: House rules for branches, worktrees, commits and pull requests. Use for "open a PR", "draft PR", "against master", "on a worktree", "stack the PRs", "commit and push", "update the PR body", or any `gh pr create` or `gh pr edit`.
+description: House rules for branches, worktrees, commits and pull requests. Use for "open a PR", "draft PR", "against master", "on a worktree", "stack the PRs", "commit and push", "update the PR body", any `gh pr create` or `gh pr edit`, and after a merge for "merged", "pull the latest", "remove the worktree" or "clean up".
 ---
 
 # PR house style
@@ -75,6 +75,16 @@ When asked to stack, base each PR on the previous branch in the stack and open t
 ## After opening
 
 Report the URLs and what the reviewer should check. Don't watch CI unless the user asked for the run result.
+
+## After merge
+
+When the user says a PR is merged, or asks to pull the latest, remove a worktree or clean up after one:
+
+1. `git fetch --prune origin`.
+2. Confirm the merge with `gh pr view <number-or-branch> --json state,mergedAt`. PRs land as squash merges (`tofu` allows nothing else), so `git merge-base --is-ancestor` exits 1 and `git branch -d` refuses even when the work is on the default branch. Don't use either as the test, and don't diff trees to prove it.
+3. If the PR had a worktree, check `git -C <worktree> status --porcelain` is empty, then run `git worktree remove <worktree> && git branch -D <branch> && git worktree prune`. A worktree with changes stays; report it and ask.
+4. In the main checkout, `git checkout <default> && git pull`. If it is on another branch with uncommitted changes, leave it and say so.
+5. Report what was removed and the default branch's new short SHA.
 
 ## Rules
 

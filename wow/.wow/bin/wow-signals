@@ -78,9 +78,13 @@ attention() {
 
 # Extended-history lines are ": <epoch>:<duration>;<command>". Plain lines
 # carry no time, so they only count toward the untimed lifetime totals.
+# A history import or merge stamps every entry it writes with the same
+# second (14,016 entries on 2026-10-06). No one types that many commands
+# in one second, so a second holding more than `bulk` entries counts as
+# untimed too, and the window reports how many entries it left out.
 shell() {
   [[ -r $zsh_hist ]] || { jq -n '{available: false, reason: "no history"}'; return; }
-  awk -v s="$start" -v e="$end" '
+  awk -v s="$start" -v e="$end" -v bulk=20 '
     BEGIN {
       split("sudo command noglob builtin exec time nohup env", w)
       for (i in w) skip[w[i]] = 1
@@ -100,17 +104,26 @@ shell() {
         print scope "\tsubcommands\t" name " " tok[i + 1]
       print scope "\tcount\ttotal"
     }
+    # First pass: entries per epoch second, to spot import stamps.
+    FNR == NR {
+      if (cont1) { cont1 = /\\$/; next }
+      if (/^: [0-9]+:[0-9]+;/) per[substr($0, 3) + 0]++
+      cont1 = /\\$/; next
+    }
     cont { cont = /\\$/; next }
     /^: [0-9]+:[0-9]+;/ {
       ts = substr($0, 3) + 0
       cmd = substr($0, index($0, ";") + 1)
       cont = /\\$/
       emit("lifetime", cmd)
-      if (ts >= s && ts < e) emit("window", cmd)
+      if (ts >= s && ts < e) {
+        if (per[ts] > bulk) print "window\tbulk\timported"
+        else emit("window", cmd)
+      }
       next
     }
     { cont = /\\$/; emit("lifetime", $0) }
-  ' "$zsh_hist" | jq -R -s '
+  ' "$zsh_hist" "$zsh_hist" | jq -R -s '
     def pick(scope; kind; min; top):
       map(select(.[0] == scope and .[1] == kind))
       | group_by(.[2]) | map({key: .[0][2], value: length})
@@ -122,6 +135,7 @@ shell() {
        window: (if total("window") == 0
                 then {available: false, reason: "no timestamped history in window; needs setopt EXTENDED_HISTORY"}
                 else {total: total("window"),
+                      bulk_stamped: (map(select(.[0] == "window" and .[1] == "bulk")) | length),
                       commands: pick("window"; "commands"; 3; 25),
                       subcommands: pick("window"; "subcommands"; 3; 25),
                       editors: pick("window"; "editors"; 1; 10)} end),

@@ -17,6 +17,18 @@ alias vim="nvim"
 
 alias k="kubectl"
 
+# Check out the repository's default branch (master or main, from
+# origin/HEAD) and pull it.
+gcm() {
+  local head
+  head=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null)
+  head=${head#origin/}
+  if [[ -z $head ]]; then
+    git show-ref --verify --quiet refs/heads/main && head=main || head=master
+  fi
+  git checkout "$head" && git pull
+}
+
 # Load version control information
 autoload -Uz vcs_info
 precmd() { vcs_info }
