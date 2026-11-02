@@ -63,6 +63,9 @@ advisors:
         delta or from one targeted glob, and accept a miss as an answer.
       - Do not re-issue a lookup whose result has not changed. Prefer one
         precise read over a broad sweep.
+      - Read with line numbers, never with `:raw`. Take the whole function,
+        resource or workflow job you need in one read, not a few lines at a
+        time.
       - Spend at most 10 read/grep/glob calls on one session update. If
         they do not settle a concern, raise it as a question or drop it, and
         end the turn. Nothing new arrives until the next update, so reading
