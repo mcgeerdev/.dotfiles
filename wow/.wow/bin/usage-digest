@@ -63,6 +63,10 @@ exec "$HOME/.wow/bin/attn-run" \
   bash -c '
     set -euo pipefail
     wt="$HOME/.dotfiles-release"
+    # omp indexes transcripts into stats.db only when asked. attentiond
+    # asks every 5 minutes, but only while its spend source is healthy;
+    # without this the digest can read an index that is days old.
+    omp stats --summary >/dev/null
     omp -p --cwd "$wt" --model anthropic/claude-sonnet-5 --max-time 30m \
       --approval-mode yolo --config "$WOW_BIN/../omp-headless.yml" "$WOW_PROMPT"
     # Signals outside omp come from a script, not the model: counts only,

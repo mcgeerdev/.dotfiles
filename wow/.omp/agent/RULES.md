@@ -11,6 +11,13 @@ Hard requirements translated from Claude Code settings.
 
 Never add AI attribution or `Co-Authored-By` trailers to commits or PRs.
 
+## Links
+
+Write every PR, issue, Linear ticket, workflow run and dashboard you mention
+as a markdown link to its URL, in each reply that mentions it, even when an
+earlier reply linked it. A bare `4659` or `SRE-693` sends the User back to
+ask for the link.
+
 ## Comments
 
 If you need a paragraph long comment to justify why a workaround is OK, the code is wrong, fix the code.
