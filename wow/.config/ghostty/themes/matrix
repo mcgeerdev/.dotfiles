@@ -7,6 +7,12 @@
 foreground = #426644
 background = #0f191c
 cursor-color = #ff0000
+cursor-text = #0f191c
+
+# Selection matches omp's selectedBg (selBg in ~/.omp/agent/themes/matrix.json)
+# and keeps each cell's own text colour, as Tern does.
+selection-background = #17262b
+selection-foreground = cell-foreground
 
 # Normal (palette 0-7): black, red, green, yellow, blue, magenta, cyan, white
 palette = 0=#0f191c

@@ -21,22 +21,23 @@ auto_switch = false
 
 # matrix maps ANSI red to a green (#23755a) and ANSI blue to a grey-teal, so
 # inheriting the palette wholesale would erase the colour difference between a
-# blocked agent and a healthy one. Pin the semantic tokens to matrix hexes,
-# keeping red genuinely red so blocked states still read at a glance.
+# blocked agent and a healthy one. Pin every token Herdr exposes to the omp
+# theme Tern draws with (~/.omp/agent/themes/matrix.json), named here by its
+# var, so Herdr matches Tern and omp in any host terminal.
 #
-# panel_bg, sidebar_bg and active_row_bg = "reset" let the host terminal's
-# background show through instead of Herdr painting its own panels, so Herdr
-# blends into Tern or Ghostty rather than sitting on top as a separate frame.
+# panel_bg = "reset" lets the pane area fall through to the terminal's own
+# background (matrix `bg`, #0f191c, in both Tern and Ghostty).
 [theme.custom]
 panel_bg = "reset"
-sidebar_bg = "reset"
-active_row_bg = "reset"
-selection_bg = "#23755a"
-accent = "#90d762"
-green = "#82d967"
-yellow = "#ffd700"
-blue = "#4f7e7e"
-red = "#ff0000"
+sidebar_bg = "#131f22"    # pendBg, Tern's card background
+active_row_bg = "#17262b" # selBg, omp selectedBg
+selection_bg = "#17262b"  # selBg
+text = "#426644"          # fg
+accent = "#90d762"        # brightGreen, omp accent
+green = "#82d967"         # ansiGreen, omp success
+yellow = "#ffd700"        # ansiYellow, omp warning
+blue = "#4f7e7e"          # brightBlue
+red = "#ff0000"           # cursorRed, omp error
 
 # ── Keys ────────────────────────────────────────────────────────────────────
 # Herdr owns the Cmd shortcuts; Ghostty unbinds them so the chord reaches the
