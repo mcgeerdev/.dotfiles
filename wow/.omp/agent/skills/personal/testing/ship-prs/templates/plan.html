@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{job}}: plan</title>
+<style>
+  :root { color-scheme: light dark; --muted: #6b7280; --border: #d1d5db; --accent: #2563eb; --ok: #15803d; --warn: #b45309; }
+  @media (prefers-color-scheme: dark) { :root { --muted: #9ca3af; --border: #374151; --accent: #60a5fa; --ok: #4ade80; --warn: #fbbf24; } }
+  body { font: 15px/1.55 -apple-system, system-ui, sans-serif; max-width: 70rem; margin: 2rem auto; padding: 0 1.5rem; }
+  h1 { margin-bottom: .25rem; }
+  h2 { margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .25rem; }
+  .meta { color: var(--muted); }
+  .status { font-weight: 600; color: var(--warn); }
+  .status.approved { color: var(--ok); }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid var(--border); padding: .4rem .6rem; text-align: left; vertical-align: top; }
+  th { font-weight: 600; }
+  code { font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  details { border: 1px solid var(--border); border-radius: 6px; padding: .5rem 1rem; margin: .75rem 0; }
+  summary { cursor: pointer; font-weight: 600; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<h1>{{job title}}</h1>
+<p class="meta">
+  Job <code>{{job}}</code> ·
+  Ticket {{ticket link, or "not created yet"}} ·
+  Updated {{YYYY-MM-DD}} ·
+  <span class="status">{{Draft | Approved YYYY-MM-DD}}</span>
+</p>
+
+<h2>Problem</h2>
+<p>{{Two sentences: what is wrong or missing, and what done looks like.}}</p>
+
+<h2>Evidence</h2>
+<ul>
+  <li>{{Finding.}} <code>{{path:line}}</code> or <a href="{{url}}">{{source}}</a></li>
+</ul>
+
+<h2>Decisions</h2>
+<table>
+  <tr><th>Decision</th><th>Why</th><th>Decided by</th><th>Date</th></tr>
+  <tr><td>{{decision}}</td><td>{{reason}}</td><td>{{User | proposed by orchestrator}}</td><td>{{YYYY-MM-DD}}</td></tr>
+</table>
+
+<h2>Pull requests</h2>
+<table>
+  <tr><th>Slug</th><th>Intent</th><th>Base</th><th>Depends on</th><th>Tilt</th><th>Claude full review</th><th>Reviewers</th></tr>
+  <tr><td><code>{{slug}}</code></td><td>{{one sentence}}</td><td><code>{{master | parent branch}}</code></td><td>{{slugs or none}}</td><td>{{yes | no}}</td><td>{{yes | no}}</td><td>{{handles}}</td></tr>
+</table>
+
+<details open>
+  <summary><code>{{slug}}</code>: {{intent}}</summary>
+  <p><strong>Acceptance criteria</strong></p>
+  <ol>
+    <li>{{observable, testable result}}</li>
+  </ol>
+  <p><strong>Out of scope</strong></p>
+  <ul>
+    <li>{{item, and the PR or backlog entry that owns it}}</li>
+  </ul>
+  <p><strong>Test plan</strong></p>
+  <ul>
+    <li><code>{{command}}</code></li>
+  </ul>
+</details>
+
+<h2>Order</h2>
+<p>{{Which PRs run in parallel, which wait for a parent, and why.}}</p>
+
+<h2>Risks</h2>
+<table>
+  <tr><th>Risk</th><th>Blast radius</th><th>Mitigation or rollback</th></tr>
+  <tr><td>{{risk}}</td><td>{{what breaks, for whom}}</td><td>{{mitigation}}</td></tr>
+</table>
+
+<h2>Unanswered questions</h2>
+<ul>
+  <li>{{question}}: {{who answers, and by when}}</li>
+</ul>
+
+<h2>Linear ticket draft</h2>
+<p><strong>{{title}}</strong> · team Dyson</p>
+<p>{{description}}</p>
+<p><strong>Done when</strong></p>
+<ul>
+  <li>{{outcome}}</li>
+</ul>
+
+</body>
+</html>

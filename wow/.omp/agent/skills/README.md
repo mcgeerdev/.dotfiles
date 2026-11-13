@@ -111,7 +111,7 @@ Mine, tied to this setup, kept in `personal/`.
 | [pr-house-style](./pr-house-style/SKILL.md) | Branch, worktree, commit and PR rules |
 | [pr-diagram](./pr-diagram/SKILL.md) | Diagram a pull request as self-contained HTML |
 
-In testing (OMP only, hidden, run with `/skill:<name>`): `tofu-state-split`.
+In testing (OMP only, hidden, run with `/skill:<name>`): `tofu-state-split`, `ship-prs` (orchestrate a job of PRs in herdr, one worker tab per PR, stopping at ready for review).
 
 Retired: `teach`, kept in `retired/teach` for reference.
 

@@ -1,0 +1,5 @@
+# Overlay for ship-prs workers and the verifier: `omp --config ~/.omp/agent/worker.yml`.
+# Each worker is a full omp process, so without this it would start its own
+# advisor. The verifier, CodeRabbit and the Claude review cover worker output.
+advisor:
+  enabled: false
