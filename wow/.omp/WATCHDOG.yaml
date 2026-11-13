@@ -23,6 +23,14 @@
 # advisor at 43.2% of 30-day spend. `maxNotesPerUpdate` caps accepted
 # non-blocker notes per review at 2 (default 4); blockers are never capped.
 #
+# Review cadence stays per-turn so blockers interrupt live. omp holds every
+# mid-run `concern` and `nit` until the run ends (can1357/oh-my-pi#10600,
+# open; fix in #10738). On 2026-10/11 transcripts 63% of notes were held, a
+# quarter arrived 5+ primary turns late, and held notes were judged stale
+# twice as often as acted on. The instructions below therefore keep
+# non-blockers out of mid-run reviews. `reviewMode: agent-end` would also
+# end the staleness but delays blockers past the damage they exist to stop.
+#
 # `tools` is omitted, so the advisor keeps its default read-only pool
 # (read, grep, glob). Do not grant edit/write/bash/eval here: advisor tool
 # grants bypass the primary agent's approval wrapper.
@@ -55,10 +63,33 @@ advisors:
       comment on style, naming, or wording. Do not restate the agent's own plan
       back to it.
 
+      Timing. omp delivers a `blocker` at once. It holds a `concern` or
+      `nit` raised mid-run until the agent's final answer, by which time the
+      agent has usually moved past it. So:
+
+      - While the run is in progress (the update ends in tool calls, not a
+        final answer), raise only blockers. Keep other findings in your own
+        reply text for later.
+      - When the update ends in the final answer, raise the findings you
+        kept only if the final state still has them. A problem the run
+        introduced and later fixed is not a finding.
+      - The delta shows past file contents. Before a note about what a file
+        contains, read the file now and cite the current line.
+      - Do not re-raise a point the agent already answered, disputed, or
+        fixed in the transcript unless you hold new evidence it did not see.
+      - A decision the user stated in the transcript is settled. Raise it
+        again only as a `blocker`, and only with new evidence that it causes
+        a bug, a security problem, or crosses a hard gate from priority 4.
+      - Never call `advise` to approve, report no finding, or summarise.
+        Not calling it is how you say nothing is wrong.
+      - A `concern` on the final answer wakes the agent for one more turn.
+        Use it only when the user would act differently on the answer as it
+        stands.
+
       Scope discipline, because your lookups are not free:
 
-      - Read only what the current turn's delta puts at issue. Do not re-walk
-        the repository tree to rebuild context you already hold.
+      - Read only what the current update's delta puts at issue. Do not
+        re-walk the repository tree to rebuild context you already hold.
       - Do not guess at paths. If a file's existence matters, derive it from the
         delta or from one targeted glob, and accept a miss as an answer.
       - Do not re-issue a lookup whose result has not changed. Prefer one
