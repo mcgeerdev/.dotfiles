@@ -34,6 +34,9 @@ power:
   sleepPrevention: idle
 compaction:
   handoffSaveToDisk: true
+  # Fixed trigger. The 1M-token windows otherwise compact near 850K, long
+  # after long-context accuracy has dropped.
+  thresholdTokens: 200000
 memory:
   backend: mnemopi
 mnemopi:
@@ -107,6 +110,18 @@ bashInterceptor:
       flags: m
       message: "`git push --force`/`-f` is blocked — use `--force-with-lease` or ask the User."
     - pattern: \bgit\s+reset\b.*--hard\b
+    - pattern: "(?:^|[;&|]+\\s*)gh\\s+pr\\s+merge(?:\\s|$)"
+      tool: bash
+      flags: m
+      message: "`gh pr merge` is blocked: agents never merge. Mark the PR ready for review and tell the User, who merges."
+    - pattern: "\\bgh\\s+api\\b[^;&|\\n]*(?:/pulls/\\d+/merge\\b|mergePullRequest|enablePullRequestAutoMerge)"
+      tool: bash
+      flags: m
+      message: "Merging through the GitHub API is blocked: agents never merge. Mark the PR ready for review and tell the User, who merges."
+    - pattern: "\\bgit\\s+push\\b[^;&|\\n]*\\s(?:\\S*:)?(?:refs/heads/)?(?:master|main)(?:\\s|$)"
+      tool: bash
+      flags: m
+      message: "Pushing to the default branch is blocked. Push a feature branch and open a PR."
       tool: bash
       flags: m
       message: "`git reset --hard` is blocked by policy — ask the User before discarding work."
