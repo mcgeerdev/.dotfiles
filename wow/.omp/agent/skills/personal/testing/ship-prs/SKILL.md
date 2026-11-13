@@ -41,7 +41,7 @@ Job dir: `~/didx.projects/plans/<job>/`, where `<job>` is a short kebab-case slu
   "workspace_id": "<HERDR_WORKSPACE_ID>",
   "prs": [{
     "slug": "<slug>", "branch": "<branch_prefix>-<slug>", "base": "master",
-    "nn": "01", "depends_on": [], "worktree": "...",
+    "number": null, "depends_on": [], "worktree": "...",
     "tabs": {"worker": "...", "checks": "..."},
     "panes": {"worker": "...", "verifier": "...", "checks": "..."},
     "agent": "w-<slug>", "pr_url": null,
@@ -56,9 +56,8 @@ Job dir: `~/didx.projects/plans/<job>/`, where `<job>` is a short kebab-case slu
    from a herdr pane.
 2. Frame the problem with the user until you can state it in two sentences.
    Research the code and the authoritative sources. Cite `path:line`.
-3. Split the work into PRs, one intent each, numbered `01`, `02`, ... in plan
-   order. GitHub numbers don't exist until the push, so tabs use these.
-   Out-of-scope fixes become their own PRs. For each PR settle:
+3. Split the work into PRs, one intent each. Out-of-scope fixes become their
+   own PRs. For each PR settle:
    - intent and numbered acceptance criteria
    - base: `master`, or the parent PR's branch for a stack
    - depends on, needs tilt, reviewers
@@ -90,9 +89,9 @@ its parent's stage reaches `in_review`. For each PR:
    - stacked: same, with the parent branch as the start point
 2. Tabs and panes. Every command prints JSON. Read the IDs with `jq`. Create
    everything with `--no-focus` so the user's view stays on the orchestrator.
-   - `herdr tab create --workspace "$HERDR_WORKSPACE_ID" --cwd <worktree> --label PR-<nn>-Worker --no-focus`
+   - `herdr tab create --workspace "$HERDR_WORKSPACE_ID" --cwd <worktree> --label PR-<slug>-Worker --no-focus`
      gives `.result.tab.tab_id` and the worker pane `.result.root_pane.pane_id`.
-   - `herdr tab create --workspace "$HERDR_WORKSPACE_ID" --cwd <worktree> --label PR-<nn>-Checks --no-focus`
+   - `herdr tab create --workspace "$HERDR_WORKSPACE_ID" --cwd <worktree> --label PR-<slug>-Checks --no-focus`
      gives the checks tab and its root pane, the verifier pane.
    - `herdr pane split <verifier> --direction right --cwd <worktree> --no-focus`
      gives the checks pane `.result.pane.pane_id`.
@@ -111,6 +110,10 @@ its parent's stage reaches `in_review`. For each PR:
 
 - Wait on workers with async bash: `herdr agent wait w-<slug> --timeout 3600000`.
   When it returns, read that PR's `status.json`.
+- When a `status.json` first has a `pr_url`, rename both tabs to the GitHub
+  number: `herdr tab rename <tab> PR-<number>-Worker`, and the same for
+  `PR-<number>-Checks`. Record `number` in `job.json`. Tab names follow GitHub
+  numbers, which only exist once the draft PR is open.
 - `needs_user`: put the worker's `question` to the user, short and verbatim.
   Send the answer with `herdr agent prompt w-<slug> "<answer>"`. The user may
   also answer in the worker pane directly.

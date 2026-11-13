@@ -1,4 +1,4 @@
-# Contract: PR-{{nn}} {{slug}}
+# Contract: {{slug}}
 
 You are the worker for one pull request in job `{{job}}`. The orchestrator
 wrote this file. Follow it top to bottom. It overrides your general defaults
@@ -26,8 +26,8 @@ where they conflict.
 | PR base | `{{base}}` |
 | Diff base | `{{diff_base}}` (`origin/master`, or the parent branch for a stacked PR) |
 | Linear ticket | `{{ticket_id}}` (for the PR footer only, never call Linear) |
-| Verifier pane (tab `PR-{{nn}}-Checks`) | `{{verifier_pane}}` |
-| Checks pane (tab `PR-{{nn}}-Checks`) | `{{checks_pane}}` |
+| Verifier pane (in the PR's Checks tab) | `{{verifier_pane}}` |
+| Checks pane (in the PR's Checks tab) | `{{checks_pane}}` |
 | Status file | `{{job_dir}}/prs/{{slug}}/status.json` |
 | Verdict file | `{{job_dir}}/prs/{{slug}}/verdict.json` |
 | Needs tilt | {{yes or no}} |
