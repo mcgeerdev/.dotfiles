@@ -641,9 +641,11 @@ key: counts per source, state, label and repository from
 `~/.local/state/attentiond/attentiond.log`, and command names and two-word
 subcommands from `~/.zsh_history`. The repository is public, so it emits
 counts only, never titles, arguments or paths. The attentiond log starts
-on 2026-09-14 (`log_since`). zsh history needs `setopt EXTENDED_HISTORY`
-for per-week counts; without timestamps only the whole-file `lifetime`
-counts exist.
+on 2026-09-14 (`log_since`) and its newest line is `log_until`. A window
+with no log lines reports `available: false`: attentiond was not writing
+to that log, which happens when it runs without `attn-daemon start`. zsh
+history needs `setopt EXTENDED_HISTORY` for per-week counts; without
+timestamps only the whole-file `lifetime` counts exist.
 
 Run the scripts by hand to redo or backfill work. Each takes the job lock
 and skips its guard:
