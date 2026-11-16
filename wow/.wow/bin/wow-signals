@@ -27,7 +27,10 @@ case "${1:-}" in
 esac
 start=$(( end - 7 * 86400 ))
 
-# attentiond logs local time with an offset; compare in local time.
+# attentiond logs local time with an offset; compare in local time. A
+# window with no log lines at all means attentiond was not writing to
+# this log (a copy started outside `attn-daemon start` logs elsewhere),
+# not a quiet week, so it reports unavailable rather than empty counts.
 attention() {
   [[ -r $attn_log ]] || { jq -n '{available: false, reason: "no log"}'; return; }
   awk -v s="$(date -r "$start" +%Y-%m-%dT%H:%M:%S)" \
@@ -42,8 +45,10 @@ attention() {
     # Only fixed vocabularies reach the output; anything else is "other".
     function only(v, re) { return v ~ re ? v : "other" }
     NR == 1 { print "first\t" substr($0, 6, 10) }
+    /^time=/ { last = substr($0, 6, 10) }
     { t = substr($0, 6, 19) }
     t < s || t >= e { next }
+    { seen++ }
     { msg = kv("msg"); src = only(kv("source"), "^(github|herdr|shell|calendar)$") }
     msg == "item appeared" {
       print "appeared\t" src
@@ -63,16 +68,21 @@ attention() {
     msg == "action executed"   { print "actions\t" src ":" only(kv("action"), "^(focus|open|dismiss|snooze)$") }
     msg == "attentiond started" { print "count\tdaemon_starts" }
     msg == "github adapter failed, keeping the last result" { print "count\tgithub_failures" }
+    END { print "last\t" last; print "seen\t" seen + 0 }
   ' "$attn_log" | jq -R -s '
     split("\n") | map(select(length > 0) | split("\t")) as $rows
     | ($rows | map(select(.[0] == "first")) | .[0][1] // null) as $first
-    | ($rows | map(select(.[0] != "first"))
+    | ($rows | map(select(.[0] == "last")) | .[0][1] // null) as $last
+    | ($rows | map(select(.[0] == "seen")) | .[0][1] | tonumber) as $seen
+    | ($rows | map(select(.[0] | IN("first", "last", "seen") | not))
        | group_by(.[0])
        | map({key: .[0][0],
               value: (group_by(.[1]) | map({key: .[0][1], value: length})
                       | sort_by(-.value) | from_entries)})
        | from_entries) as $m
-    | {available: true, log_since: $first} + $m
+    | if $seen == 0
+      then {available: false, reason: "no log lines in window", log_since: $first, log_until: $last}
+      else {available: true, log_since: $first, log_until: $last} + $m end
   '
 }
 

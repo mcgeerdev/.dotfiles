@@ -1,0 +1,181 @@
+{
+  "date": "2026-11-09",
+  "window_days": 7,
+  "totals": {
+    "cost": 0.0,
+    "tokens": 0,
+    "messages": 0,
+    "tool_calls": 0,
+    "prompts": 370,
+    "api_errors": 0
+  },
+  "by_project": [],
+  "by_model": [],
+  "tools": [],
+  "top_sessions": [],
+  "prompts_by_cwd": [
+    {
+      "cwd": "/Users/devanmcgeer/sc.projects",
+      "prompts": 159
+    },
+    {
+      "cwd": "/Users/devanmcgeer/Desktop/personal/UOL",
+      "prompts": 84
+    },
+    {
+      "cwd": "/Users/devanmcgeer/didx.projects/mono",
+      "prompts": 52
+    },
+    {
+      "cwd": "/Users/devanmcgeer/didx.projects/tofu",
+      "prompts": 20
+    },
+    {
+      "cwd": "/Users/devanmcgeer/Desktop/personal/UOL/CM1015 Computational Mathematics",
+      "prompts": 20
+    },
+    {
+      "cwd": "/Users/devanmcgeer/didx.projects",
+      "prompts": 13
+    },
+    {
+      "cwd": "/Users/devanmcgeer/didx.projects/tofu/sites/cloudapi-dev",
+      "prompts": 10
+    },
+    {
+      "cwd": "/Users/devanmcgeer/mourningstar",
+      "prompts": 5
+    },
+    {
+      "cwd": "/Users/devanmcgeer/devan.projects/neo-ides",
+      "prompts": 3
+    },
+    {
+      "cwd": "/Users/devanmcgeer/.dotfiles/wow/.omp",
+      "prompts": 2
+    }
+  ],
+  "delta": {
+    "vs": "2026-11-02",
+    "cost_pct": -100.0,
+    "tokens_pct": -100.0,
+    "tool_calls_pct": -100.0
+  },
+  "watch": [
+    "stats.db messages/tool_calls: 0 rows this window vs 4012 msgs/3889 tool_calls last week; last row timestamp 2026-10-27 14:32:14, file unmodified since 2026-11-02 09:00",
+    "history.db still active: 370 prompts this window vs 625 last week (-40.8%), so usage continued while stats.db capture stopped",
+    "stats.db row totals unchanged at 43501 messages / 42881 tool_calls since 2026-11-02 — collector has written nothing in 13 days"
+  ],
+  "signals": {
+    "window": {
+      "start": "2026-11-02T07:01:14Z",
+      "end": "2026-11-09T07:01:14Z"
+    },
+    "attention": {
+      "available": true,
+      "log_since": "2026-09-14"
+    },
+    "shell": {
+      "available": true,
+      "window": {
+        "total": 298,
+        "bulk_stamped": 0,
+        "commands": {
+          "cd": 54,
+          "git": 47,
+          "tofu": 39,
+          "omp": 36,
+          "la": 17,
+          "mise": 13,
+          "helmfile": 12,
+          "rm": 12,
+          "vim": 10,
+          "k": 7,
+          "az": 6,
+          "brew": 6,
+          "claude": 4,
+          "ls": 3,
+          "open": 3
+        },
+        "subcommands": {
+          "git pull": 26,
+          "tofu plan": 19,
+          "tofu apply": 16,
+          "git status": 8,
+          "k config": 6,
+          "mise run": 6,
+          "git checkout": 4,
+          "git fetch": 4,
+          "mise install": 4
+        },
+        "editors": {
+          "vim": 10
+        }
+      },
+      "lifetime": {
+        "note": "whole history file, untimed",
+        "total": 15532,
+        "commands": {
+          "git": 2821,
+          "jj": 1979,
+          "tofu": 1656,
+          "cd": 1184,
+          "mise": 910,
+          "k": 755,
+          "omp": 666,
+          "la": 649,
+          "vim": 646,
+          "kubectl": 549,
+          "aws": 367,
+          "brew": 357,
+          "claude": 277,
+          "docker": 193,
+          "hum": 134,
+          "helmfile": 105,
+          "rm": 88,
+          "curl": 71,
+          "export": 66,
+          "pup": 59,
+          "helm": 58,
+          "ls": 56,
+          "coderabbit": 52,
+          "pnpm": 50,
+          "az": 49
+        },
+        "subcommands": {
+          "tofu plan": 847,
+          "git pull": 610,
+          "mise run": 602,
+          "git status": 574,
+          "git checkout": 441,
+          "jj git": 429,
+          "k get": 408,
+          "tofu apply": 348,
+          "git fetch": 312,
+          "jj st": 302,
+          "jj bookmark": 276,
+          "tofu init": 272,
+          "git push": 258,
+          "kubectl get": 213,
+          "jj new": 160,
+          "git rebase": 157,
+          "k config": 156,
+          "omp update": 141,
+          "mise tasks": 123,
+          "brew upgrade": 112,
+          "git branch": 77,
+          "aws sso": 76,
+          "git diff": 67,
+          "kubectl logs": 67,
+          "tofu state": 65
+        },
+        "editors": {
+          "vim": 646,
+          "code": 44,
+          "nvim": 1,
+          "vi": 1
+        }
+      }
+    }
+  }
+}

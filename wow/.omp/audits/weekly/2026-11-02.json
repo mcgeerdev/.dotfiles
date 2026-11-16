@@ -1,0 +1,449 @@
+{
+  "date": "2026-11-02",
+  "window_days": 7,
+  "totals": {
+    "cost": 206.97,
+    "tokens": 532799814,
+    "messages": 4012,
+    "tool_calls": 3889,
+    "prompts": 625,
+    "api_errors": 83
+  },
+  "by_project": [
+    {
+      "folder": "-sc.projects",
+      "agent_type": "main",
+      "msgs": 921,
+      "cost": 83.95,
+      "tokens": 186128370
+    },
+    {
+      "folder": "-didx.projects-tofu",
+      "agent_type": "main",
+      "msgs": 204,
+      "cost": 37.05,
+      "tokens": 52096101
+    },
+    {
+      "folder": "-sc.projects",
+      "agent_type": "advisor",
+      "msgs": 1566,
+      "cost": 34.25,
+      "tokens": 134675493
+    },
+    {
+      "folder": "-didx.projects-tofu",
+      "agent_type": "advisor",
+      "msgs": 650,
+      "cost": 23.99,
+      "tokens": 104636052
+    },
+    {
+      "folder": "-sc.projects",
+      "agent_type": "subagent",
+      "msgs": 496,
+      "cost": 20.94,
+      "tokens": 42407914
+    },
+    {
+      "folder": "-.dotfiles-release",
+      "agent_type": "main",
+      "msgs": 64,
+      "cost": 4.11,
+      "tokens": 8455075
+    },
+    {
+      "folder": "-didx.projects",
+      "agent_type": "main",
+      "msgs": 31,
+      "cost": 1.44,
+      "tokens": 2246506
+    },
+    {
+      "folder": "-Desktop-personal-UOL",
+      "agent_type": "main",
+      "msgs": 21,
+      "cost": 0.82,
+      "tokens": 904339
+    },
+    {
+      "folder": "-didx.projects",
+      "agent_type": "advisor",
+      "msgs": 31,
+      "cost": 0.24,
+      "tokens": 803033
+    },
+    {
+      "folder": "-Desktop-personal-UOL",
+      "agent_type": "advisor",
+      "msgs": 27,
+      "cost": 0.17,
+      "tokens": 409588
+    }
+  ],
+  "by_model": [
+    {
+      "model": "claude-opus-5-5",
+      "msgs": 1237,
+      "cost": 111.95
+    },
+    {
+      "model": "gpt-6-sol",
+      "msgs": 2241,
+      "cost": 57.04
+    },
+    {
+      "model": "claude-sonnet-5-5",
+      "msgs": 452,
+      "cost": 18.25
+    },
+    {
+      "model": "claude-fable-5",
+      "msgs": 10,
+      "cost": 17.9
+    },
+    {
+      "model": "claude-sonnet-5",
+      "msgs": 37,
+      "cost": 1.73
+    },
+    {
+      "model": "claude-haiku-4-5",
+      "msgs": 24,
+      "cost": 0.08
+    },
+    {
+      "model": "claude-haiku-5-5",
+      "msgs": 10,
+      "cost": 0.01
+    }
+  ],
+  "tools": [
+    {
+      "tool": "read",
+      "agent_type": "advisor",
+      "calls": 1385,
+      "errors": 3
+    },
+    {
+      "tool": "bash",
+      "agent_type": "main",
+      "calls": 497,
+      "errors": 52
+    },
+    {
+      "tool": "read",
+      "agent_type": "subagent",
+      "calls": 384,
+      "errors": 2
+    },
+    {
+      "tool": "grep",
+      "agent_type": "subagent",
+      "calls": 260,
+      "errors": 3
+    },
+    {
+      "tool": "read",
+      "agent_type": "main",
+      "calls": 225,
+      "errors": 2
+    },
+    {
+      "tool": "eval",
+      "agent_type": "main",
+      "calls": 218,
+      "errors": 8
+    },
+    {
+      "tool": "bash",
+      "agent_type": "subagent",
+      "calls": 184,
+      "errors": 33
+    },
+    {
+      "tool": "grep",
+      "agent_type": "main",
+      "calls": 152,
+      "errors": 2
+    },
+    {
+      "tool": "edit",
+      "agent_type": "main",
+      "calls": 110,
+      "errors": 2
+    },
+    {
+      "tool": "advise",
+      "agent_type": "advisor",
+      "calls": 106,
+      "errors": 0
+    },
+    {
+      "tool": "glob",
+      "agent_type": "subagent",
+      "calls": 67,
+      "errors": 1
+    },
+    {
+      "tool": "write",
+      "agent_type": "main",
+      "calls": 54,
+      "errors": 0
+    },
+    {
+      "tool": "glob",
+      "agent_type": "advisor",
+      "calls": 45,
+      "errors": 0
+    },
+    {
+      "tool": "eval",
+      "agent_type": "subagent",
+      "calls": 44,
+      "errors": 0
+    },
+    {
+      "tool": "grep",
+      "agent_type": "advisor",
+      "calls": 36,
+      "errors": 0
+    },
+    {
+      "tool": "wait",
+      "agent_type": "main",
+      "calls": 30,
+      "errors": 3
+    },
+    {
+      "tool": "glob",
+      "agent_type": "main",
+      "calls": 26,
+      "errors": 1
+    },
+    {
+      "tool": "todo",
+      "agent_type": "main",
+      "calls": 18,
+      "errors": 0
+    },
+    {
+      "tool": "web_search",
+      "agent_type": "subagent",
+      "calls": 14,
+      "errors": 0
+    },
+    {
+      "tool": "web_search",
+      "agent_type": "main",
+      "calls": 9,
+      "errors": 0
+    }
+  ],
+  "top_sessions": [
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-sc.projects/2026-10-23T14-17-41-667Z_01a1691f-ea23-745b-80f5-fd6bd151a19a.jsonl",
+      "cost": 42.13
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-sc.projects/2026-10-23T14-17-41-667Z_01a1691f-ea23-745b-80f5-fd6bd151a19a/__advisor.doctrine.jsonl",
+      "cost": 24.09
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu/2026-10-12T12-15-47-812Z_01a1300a-5c64-75c9-958c-67a508324a76/__advisor.doctrine.jsonl",
+      "cost": 22.6
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-didx.projects-tofu/2026-10-26T13-40-12-284Z_01a17870-ab7c-7698-a61a-12a91842a431.jsonl",
+      "cost": 17.9
+    },
+    {
+      "session_file": "/Users/devanmcgeer/.omp/agent/sessions/-sc.projects/2026-10-27T12-41-06-043Z_01a17d60-eafb-7431-8835-d3d6f3a4a14c.jsonl",
+      "cost": 16.53
+    }
+  ],
+  "prompts_by_cwd": [
+    {
+      "cwd": "/Users/devanmcgeer/sc.projects",
+      "prompts": 506
+    },
+    {
+      "cwd": "/Users/devanmcgeer/Desktop/personal/UOL",
+      "prompts": 42
+    },
+    {
+      "cwd": "/Users/devanmcgeer/didx.projects/tofu",
+      "prompts": 36
+    },
+    {
+      "cwd": "/Users/devanmcgeer/devan.projects/incubator/attentiond",
+      "prompts": 22
+    },
+    {
+      "cwd": "/Users/devanmcgeer/mourningstar",
+      "prompts": 9
+    },
+    {
+      "cwd": "/Users/devanmcgeer/didx.projects",
+      "prompts": 8
+    },
+    {
+      "cwd": "/Users/devanmcgeer/sc.projects/reports/azure-dev-migration",
+      "prompts": 1
+    },
+    {
+      "cwd": "/Users/devanmcgeer/.dotfiles",
+      "prompts": 1
+    }
+  ],
+  "delta": {
+    "vs": "2026-10-26",
+    "cost_pct": -28.5,
+    "tokens_pct": -19.3,
+    "tool_calls_pct": -6.0
+  },
+  "watch": [
+    "api_errors 83 vs 22 last week, +277.3%",
+    "bash/main error rate 52/497 (10.5%) vs 42/512 (8.2%) last week",
+    "claude-opus-5-5 cost $111.95 (1237 msgs) vs $169.31 (1751 msgs) last week, -33.9%"
+  ],
+  "signals": {
+    "window": {
+      "start": "2026-10-26T07:01:21Z",
+      "end": "2026-11-02T07:01:21Z"
+    },
+    "attention": {
+      "available": true,
+      "log_since": "2026-09-14",
+      "appeared": {
+        "shell": 22,
+        "github": 14
+      },
+      "count": {
+        "github_failures": 13
+      },
+      "expired_unseen": {
+        "shell": 23
+      },
+      "github_repos": {
+        "didx-xyz/tofu": 14
+      },
+      "notifications": {
+        "done": 26,
+        "checks running": 14,
+        "ready to merge": 10,
+        "waiting for approval": 8
+      },
+      "transitions": {
+        "shell:done": 26,
+        "shell:failed": 4
+      }
+    },
+    "shell": {
+      "available": true,
+      "window": {
+        "total": 297,
+        "bulk_stamped": 0,
+        "commands": {
+          "cd": 60,
+          "tofu": 45,
+          "omp": 31,
+          "git": 25,
+          "mise": 21,
+          "la": 19,
+          "vim": 18,
+          "k": 14,
+          "aws": 10,
+          "github-mirror-setup.sh": 6,
+          "kubectl": 5,
+          "open": 4,
+          "rm": 4,
+          "az": 3,
+          "curl": 3,
+          "tailscale": 3
+        },
+        "subcommands": {
+          "tofu plan": 19,
+          "tofu apply": 18,
+          "aws sso": 10,
+          "mise run": 10,
+          "git pull": 9,
+          "git status": 8,
+          "tofu init": 7,
+          "k get": 6,
+          "k logs": 6,
+          "mise trust": 6,
+          "git checkout": 4,
+          "mise tasks": 4
+        },
+        "editors": {
+          "vim": 18
+        }
+      },
+      "lifetime": {
+        "note": "whole history file, untimed",
+        "total": 15234,
+        "commands": {
+          "git": 2774,
+          "jj": 1979,
+          "tofu": 1617,
+          "cd": 1130,
+          "mise": 897,
+          "k": 748,
+          "vim": 636,
+          "la": 632,
+          "omp": 630,
+          "kubectl": 547,
+          "aws": 365,
+          "brew": 351,
+          "claude": 273,
+          "docker": 193,
+          "hum": 134,
+          "helmfile": 93,
+          "rm": 76,
+          "curl": 71,
+          "export": 66,
+          "pup": 57,
+          "helm": 56,
+          "ls": 53,
+          "coderabbit": 52,
+          "pnpm": 50,
+          "code": 44
+        },
+        "subcommands": {
+          "tofu plan": 828,
+          "mise run": 596,
+          "git pull": 584,
+          "git status": 566,
+          "git checkout": 437,
+          "jj git": 429,
+          "k get": 408,
+          "tofu apply": 332,
+          "git fetch": 308,
+          "jj st": 302,
+          "jj bookmark": 276,
+          "tofu init": 270,
+          "git push": 257,
+          "kubectl get": 212,
+          "jj new": 160,
+          "git rebase": 157,
+          "k config": 150,
+          "omp update": 141,
+          "mise tasks": 121,
+          "brew upgrade": 111,
+          "git branch": 75,
+          "aws sso": 74,
+          "git diff": 67,
+          "kubectl logs": 67,
+          "tofu state": 65
+        },
+        "editors": {
+          "vim": 636,
+          "code": 44,
+          "nvim": 1,
+          "vi": 1
+        }
+      }
+    }
+  }
+}
