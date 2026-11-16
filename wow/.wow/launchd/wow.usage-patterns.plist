@@ -11,8 +11,6 @@
   </array>
   <key>StartCalendarInterval</key>
   <dict>
-    <key>Day</key>
-    <integer>1</integer>
     <key>Hour</key>
     <integer>9</integer>
     <key>Minute</key>

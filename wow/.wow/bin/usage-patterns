@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 # usage-patterns — headless monthly behaviour patterns from the weekly
-# digests, committed to the release branch. 1st of the month 09:30 +
-# RunAtLoad catch-up; the guard skips when the previous month's file
-# already exists. An explicit YYYY-MM argument bypasses the guard.
+# digests, committed to the release branch. Daily 09:30 + RunAtLoad;
+# reports the oldest finished month that has weekly digests and no
+# patterns file, so a failed run is retried the next day instead of
+# being skipped once the calendar moves on. An explicit YYYY-MM
+# argument bypasses the guard.
 #
-#   usage-patterns           previous calendar month
+#   usage-patterns           oldest finished month without patterns
 #   usage-patterns 2026-09   that month, even if already reported
 set -uo pipefail
 
@@ -22,9 +24,15 @@ wt=$("$HOME/.wow/bin/wow-worktree") || { echo "usage-patterns: no worktree, skip
 if [[ $# -gt 0 ]]; then
   month="$1"
 else
-  month=$(date -v-1m +%Y-%m)
-  if [[ -f "$wt/wow/.omp/audits/patterns/$month.json" ]]; then
-    echo "usage-patterns: patterns for $month exist, skipping"
+  current=$(date +%Y-%m)
+  month=$(ls "$wt/wow/.omp/audits/weekly" 2>/dev/null \
+    | awk -v cur="$current" '/^[0-9-]+\.json$/ && substr($0, 1, 7) < cur { print substr($0, 1, 7) }' \
+    | sort -u \
+    | while read -r m; do
+        [[ -f "$wt/wow/.omp/audits/patterns/$m.json" ]] || { echo "$m"; break; }
+      done)
+  if [[ -z $month ]]; then
+    echo "usage-patterns: every finished month has patterns, skipping"
     exit 0
   fi
 fi
