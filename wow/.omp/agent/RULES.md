@@ -58,6 +58,10 @@ and the PR.
 - Read worker results, not transcripts. Open `agent://<id>` or `history://<id>`
   only when a worker failed, returned `blocked`, missed a criterion, broke
   integration, or review flags its work.
+- After each batch of tickets, update the parent issue with decisions that
+  affect remaining work, unresolved blockers, links to verification evidence,
+  and the next ready ticket. Use the existing tracker. A fresh lead must be
+  able to resume from the parent issue and approved spec without the old chat.
 - Send a fix back to the worker that made the change with `write agent://<id>`
   while its context is still useful.
 - After integration, run the repository's checks once, then spawn `reviewer`

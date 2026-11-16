@@ -11,7 +11,8 @@ description: Fan out parallel workers over independent slices and return one agg
 2. Write the contract once: identical instructions, identical output shape, per-slice inputs.
 3. Spawn one worker per slice. Tell every worker to skip formatters, linters and project-wide test suites.
 4. Drain all workers before drawing any conclusion.
-5. Aggregate into one table, then reproduce the failures in full underneath it.
+5. Aggregate into one table. Summarize each distinct failure in one line and
+   link to the full evidence. Quote only what changes the next action.
 
 ## Rules
 
