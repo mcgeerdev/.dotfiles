@@ -18,6 +18,21 @@ as a markdown link to its URL, in each reply that mentions it, even when an
 earlier reply linked it. A bare `4659` or `SRE-693` sends the User back to
 ask for the link.
 
+## Commands the User runs
+
+When the User has to run a command, give it as one fenced `sh` block they
+can paste into zsh unchanged, before any explanation.
+
+- Complete: no `...` and no `<placeholder>` for a value you know or can
+  look up. If only the User knows it, read it into a variable at the top
+  of the block (`read -r 'NAME?Name: '`).
+- zsh-safe: quote every argument holding `[`, `]`, `*`, `?`, `<`, `>` or
+  `{`. zsh reads them as globs or redirections.
+- Whole: when a command changes or the User asks again, repeat the full
+  block, not a note that only step 2 changed.
+- Commands only, when that is what they asked for: no options or plan in
+  front of them.
+
 ## Comments
 
 If you need a paragraph long comment to justify why a workaround is OK, the code is wrong, fix the code.
