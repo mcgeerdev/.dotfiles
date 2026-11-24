@@ -110,6 +110,9 @@ bashInterceptor:
       flags: m
       message: "`git push --force`/`-f` is blocked — use `--force-with-lease` or ask the User."
     - pattern: \bgit\s+reset\b.*--hard\b
+      tool: bash
+      flags: m
+      message: "`git reset --hard` is blocked by policy — ask the User before discarding work."
     - pattern: "(?:^|[;&|]+\\s*)gh\\s+pr\\s+merge(?:\\s|$)"
       tool: bash
       flags: m
@@ -122,9 +125,6 @@ bashInterceptor:
       tool: bash
       flags: m
       message: "Pushing to the default branch is blocked. Push a feature branch and open a PR."
-      tool: bash
-      flags: m
-      message: "`git reset --hard` is blocked by policy — ask the User before discarding work."
     - pattern: "(?:^|[;&|]+\\s*)gh\\s+(?:run\\s+watch\\b|pr\\s+checks\\b[^;&|\\n]*--watch\\b)|\\bsleep\\s+\\d+\\s*(?:;|&&)\\s*gh\\s+pr\\s+checks\\b"
       tool: github
       flags: m
